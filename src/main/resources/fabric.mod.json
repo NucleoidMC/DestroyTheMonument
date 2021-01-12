@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "destroythemonument",
+  "version": "${version}",
+  "name": "Destroy The Monument",
+  "description": "Destroy The Monument mini-game",
+  "authors": [
+    "Patbox"
+  ],
+  "license": "LGPLv3",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "eu.pb4.destroythemonument.DTM"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.9.1",
+    "fabric": "*",
+    "minecraft": "1.16.4",
+    "plasmid": "0.4.x"
+  }
+}
