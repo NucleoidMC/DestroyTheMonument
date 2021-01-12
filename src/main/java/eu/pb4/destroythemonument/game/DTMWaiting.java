@@ -1,7 +1,6 @@
 package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import net.minecraft.util.ActionResult;
 import xyz.nucleoid.plasmid.game.*;

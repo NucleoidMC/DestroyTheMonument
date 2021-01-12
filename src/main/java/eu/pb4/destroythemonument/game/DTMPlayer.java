@@ -1,8 +1,5 @@
 package eu.pb4.destroythemonument.game;
 
-import io.netty.handler.codec.mqtt.MqttMessageBuilders;
-import net.minecraft.client.RunArgs;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 

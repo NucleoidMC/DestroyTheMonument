@@ -1,6 +1,5 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.game.map.DTMTeamRegions;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.player.GameTeam;

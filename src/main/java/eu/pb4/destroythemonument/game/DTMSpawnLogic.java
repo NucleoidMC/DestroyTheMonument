@@ -1,24 +1,15 @@
 package eu.pb4.destroythemonument.game;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameMode;
-import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.map.DTMMap;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.PlayerRef;
-
-import java.util.Random;
 
 public class DTMSpawnLogic {
     private final GameSpace gameSpace;

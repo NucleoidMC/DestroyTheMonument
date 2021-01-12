@@ -13,7 +13,6 @@ import net.minecraft.item.Items;
 
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -39,7 +38,6 @@ import net.minecraft.world.GameMode;
 import eu.pb4.destroythemonument.game.map.DTMMap;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DTMActive {
