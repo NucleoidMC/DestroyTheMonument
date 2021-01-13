@@ -170,8 +170,6 @@ public class DTMActive {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
             if (this.config.allowJoiningInGame) {
                 GameTeam team = this.teams.getSmallestTeam();
-                System.out.println(team.toString());
-                System.out.println(1);
                 DTMPlayer dtmPlayer = new DTMPlayer(team);
                 this.participants.put(PlayerRef.of(player), dtmPlayer);
                 this.teams.addPlayer(player, team);
@@ -188,9 +186,11 @@ public class DTMActive {
 
     private void removePlayer(ServerPlayerEntity player) {
         DTMPlayer dtmPlayer = this.participants.remove(PlayerRef.of(player));
-        this.teams.removePlayer(player, dtmPlayer.team);
-        if (this.timerBar != null) {
-            this.timerBar.removePlayer(player);
+        if (dtmPlayer != null) {
+            this.teams.removePlayer(player, dtmPlayer.team);
+            if (this.timerBar != null) {
+                this.timerBar.removePlayer(player);
+            }
         }
     }
 
