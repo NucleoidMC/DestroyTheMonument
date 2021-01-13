@@ -1,23 +1,27 @@
 package eu.pb4.destroythemonument.game;
 
 import net.minecraft.entity.boss.BossBar;
-import xyz.nucleoid.plasmid.widget.BossBarWidget;
-import xyz.nucleoid.plasmid.widget.GlobalWidgets;
+import net.minecraft.entity.boss.ServerBossBar;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-public final class DTMTimerBar {
-    private final BossBarWidget widget;
+import java.util.Collection;
 
-    public DTMTimerBar(GlobalWidgets widgets) {
-        LiteralText title = new LiteralText("Waiting for the game to start...");
-        this.widget = widgets.addBossBar(title, BossBar.Color.GREEN, BossBar.Style.NOTCHED_10);
+public final class DTMTimerBar {
+    private final ServerBossBar bar;
+
+    public DTMTimerBar(DTMActive game, Collection<ServerPlayerEntity> players, long ticksUntilEnd) {
+        this.bar = new ServerBossBar(this.getText(ticksUntilEnd), BossBar.Color.YELLOW, BossBar.Style.NOTCHED_10);
+        for (ServerPlayerEntity player : players) {
+            this.bar.addPlayer(player);
+        }
     }
 
     public void update(long ticksUntilEnd, long totalTicksUntilEnd) {
         if (ticksUntilEnd % 20 == 0) {
-            this.widget.setTitle(this.getText(ticksUntilEnd));
-            this.widget.setProgress((float) ticksUntilEnd / totalTicksUntilEnd);
+            this.bar.setName(this.getText(ticksUntilEnd));
+            this.bar.setPercent((float) ticksUntilEnd / totalTicksUntilEnd);
         }
     }
 
@@ -29,5 +33,17 @@ public final class DTMTimerBar {
         String time = String.format("%02d:%02d left", minutes, seconds);
 
         return new LiteralText(time);
+    }
+
+    public void addPlayer(ServerPlayerEntity player) {
+        this.bar.addPlayer(player);
+    }
+
+    public void removePlayer(ServerPlayerEntity player) {
+        this.bar.removePlayer(player);
+    }
+
+    public void remove() {
+        this.bar.clearPlayers();
     }
 }

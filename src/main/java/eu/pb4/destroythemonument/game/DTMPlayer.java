@@ -10,6 +10,8 @@ public class DTMPlayer {
     public int deaths = 0;
     public int kills = 0;
     public int brokenMonuments = 0;
+    public int brokenNonPlankBlocks = 0;
+    public int brokenPlankBlocks = 0;
 
     public int baseItemTimer = 0;
     public int specialItemTimer = 0;

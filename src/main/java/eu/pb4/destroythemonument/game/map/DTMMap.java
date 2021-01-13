@@ -19,6 +19,7 @@ public class DTMMap {
     private final DTMMapConfig config;
     private final Set<BlockBounds> unbreakable;
     public BlockBounds spawn;
+    public BlockBounds mapBounds;
 
     public final Object2ObjectMap<GameTeam, DTMTeamRegions> teamRegions = new Object2ObjectOpenHashMap<>();
 
@@ -27,6 +28,7 @@ public class DTMMap {
         this.config = config;
         this.unbreakable = template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toSet());
         this.spawn = template.getMetadata().getFirstRegionBounds("general_spawn");
+        this.mapBounds = template.getBounds();
     }
 
     public ChunkGenerator asGenerator(MinecraftServer server) {

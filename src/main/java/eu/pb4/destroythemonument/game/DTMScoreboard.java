@@ -30,6 +30,8 @@ public class DTMScoreboard {
 
     public void render() {
         List<GameTeam> teamList = this.game.config.teams;
+        long seconds = (this.ticks / 20) % 60;
+        long minutes = this.ticks / (20 * 60);
 
         this.sidebar.set(content -> {
             content.writeLine("");
@@ -53,6 +55,8 @@ public class DTMScoreboard {
                 }
                 content.writeLine("");
             }
+
+            content.writeLine(String.format("§7• §aTime: §f%02d:%02d", minutes, seconds));
 
         });
     }

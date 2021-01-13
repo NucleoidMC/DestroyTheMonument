@@ -7,16 +7,20 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.event.*;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
@@ -37,8 +41,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
 import eu.pb4.destroythemonument.game.map.DTMMap;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+
 
 public class DTMActive {
     public final DTMConfig config;
@@ -51,6 +55,9 @@ public class DTMActive {
     private final DTMStageManager stageManager;
     public final DTMTeams teams;
     private final DTMScoreboard scoreboard;
+    private DTMTimerBar timerBar = null;
+
+    public long tickTime = 0;
 
     private DTMActive(GameSpace gameSpace, DTMMap map, GlobalWidgets widgets, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
         this.gameSpace = gameSpace;
@@ -58,8 +65,8 @@ public class DTMActive {
         this.gameMap = map;
         this.participants = new Object2ObjectOpenHashMap<>();
         this.spawnLogic = new DTMSpawnLogic(gameSpace, map, participants);
-
         this.teams = gameSpace.addResource(new DTMTeams(gameSpace, map, config));
+
 
         this.scoreboard = new DTMScoreboard(widgets, "Destroy The Monument", this);
 
@@ -71,13 +78,21 @@ public class DTMActive {
         }
 
         this.stageManager = new DTMStageManager();
+
+
+        MutableText text = new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY);
+        MutableText text2 = new LiteralText("§6§l           Destroy The Monument").formatted(Formatting.GOLD);
+        MutableText text3 = new LiteralText(" Destroy enemy's monuments, while protecting\n your own!\n You can select your class by clicking paper.").formatted(Formatting.WHITE);
+
+        this.gameSpace.getPlayers().sendMessage(text);
+        this.gameSpace.getPlayers().sendMessage(text2);
+        this.gameSpace.getPlayers().sendMessage(text3);
+        this.gameSpace.getPlayers().sendMessage(text);
+
     }
 
     public static void open(GameSpace gameSpace, DTMMap map, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
         gameSpace.openGame(game -> {
-            Set<PlayerRef> participants = gameSpace.getPlayers().stream()
-                    .map(PlayerRef::of)
-                    .collect(Collectors.toSet());
             GlobalWidgets widgets = new GlobalWidgets(game);
             DTMActive active = new DTMActive(gameSpace, map, widgets, config, players);
 
@@ -107,8 +122,15 @@ public class DTMActive {
             game.on(PlayerDamageListener.EVENT, active::onPlayerDamage);
             game.on(PlayerDeathListener.EVENT, active::onPlayerDeath);
             game.on(ExplosionListener.EVENT, active::onExplosion);
+            game.on(PlayerFireArrowListener.EVENT, active::onArrowShoot);
+
 
         });
+    }
+
+    private ActionResult onArrowShoot(ServerPlayerEntity player, ItemStack itemStack, ArrowItem arrowItem, int i, PersistentProjectileEntity projectile) {
+        projectile.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
+        return ActionResult.PASS;
     }
 
     private void onExplosion(List<BlockPos> blockPosList) {
@@ -139,16 +161,37 @@ public class DTMActive {
 
     private void onClose() {
         this.teams.close();
+        if (this.timerBar != null) {
+            this.timerBar.remove();
+        }
     }
 
     private void addPlayer(ServerPlayerEntity player) {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
-            this.spawnSpectator(player);
+            if (this.config.allowJoiningInGame) {
+                GameTeam team = this.teams.getSmallestTeam();
+                System.out.println(team.toString());
+                System.out.println(1);
+                DTMPlayer dtmPlayer = new DTMPlayer(team);
+                this.participants.put(PlayerRef.of(player), dtmPlayer);
+                this.teams.addPlayer(player, team);
+
+                this.spawnParticipant(player);
+            } else {
+                this.spawnSpectator(player);
+            }
+        }
+        if (this.timerBar != null) {
+            this.timerBar.addPlayer(player);
         }
     }
 
     private void removePlayer(ServerPlayerEntity player) {
-        this.participants.remove(PlayerRef.of(player));
+        DTMPlayer dtmPlayer = this.participants.remove(PlayerRef.of(player));
+        this.teams.removePlayer(player, dtmPlayer.team);
+        if (this.timerBar != null) {
+            this.timerBar.removePlayer(player);
+        }
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
@@ -167,7 +210,7 @@ public class DTMActive {
 
         Text deathMes = source.getDeathMessage(player);
 
-        Text text = new LiteralText("☠ ").formatted(Formatting.GRAY).append(deathMes.shallowCopy().formatted(Formatting.WHITE));
+        Text text = new LiteralText("☠ ").formatted(Formatting.DARK_GRAY).append(deathMes.shallowCopy().formatted(Formatting.GRAY));
         this.gameSpace.getPlayers().sendMessage(text);
 
         if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
@@ -184,10 +227,14 @@ public class DTMActive {
 
     private void spawnParticipant(ServerPlayerEntity player) {
         DTMPlayer dtmPlayer = this.participants.get(PlayerRef.of(player));
-        this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
-        dtmPlayer.activeKit = dtmPlayer.selectedKit;
+        if (this.gameMap.teamRegions.get(dtmPlayer.team).getMonumentCount() > 0) {
+            this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
+            dtmPlayer.activeKit = dtmPlayer.selectedKit;
 
-        this.setInventory(player, dtmPlayer);
+            this.setInventory(player, dtmPlayer);
+        } else {
+            this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
+        }
         this.spawnLogic.spawnPlayer(player);
     }
 
@@ -257,15 +304,39 @@ public class DTMActive {
 
                     this.gameSpace.getPlayers().sendMessage(text);
 
+                    this.maybeEliminate(team, regions);
+
                     return ActionResult.SUCCESS;
                 }
             }
         }
+
         if (player.world.getBlockState(blockPos).getBlock() == Blocks.OAK_PLANKS) {
+            player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
+            dtmPlayer.brokenPlankBlocks += 1;
+            return ActionResult.SUCCESS;
+        }
+
+        dtmPlayer.brokenNonPlankBlocks += 1;
+
+        if (dtmPlayer.activeKit == DTMKits.Kit.CONSTRUCTOR && dtmPlayer.brokenNonPlankBlocks % 2 == 0) {
+            player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
+        } else if (dtmPlayer.activeKit != DTMKits.Kit.CONSTRUCTOR && dtmPlayer.brokenNonPlankBlocks % 5 == 0) {
             player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
         }
 
         return ActionResult.PASS;
+    }
+
+    private void maybeEliminate(GameTeam team, DTMTeamRegions regions) {
+        if (regions.getMonumentCount() <= 0) {
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers() ) {
+                DTMPlayer dtmPlayer = this.participants.get(PlayerRef.of(player));
+                if (dtmPlayer != null && dtmPlayer.team == team) {
+                    player.setGameMode(GameMode.SPECTATOR);
+                }
+            }
+        }
     }
 
     private void tick() {
@@ -283,9 +354,12 @@ public class DTMActive {
                 return;
             case GAME_FINISHED:
                 this.broadcastWin(this.checkWinResult());
+                if (this.timerBar != null) {
+                    this.timerBar.remove();
+                }
                 return;
             case GAME_CLOSED:
-                this.gameSpace.close();
+                this.gameSpace.close(GameCloseReason.FINISHED);
                 return;
         }
 
@@ -307,17 +381,38 @@ public class DTMActive {
                dtmPlayer.tickTimers();
                DTMKits.tryToRestockPlayer(player, dtmPlayer);
            }
+
+           if (!this.gameMap.mapBounds.contains(player.getBlockPos())) {
+               player.kill();
+           }
         }
 
+        this.tickTime += 1;
+
+        if (this.config.gameTime > 0) {
+            long timeLeft = this.config.gameTime - this.tickTime;
+
+            if (timeLeft <= 0) {
+                if (this.timerBar != null) {
+                    this.timerBar.remove();
+                }
+                this.timerBar = null;
+                this.stageManager.isFinished = true;
+            }
+            else if (timeLeft <= 6000) {
+                if (this.timerBar == null) {
+                    this.timerBar = new DTMTimerBar(this, this.gameSpace.getWorld().getPlayers(), timeLeft);
+                }
+                this.timerBar.update(timeLeft, this.config.gameTime);
+            }
+        }
     }
 
     private void broadcastWin(WinResult result) {
-        GameTeam winningTeam = result.getWinningTeam();
-
         Text message;
-        if (winningTeam != null) {
+        if (result.isWin()) {
             message = new LiteralText("» ").formatted(Formatting.GRAY)
-                    .append(new LiteralText(winningTeam.getDisplay() + " Team").formatted(winningTeam.getFormatting()))
+                    .append(new LiteralText(result.getWinningTeam().getDisplay() + " Team").formatted(result.getWinningTeam().getFormatting()))
                     .append(new LiteralText(" has won the game!").formatted(Formatting.GOLD));
 
         } else {
@@ -331,14 +426,28 @@ public class DTMActive {
     }
 
     private WinResult checkWinResult() {
+        GameTeam winners = null;
+        int monumentsWinner = 0;
 
         for (GameTeam team : this.config.teams) {
-            if (this.gameMap.teamRegions.get(team).getMonumentCount() <= 0) {
-                return WinResult.win(team);
+            int monuments = this.gameMap.teamRegions.get(team).getMonumentCount();
+
+            if (monuments > 0) {
+                if (winners != null) {
+                    if (monuments > monumentsWinner) {
+                        winners = team;
+                        monumentsWinner = monuments;
+                    } else if (monuments == monumentsWinner) {
+                        return WinResult.no();
+                    }
+                } else {
+                    winners = team;
+                    monumentsWinner = monuments;
+                }
             }
         }
 
-        return WinResult.no();
+        return (winners != null) ? WinResult.win(winners) : WinResult.no();
     }
 
     static class WinResult {
