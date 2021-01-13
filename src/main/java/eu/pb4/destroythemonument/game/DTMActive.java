@@ -366,7 +366,14 @@ public class DTMActive {
         int aliveTeams = 0;
 
         for (GameTeam team : this.config.teams) {
-            if (this.gameMap.teamRegions.get(team).getMonumentCount() > 0) {
+            int players = 0;
+
+            for (DTMPlayer dtmPlayer : this.participants.values()) {
+                if (dtmPlayer.team == team) {
+                    players += 1;
+                }
+            }
+            if (this.gameMap.teamRegions.get(team).getMonumentCount() > 0 && players > 0) {
                 aliveTeams += 1;
             }
         }
@@ -431,8 +438,15 @@ public class DTMActive {
 
         for (GameTeam team : this.config.teams) {
             int monuments = this.gameMap.teamRegions.get(team).getMonumentCount();
+            int players = 0;
 
-            if (monuments > 0) {
+            for (DTMPlayer dtmPlayer : this.participants.values()) {
+                if (dtmPlayer.team == team) {
+                    players += 1;
+                }
+            }
+
+            if (monuments > 0 && players > 0) {
                 if (winners != null) {
                     if (monuments > monumentsWinner) {
                         winners = team;
