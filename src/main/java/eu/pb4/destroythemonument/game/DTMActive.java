@@ -257,7 +257,7 @@ public class DTMActive {
     }
 
     private ActionResult onPlayerPlaceBlock(ServerPlayerEntity player, BlockPos blockPos, BlockState blockState, ItemUsageContext itemUsageContext) {
-        if (this.gameMap.isUnbreakable(blockPos) || itemUsageContext.getStack().getItem() == Items.BEACON) {
+        if (this.gameMap.isUnbreakable(blockPos) || !this.gameMap.mapBounds.contains(blockPos) || itemUsageContext.getStack().getItem() == Items.BEACON) {
             // Fixes desync
             int slot;
             if (itemUsageContext.getHand() == Hand.MAIN_HAND) {
@@ -382,7 +382,7 @@ public class DTMActive {
                DTMKits.tryToRestockPlayer(player, dtmPlayer);
            }
 
-           if (!this.gameMap.mapBounds.contains(player.getBlockPos())) {
+           if (!this.gameMap.mapDeathBounds.contains(player.getBlockPos())) {
                player.kill();
            }
         }
