@@ -14,8 +14,7 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
+import net.minecraft.text.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -35,8 +34,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
 import eu.pb4.destroythemonument.game.map.DTMMap;
@@ -82,7 +79,7 @@ public class DTMActive {
 
         MutableText text = new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY);
         MutableText text2 = new LiteralText("§6§l           Destroy The Monument").formatted(Formatting.GOLD);
-        MutableText text3 = new LiteralText(" Destroy enemy's monuments, while protecting\n your own!\n You can select your class by clicking paper.").formatted(Formatting.WHITE);
+        MutableText text3 = new TranslatableText("destroythemonument.text.about").formatted(Formatting.WHITE);
 
         this.gameSpace.getPlayers().sendMessage(text);
         this.gameSpace.getPlayers().sendMessage(text2);
@@ -246,7 +243,7 @@ public class DTMActive {
         dtmPlayer.resetTimers();
 
         player.inventory.setStack(8, ItemStackBuilder.of(Items.PAPER)
-                .setName(new LiteralText("Change class")
+                .setName(new TranslatableText("destroythemonument.item.changeclass")
                         .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GOLD))).build());
     }
 
@@ -285,7 +282,7 @@ public class DTMActive {
         }
 
         if (this.gameMap.teamRegions.get(dtmPlayer.team).isMonument(blockPos)) {
-            player.sendMessage(new LiteralText("You can't break your own monument!").formatted(Formatting.RED), true);
+            player.sendMessage(new TranslatableText("destroythemonument.text.cantbreakown").formatted(Formatting.RED), true);
             return ActionResult.FAIL;
         } else {
             for (GameTeam team : this.config.teams) {
@@ -296,16 +293,12 @@ public class DTMActive {
 
                     Text text = new LiteralText("⛏ ")
                             .formatted(Formatting.GRAY)
-                            .append(player.getDisplayName())
-                            .append(new LiteralText(" broke ").formatted(Formatting.WHITE)
-                                    .append(new LiteralText(team.getDisplay() + " Team")
-                                            .formatted(team.getFormatting())))
-                            .append(new LiteralText("'s Monument!").formatted(Formatting.WHITE));
+                            .append(new TranslatableText("destroythemonument.text.monumentbroken",
+                                    player.getDisplayName(),
+                                    new TranslatableText("destroythemonument.text.team", team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.WHITE));
 
                     this.gameSpace.getPlayers().sendMessage(text);
-
                     this.maybeEliminate(team, regions);
-
                     return ActionResult.SUCCESS;
                 }
             }
@@ -419,12 +412,15 @@ public class DTMActive {
         Text message;
         if (result.isWin()) {
             message = new LiteralText("» ").formatted(Formatting.GRAY)
-                    .append(new LiteralText(result.getWinningTeam().getDisplay() + " Team").formatted(result.getWinningTeam().getFormatting()))
-                    .append(new LiteralText(" has won the game!").formatted(Formatting.GOLD));
+                    .append(new TranslatableText("destroythemonument.text.gamewin",
+                            new TranslatableText("destroythemonument.text.team",
+                                    result.getWinningTeam().getDisplay())
+                                    .formatted(result.getWinningTeam().getFormatting())
+                                    ).formatted(Formatting.GOLD));
 
         } else {
             message = new LiteralText("» ").formatted(Formatting.GRAY)
-                    .append(new LiteralText("The game ended, but nobody won!").formatted(Formatting.GOLD));
+                    .append(new TranslatableText("destroythemonument.text.gamenowin").formatted(Formatting.GOLD));
         }
 
         PlayerSet players = this.gameSpace.getPlayers();

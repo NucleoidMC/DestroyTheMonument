@@ -15,10 +15,10 @@ import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public class DTMKits {
     public enum Kit {
-        WARRIOR("Warrior", 24, 80, 5, Items.COOKED_COD, 800),
-        ARCHER("Archer", 16, 80, 5, Items.COOKED_CHICKEN, 800),
-        CONSTRUCTOR("Constructor", 64, 50, 5, Items.COOKED_BEEF, 800),
-        TANK("Tank", 16, 80, 5, Items.COOKED_BEEF, 800);
+        WARRIOR("warrior", 24, 80, 5, Items.COOKED_COD, 800),
+        ARCHER("archer", 16, 80, 5, Items.COOKED_CHICKEN, 800),
+        CONSTRUCTOR("constructor", 64, 50, 5, Items.COOKED_BEEF, 800),
+        TANK("tank", 16, 80, 5, Items.COOKED_BEEF, 800);
 
         public final String name;
         public final int plankNumber;

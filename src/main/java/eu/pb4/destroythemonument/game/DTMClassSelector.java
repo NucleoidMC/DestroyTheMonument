@@ -6,31 +6,31 @@ import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
 public class DTMClassSelector {
     public static void openSelector(ServerPlayerEntity player, DTMPlayer dtmPlayer, DTMActive game) {
-        ClassSelectorUI selector = ClassSelectorUI.create(new LiteralText("Select Class"), ui -> {
+        ClassSelectorUI selector = ClassSelectorUI.create(new TranslatableText("destroythemonument.text.selectclass"), ui -> {
             ui.add(ClassSelectorEntry.ofIcon(Items.DIAMOND_SWORD)
-                    .withName(new LiteralText("Warrior"))
+                    .withName(new TranslatableText("destroythemonument.class.warrior"))
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.WARRIOR);
                     }));
 
             ui.add(ClassSelectorEntry.ofIcon(Items.BOW)
-                    .withName(new LiteralText("Archer"))
+                    .withName(new TranslatableText("destroythemonument.class.archer"))
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.ARCHER);
                     }));
             ui.add(ClassSelectorEntry.ofIcon(Items.DIAMOND_CHESTPLATE)
-                    .withName(new LiteralText("Tank"))
+                    .withName(new TranslatableText("destroythemonument.class.tank"))
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.TANK);
                     }));
             ui.add(ClassSelectorEntry.ofIcon(Items.IRON_AXE)
-                    .withName(new LiteralText("Constructor"))
+                    .withName(new TranslatableText("destroythemonument.class.constructor"))
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.CONSTRUCTOR);
                     }));
@@ -45,9 +45,9 @@ public class DTMClassSelector {
         BlockBounds classChange = game.gameMap.teamRegions.get(dtmPlayer.team).classChange;
 
         MutableText text = new LiteralText("» ").formatted(Formatting.GRAY)
-                .append(new LiteralText("You have selected ").formatted(Formatting.WHITE))
-                .append(new LiteralText(kit.name).formatted(Formatting.GOLD))
-                .append(new LiteralText(" class.").formatted(Formatting.WHITE));
+                .append(new TranslatableText("destroythemonument.text.selectedclass",
+                        new TranslatableText("destroythemonument.class." + kit.name).formatted(Formatting.GOLD)
+                ).formatted(Formatting.WHITE));
 
 
         if (classChange.contains(player.getBlockPos())) {
@@ -55,7 +55,7 @@ public class DTMClassSelector {
             dtmPlayer.resetTimers();
             game.setInventory(player, dtmPlayer);
         } else {
-            text.append(new LiteralText(" You will change to it after you respawn.").formatted(Formatting.WHITE));
+            text.append(new TranslatableText("destroythemonument.text.classrespawn").formatted(Formatting.WHITE));
         }
 
         player.sendMessage(text, false);
