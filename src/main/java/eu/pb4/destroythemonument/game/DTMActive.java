@@ -153,7 +153,7 @@ public class DTMActive {
         for (PlayerRef ref : this.participants.keySet()) {
             ref.ifOnline(world, this::spawnParticipant);
         }
-        this.stageManager.onOpen(world.getTime(), this.config);
+        this.stageManager.onOpen();
     }
 
     private void onClose() {
@@ -211,7 +211,10 @@ public class DTMActive {
         this.gameSpace.getPlayers().sendMessage(text);
 
         if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
-            this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker)).kills += 1;
+            DTMPlayer attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
+            attacker.kills += 1;
+            attacker.addToTimers(40);
+
         }
 
         dtmPlayer.lastAttackTime = 0;
@@ -299,6 +302,7 @@ public class DTMActive {
 
                     this.gameSpace.getPlayers().sendMessage(text);
                     this.maybeEliminate(team, regions);
+                    dtmPlayer.brokenMonuments += 1;
                     return ActionResult.SUCCESS;
                 }
             }
@@ -378,7 +382,7 @@ public class DTMActive {
         for (ServerPlayerEntity player : this.gameSpace.getPlayers() ) {
            DTMPlayer dtmPlayer = this.participants.get(PlayerRef.of(player));
            if (dtmPlayer != null) {
-               dtmPlayer.tickTimers();
+               dtmPlayer.addToTimers(1);
                DTMKits.tryToRestockPlayer(player, dtmPlayer);
            }
 
@@ -401,7 +405,7 @@ public class DTMActive {
             }
             else if (timeLeft <= 6000) {
                 if (this.timerBar == null) {
-                    this.timerBar = new DTMTimerBar(this, this.gameSpace.getWorld().getPlayers(), timeLeft);
+                    this.timerBar = new DTMTimerBar(this.gameSpace.getWorld().getPlayers(), timeLeft);
                 }
                 this.timerBar.update(timeLeft, this.config.gameTime);
             }

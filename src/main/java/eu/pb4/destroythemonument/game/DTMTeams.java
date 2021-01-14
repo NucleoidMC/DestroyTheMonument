@@ -15,7 +15,6 @@ import xyz.nucleoid.plasmid.game.player.GameTeam;
 
 public class DTMTeams implements AutoCloseable {
     private final DTMMap map;
-    private final GameSpace gameSpace;
 
     public Object2ObjectMap<GameTeam, Team> scoreboardTeams = new Object2ObjectOpenHashMap<>();
     public Object2ObjectMap<String, GameTeam> teams = new Object2ObjectOpenHashMap<>();
@@ -26,7 +25,6 @@ public class DTMTeams implements AutoCloseable {
     public DTMTeams(GameSpace gameSpace, DTMMap map, DTMConfig config) {
         this.scoreboard = gameSpace.getServer().getScoreboard();
         this.map = map;
-        this.gameSpace = gameSpace;
 
         for (GameTeam team : config.teams) {
             this.scoreboardTeams.put(team, this.createTeam(team));

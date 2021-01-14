@@ -4,11 +4,9 @@ import xyz.nucleoid.plasmid.game.GameSpace;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
 
-import java.util.Set;
 
 public class DTMStageManager {
     private long closeTime = -1;
-    private long startTime = -1;
     private boolean setSpectator = false;
     public boolean isFinished = false;
 
@@ -17,7 +15,7 @@ public class DTMStageManager {
 
     }
 
-    public void onOpen(long time, DTMConfig config) {
+    public void onOpen() {
 
     }
 

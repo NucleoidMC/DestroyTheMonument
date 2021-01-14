@@ -38,16 +38,16 @@ public class DTMSpawnLogic {
             if (player != null && player.team != null) {
                 BlockBounds spawn = this.map.teamRegions.get(player.team).getSpawn();
 
-                Double x = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getX(), spawn.getMax().getX());
-                Double z = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getZ(), spawn.getMax().getZ());
+                double x = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getX(), spawn.getMax().getX());
+                double z = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getZ(), spawn.getMax().getZ());
 
                 entity.teleport(world, x, spawn.getMin().getY(), z, entity.yaw, entity.pitch);
                 return;
             }
         }
 
-        Double x = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getX(), this.map.spawn.getMax().getX());
-        Double z = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getZ(), this.map.spawn.getMax().getZ());
+        double x = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getX(), this.map.spawn.getMax().getX());
+        double z = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getZ(), this.map.spawn.getMax().getZ());
 
         entity.teleport(world, x, this.map.spawn.getMin().getY(), z, entity.yaw, entity.pitch);
     }

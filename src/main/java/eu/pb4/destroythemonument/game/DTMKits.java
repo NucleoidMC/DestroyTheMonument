@@ -27,7 +27,7 @@ public class DTMKits {
         public final Item foodItem;
         public final int foodRestock;
 
-        private Kit(String name, int plankNumber, int planksRestock, int foodNumber, Item foodItem, int foodRestock) {
+        Kit(String name, int plankNumber, int planksRestock, int foodNumber, Item foodItem, int foodRestock) {
             this.name = name;
             this.plankNumber = plankNumber;
             this.planksRestock = planksRestock;
@@ -71,26 +71,19 @@ public class DTMKits {
         }
 
         if (player.inventory.count(dtmPlayer.activeKit.foodItem) >= dtmPlayer.activeKit.foodNumber) {
-            dtmPlayer.baseItemTimer = 0;
-        } else if (dtmPlayer.baseItemTimer >= dtmPlayer.activeKit.foodRestock) {
-            dtmPlayer.baseItemTimer -= dtmPlayer.activeKit.foodRestock;
+            dtmPlayer.foodItemTimer = 0;
+        } else if (dtmPlayer.foodItemTimer >= dtmPlayer.activeKit.foodRestock) {
+            dtmPlayer.foodItemTimer -= dtmPlayer.activeKit.foodRestock;
             player.inventory.insertStack(new ItemStack(dtmPlayer.activeKit.foodItem));
         }
 
 
         switch (dtmPlayer.activeKit) {
             case ARCHER:
-                if (player.inventory.count(Items.COOKED_CHICKEN) >= 5) {
-                    dtmPlayer.baseItemTimer = 0;
-                } else if (dtmPlayer.baseItemTimer >= 800) {
-                    dtmPlayer.baseItemTimer -= 800;
-                    player.inventory.insertStack(new ItemStack(Items.COOKED_CHICKEN));
-                }
-
                 if (player.inventory.count(Items.ARROW) >= 8) {
                     dtmPlayer.specialItemTimer = 0;
                 } else if (dtmPlayer.specialItemTimer >= 200) {
-                    dtmPlayer.baseItemTimer -= 200;
+                    dtmPlayer.specialItemTimer -= 200;
                     player.inventory.insertStack(new ItemStack(Items.ARROW));
                 }
                 break;
@@ -99,7 +92,7 @@ public class DTMKits {
                 if (player.inventory.count(Items.TNT) >= 1) {
                     dtmPlayer.specialItemTimer = 0;
                 } else if (dtmPlayer.specialItemTimer >= 1000) {
-                    dtmPlayer.baseItemTimer -= 1000;
+                    dtmPlayer.specialItemTimer -= 1000;
                     player.inventory.insertStack(new ItemStack(Items.TNT));
                 }
                 break;

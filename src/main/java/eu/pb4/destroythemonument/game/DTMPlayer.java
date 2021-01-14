@@ -13,7 +13,7 @@ public class DTMPlayer {
     public int brokenNonPlankBlocks = 0;
     public int brokenPlankBlocks = 0;
 
-    public int baseItemTimer = 0;
+    public int foodItemTimer = 0;
     public int specialItemTimer = 0;
     public int specialPowerTimer = 0;
     public int buildBlockTimer = 0;
@@ -27,16 +27,16 @@ public class DTMPlayer {
     }
 
     public void resetTimers() {
-        this.baseItemTimer = 0;
+        this.foodItemTimer = 0;
         this.specialItemTimer = 0;
         this.specialPowerTimer = 0;
         this.buildBlockTimer = 0;
     }
 
-    public void tickTimers() {
-        this.baseItemTimer += 1;
-        this.specialItemTimer += 1;
-        this.specialPowerTimer += 1;
-        this.buildBlockTimer += 1;
+    public void addToTimers(int x) {
+        this.foodItemTimer += x;
+        this.specialItemTimer += x;
+        this.specialPowerTimer += x;
+        this.buildBlockTimer += x;
     }
 }

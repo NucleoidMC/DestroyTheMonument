@@ -11,7 +11,7 @@ import java.util.Collection;
 public final class DTMTimerBar {
     private final ServerBossBar bar;
 
-    public DTMTimerBar(DTMActive game, Collection<ServerPlayerEntity> players, long ticksUntilEnd) {
+    public DTMTimerBar(Collection<ServerPlayerEntity> players, long ticksUntilEnd) {
         this.bar = new ServerBossBar(this.getText(ticksUntilEnd), BossBar.Color.YELLOW, BossBar.Style.NOTCHED_10);
         for (ServerPlayerEntity player : players) {
             this.bar.addPlayer(player);
