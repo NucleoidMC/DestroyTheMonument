@@ -1,12 +1,8 @@
 Regions
 
-red_spawn
-red_monument
-red_class_change
-
-blue_spawn
-blue_monument
-blue_class_change
+[team]_spawn
+[team]_monument
+[team]_class_change
 
 unbreakable
 general_spawn

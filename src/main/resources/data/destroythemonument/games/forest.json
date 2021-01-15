@@ -1,0 +1,21 @@
+{
+  "type": "destroythemonument:destroythemonument",
+  "name": "Destroy The Monument: Forest (4 Teams)",
+  "map": {
+    "id": "destroythemonument:forest",
+    "time": 0
+  },
+  "players": {
+    "min": 4,
+    "threshold": 12,
+    "max": 48
+  },
+  "allowJoiningInGame": true,
+  "gameTime": 24000,
+  "teams": [
+    {"key": "oak", "display": "Oak", "color": "blue"},
+    {"key": "acacia", "display": "Acacia", "color": "red"},
+    {"key": "jungle", "display": "Jungle", "color": "green"},
+    {"key": "birch", "display": "Birch", "color": "yellow"}
+  ]
+}
