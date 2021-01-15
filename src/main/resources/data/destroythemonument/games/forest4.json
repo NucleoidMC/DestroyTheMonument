@@ -2,7 +2,7 @@
   "type": "destroythemonument:destroythemonument",
   "name": "Destroy The Monument: Forest (4 Teams)",
   "map": {
-    "id": "destroythemonument:forest",
+    "id": "destroythemonument:forest4",
     "time": 0
   },
   "players": {
