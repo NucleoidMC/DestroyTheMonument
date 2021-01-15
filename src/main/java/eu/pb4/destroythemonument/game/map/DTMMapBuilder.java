@@ -1,12 +1,9 @@
 package eu.pb4.destroythemonument.game.map;
 
-import eu.pb4.destroythemonument.game.map.DTMMapConfig;
-
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.plasmid.game.GameOpenException;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.map.template.MapTemplateMetadata;
 import xyz.nucleoid.plasmid.map.template.MapTemplateSerializer;
 
 import java.io.IOException;

@@ -3,10 +3,6 @@ package eu.pb4.destroythemonument.game.map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
 
 public class DTMMapConfig {
     public static final Codec<DTMMapConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
