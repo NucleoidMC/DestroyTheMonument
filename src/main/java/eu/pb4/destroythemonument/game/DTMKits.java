@@ -129,7 +129,7 @@ public class DTMKits {
         player.inventory.insertStack(ItemStackBuilder.of(Items.WOODEN_SWORD).setUnbreakable().build());
         player.inventory.insertStack(ItemStackBuilder.of(Items.TNT).build());
         player.inventory.insertStack(ItemStackBuilder.of(Items.DIAMOND_PICKAXE).setUnbreakable().build());
-        player.inventory.insertStack(ItemStackBuilder.of(Items.IRON_AXE).addEnchantment(Enchantments.EFFICIENCY, 2).setUnbreakable().build());
+        player.inventory.insertStack(ItemStackBuilder.of(Items.WOODEN_AXE).addEnchantment(Enchantments.EFFICIENCY, 4).setUnbreakable().build());
 
 
         player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(Items.GOLDEN_HELMET).setUnbreakable().build());

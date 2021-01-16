@@ -38,7 +38,7 @@ public class DTMTeams implements AutoCloseable {
         int count = 9999;
 
         for (GameTeam team : this.teams.values()) {
-            if (this.scoreboardTeams.get(team).getPlayerList().size() <= count) {
+            if (this.scoreboardTeams.get(team).getPlayerList().size() <= count && this.map.teamRegions.get(team).getMonumentCount() > 0) {
                 smallest = team;
                 count = this.scoreboardTeams.get(team).getPlayerList().size();
             }

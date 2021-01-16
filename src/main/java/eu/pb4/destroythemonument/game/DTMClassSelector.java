@@ -29,7 +29,7 @@ public class DTMClassSelector {
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.TANK);
                     }));
-            ui.add(ClassSelectorEntry.ofIcon(Items.IRON_AXE)
+            ui.add(ClassSelectorEntry.ofIcon(Items.OAK_PLANKS)
                     .withName(new TranslatableText("destroythemonument.class.constructor"))
                     .onUse(p -> {
                         changeKit(game, player, dtmPlayer, DTMKits.Kit.CONSTRUCTOR);

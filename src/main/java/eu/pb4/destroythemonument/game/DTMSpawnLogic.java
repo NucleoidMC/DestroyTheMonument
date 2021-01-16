@@ -26,6 +26,7 @@ public class DTMSpawnLogic {
         player.setGameMode(gameMode);
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;
+        player.setHealth(20);
         player.getHungerManager().setFoodLevel(20);
         player.clearStatusEffects();
     }
