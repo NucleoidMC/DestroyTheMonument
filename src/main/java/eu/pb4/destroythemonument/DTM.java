@@ -1,5 +1,6 @@
 package eu.pb4.destroythemonument;
 
+import eu.pb4.destroythemonument.kit.KitsRegistry;
 import net.fabricmc.api.ModInitializer;
 import xyz.nucleoid.plasmid.game.GameType;
 import net.minecraft.util.Identifier;
@@ -20,5 +21,7 @@ public class DTM implements ModInitializer {
     );
 
     @Override
-    public void onInitialize() {}
+    public void onInitialize() {
+        KitsRegistry.register();
+    }
 }

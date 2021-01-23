@@ -2,44 +2,37 @@ package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.game.ui.ClassSelectorEntry;
 import eu.pb4.destroythemonument.game.ui.ClassSelectorUI;
+import eu.pb4.destroythemonument.kit.Kit;
+import eu.pb4.destroythemonument.kit.KitsRegistry;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
 public class DTMClassSelector {
     public static void openSelector(ServerPlayerEntity player, DTMPlayer dtmPlayer, DTMActive game) {
         ClassSelectorUI selector = ClassSelectorUI.create(new TranslatableText("destroythemonument.text.selectclass"), ui -> {
-            ui.add(ClassSelectorEntry.ofIcon(Items.DIAMOND_SWORD)
-                    .withName(new TranslatableText("destroythemonument.class.warrior"))
-                    .onUse(p -> {
-                        changeKit(game, player, dtmPlayer, DTMKits.Kit.WARRIOR);
-                    }));
+            for (Identifier id : game.config.kits) {
+                Kit kit = KitsRegistry.get(id);
 
-            ui.add(ClassSelectorEntry.ofIcon(Items.BOW)
-                    .withName(new TranslatableText("destroythemonument.class.archer"))
-                    .onUse(p -> {
-                        changeKit(game, player, dtmPlayer, DTMKits.Kit.ARCHER);
-                    }));
-            ui.add(ClassSelectorEntry.ofIcon(Items.DIAMOND_CHESTPLATE)
-                    .withName(new TranslatableText("destroythemonument.class.tank"))
-                    .onUse(p -> {
-                        changeKit(game, player, dtmPlayer, DTMKits.Kit.TANK);
-                    }));
-            ui.add(ClassSelectorEntry.ofIcon(Items.OAK_PLANKS)
-                    .withName(new TranslatableText("destroythemonument.class.constructor"))
-                    .onUse(p -> {
-                        changeKit(game, player, dtmPlayer, DTMKits.Kit.CONSTRUCTOR);
-                    }));
+                if (kit != null) {
+                    ui.add(ClassSelectorEntry.ofIcon(kit.icon)
+                            .withName(new TranslatableText("destroythemonument.class." + kit.name))
+                            .onUse(p -> {
+                                changeKit(game, player, dtmPlayer, kit);
+                            }));
+                }
+            }
         });
 
         player.openHandledScreen(selector);
     }
 
-    public static void changeKit(DTMActive game, ServerPlayerEntity player, DTMPlayer dtmPlayer, DTMKits.Kit kit) {
+    public static void changeKit(DTMActive game, ServerPlayerEntity player, DTMPlayer dtmPlayer, Kit kit) {
         dtmPlayer.selectedKit = kit;
 
         BlockBounds classChange = game.gameMap.teamRegions.get(dtmPlayer.team).classChange;

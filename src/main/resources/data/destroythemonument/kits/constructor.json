@@ -1,0 +1,58 @@
+{
+  "kit_name": "constructor",
+  "icon": {
+    "id": "oak_planks",
+    "Count": 1
+  },
+  "number_of_planks": 64,
+  "planks_restock_time": 40,
+  "blocks_to_planks": 2,
+  "food_item": {
+    "id": "cooked_beef",
+    "Count": 5
+  },
+  "food_restock_time": 800,
+  "armor": [
+    {
+      "id": "leather_helmet",
+      "Count": 1
+    },
+    {
+      "id": "chainmail_chestplate",
+      "Count": 1
+    },
+    {
+      "id": "leather_leggings",
+      "Count": 1
+    },
+    {
+      "id": "golden_boots",
+      "Count": 1
+    }
+  ],
+  "items": [
+    {
+      "id": "wooden_sword",
+      "Count": 1
+    },
+    {
+      "id": "diamond_pickaxe",
+      "Count": 1
+    },
+    {
+      "id": "wooden_axe",
+      "Count": 1,
+      "tag": {
+        "Enchantments": [{
+          "id": "efficiency",
+          "lvl": 3
+        }]
+      }
+    }
+  ],
+  "additional_item": {
+    "id": "tnt",
+    "Count": 1
+  },
+  "additional_restock_time": 1000
+}

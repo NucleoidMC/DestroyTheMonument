@@ -2,6 +2,8 @@ package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.map.DTMTeamRegions;
+import eu.pb4.destroythemonument.kit.Kit;
+import eu.pb4.destroythemonument.kit.KitsRegistry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
@@ -46,6 +48,7 @@ public class DTMActive {
 
     public final GameSpace gameSpace;
     public final DTMMap gameMap;
+    private final Kit defaultKit;
 
     private final Object2ObjectMap<PlayerRef, DTMPlayer> participants;
     private final DTMSpawnLogic spawnLogic;
@@ -63,13 +66,14 @@ public class DTMActive {
         this.participants = new Object2ObjectOpenHashMap<>();
         this.spawnLogic = new DTMSpawnLogic(gameSpace, map, participants);
         this.teams = gameSpace.addResource(new DTMTeams(gameSpace, map, config));
+        this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
 
 
         this.scoreboard = new DTMScoreboard(widgets, "Destroy The Monument", this);
 
         for (GameTeam team : players.keySet()) {
             for (ServerPlayerEntity player : players.get(team)) {
-                this.participants.put(PlayerRef.of(player), new DTMPlayer(team));
+                this.participants.put(PlayerRef.of(player), new DTMPlayer(team, this.defaultKit));
                 this.teams.addPlayer(player, team);
             }
         }
@@ -167,7 +171,7 @@ public class DTMActive {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
             if (this.config.allowJoiningInGame) {
                 GameTeam team = this.teams.getSmallestTeam();
-                DTMPlayer dtmPlayer = new DTMPlayer(team);
+                DTMPlayer dtmPlayer = new DTMPlayer(team, this.defaultKit);
                 this.participants.put(PlayerRef.of(player), dtmPlayer);
                 this.teams.addPlayer(player, team);
 
@@ -242,7 +246,7 @@ public class DTMActive {
     public void setInventory(ServerPlayerEntity player, DTMPlayer dtmPlayer) {
         player.inventory.clear();
 
-        DTMKits.equipPlayer(player, dtmPlayer);
+        dtmPlayer.activeKit.equipPlayer(player, dtmPlayer.team);
         dtmPlayer.resetTimers();
 
         player.inventory.setStack(8, ItemStackBuilder.of(Items.PAPER)
@@ -316,9 +320,7 @@ public class DTMActive {
 
         dtmPlayer.brokenNonPlankBlocks += 1;
 
-        if (dtmPlayer.activeKit == DTMKits.Kit.CONSTRUCTOR && dtmPlayer.brokenNonPlankBlocks % 2 == 0) {
-            player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
-        } else if (dtmPlayer.activeKit != DTMKits.Kit.CONSTRUCTOR && dtmPlayer.brokenNonPlankBlocks % 5 == 0) {
+        if (dtmPlayer.brokenNonPlankBlocks % dtmPlayer.activeKit.blockToPlanks == 0) {
             player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
         }
 
@@ -383,7 +385,7 @@ public class DTMActive {
            DTMPlayer dtmPlayer = this.participants.get(PlayerRef.of(player));
            if (dtmPlayer != null) {
                dtmPlayer.addToTimers(1);
-               DTMKits.tryToRestockPlayer(player, dtmPlayer);
+               dtmPlayer.activeKit.maybeRestockPlayer(player, dtmPlayer);
            }
 
            if (!this.gameMap.mapDeathBounds.contains(player.getBlockPos())) {

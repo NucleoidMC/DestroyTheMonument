@@ -17,5 +17,11 @@
     {"key": "acacia", "display": "Acacia", "color": "red"},
     {"key": "jungle", "display": "Jungle", "color": "green"},
     {"key": "birch", "display": "Birch", "color": "yellow"}
+  ],
+  "kits": [
+    "destroythemonument:warrior",
+    "destroythemonument:archer",
+    "destroythemonument:constructor",
+    "destroythemonument:tank"
   ]
 }

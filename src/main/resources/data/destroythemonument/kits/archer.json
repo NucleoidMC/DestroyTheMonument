@@ -1,0 +1,62 @@
+{
+  "kit_name": "archer",
+  "icon": {
+    "id": "bow",
+    "Count": 1
+  },
+  "number_of_planks": 24,
+  "planks_restock_time": 80,
+  "blocks_to_planks": 5,
+  "food_item": {
+    "id": "cooked_cod",
+    "Count": 6
+  },
+  "food_restock_time": 800,
+  "armor": [
+    {
+      "id": "leather_helmet",
+      "Count": 1
+    },
+    {
+      "id": "chainmail_chestplate",
+      "Count": 1
+    },
+    {
+      "id": "leather_leggings",
+      "Count": 1
+    },
+    {
+      "id": "golden_boots",
+      "Count": 1
+    }
+  ],
+  "items": [
+    {
+      "id": "golden_sword",
+      "Count": 1
+    },
+    {
+      "id": "bow",
+      "Count": 1
+    },
+    {
+      "id": "diamond_pickaxe",
+      "Count": 1
+    },
+    {
+      "id": "wooden_axe",
+      "Count": 1,
+      "tag": {
+        "Enchantments": [{
+          "id": "efficiency",
+          "lvl": 1
+        }]
+      }
+    }
+  ],
+  "additional_item": {
+    "id": "arrow",
+    "Count": 8
+  },
+  "additional_restock_time": 200
+}

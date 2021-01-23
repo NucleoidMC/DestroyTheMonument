@@ -15,5 +15,11 @@
   "teams": [
     {"key": "red", "display": "Red", "color": "red"},
     {"key": "blue", "display": "Blue", "color": "blue"}
+  ],
+  "kits": [
+    "destroythemonument:warrior",
+    "destroythemonument:archer",
+    "destroythemonument:constructor",
+    "destroythemonument:tank"
   ]
 }
