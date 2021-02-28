@@ -180,6 +180,7 @@ public class DTMActive {
                 this.spawnSpectator(player);
             }
         }
+
         if (this.timerBar != null) {
             this.timerBar.addPlayer(player);
         }
@@ -389,7 +390,11 @@ public class DTMActive {
            }
 
            if (!this.gameMap.mapDeathBounds.contains(player.getBlockPos())) {
-               player.kill();
+               if (player.isSpectator()) {
+                   this.spawnLogic.spawnPlayer(player);
+               } else {
+                   player.kill();
+               }
            }
         }
 
