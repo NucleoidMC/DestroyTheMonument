@@ -22,6 +22,7 @@
     "destroythemonument:warrior",
     "destroythemonument:archer",
     "destroythemonument:constructor",
-    "destroythemonument:tank"
+    "destroythemonument:tank",
+    "destroythemonument:berserker"
   ]
 }

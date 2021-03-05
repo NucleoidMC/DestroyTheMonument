@@ -4,12 +4,12 @@
     "id": "bow",
     "Count": 1
   },
-  "number_of_planks": 24,
-  "planks_restock_time": 80,
+  "number_of_planks": 32,
+  "planks_restock_time": 70,
   "blocks_to_planks": 5,
   "food_item": {
     "id": "cooked_cod",
-    "Count": 6
+    "Count": 7
   },
   "food_restock_time": 800,
   "armor": [
@@ -27,13 +27,32 @@
     },
     {
       "id": "golden_boots",
-      "Count": 1
+      "Count": 1,
+      "tag": {
+        "AttributeModifiers":
+        [
+          {
+            "AttributeName": "generic.movement_speed",
+            "Amount": 0.05,
+            "Operation": 0,
+            "UUID": [-121250, 803540, 111937, -160660],
+            "Slot": "feet",
+            "Name": "generic.movement_speed"
+          }
+        ]
+      }
     }
   ],
   "items": [
     {
       "id": "golden_sword",
-      "Count": 1
+      "Count": 1,
+      "tag": {
+        "Enchantments": [{
+          "id": "sharpness",
+          "lvl": 1
+        }]
+      }
     },
     {
       "id": "bow",

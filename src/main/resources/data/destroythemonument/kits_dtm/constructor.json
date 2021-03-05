@@ -1,24 +1,24 @@
 {
-  "kit_name": "warrior",
+  "kit_name": "constructor",
   "icon": {
-    "id": "diamond_sword",
+    "id": "oak_planks",
     "Count": 1
   },
-  "number_of_planks": 24,
-  "planks_restock_time": 80,
-  "blocks_to_planks": 5,
+  "number_of_planks": 64,
+  "planks_restock_time": 30,
+  "blocks_to_planks": 2,
   "food_item": {
     "id": "cooked_beef",
-    "Count": 5
+    "Count": 7
   },
   "food_restock_time": 800,
   "armor": [
     {
-      "id": "leather_helmet",
+      "id": "golden_helmet",
       "Count": 1
     },
     {
-      "id": "iron_chestplate",
+      "id": "chainmail_chestplate",
       "Count": 1
     },
     {
@@ -32,8 +32,14 @@
   ],
   "items": [
     {
-      "id": "diamond_sword",
-      "Count": 1
+      "id": "stone_sword",
+      "Count": 1,
+      "tag": {
+        "Enchantments": [{
+          "id": "knockback",
+          "lvl": 1
+        }]
+      }
     },
     {
       "id": "diamond_pickaxe",
@@ -45,9 +51,14 @@
       "tag": {
         "Enchantments": [{
           "id": "efficiency",
-          "lvl": 1
+          "lvl": 3
         }]
       }
     }
-  ]
+  ],
+  "additional_item": {
+    "id": "tnt",
+    "Count": 1
+  },
+  "additional_restock_time": 1000
 }

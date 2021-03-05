@@ -1,38 +1,46 @@
 {
-  "kit_name": "tank",
+  "kit_name": "warrior",
   "icon": {
-    "id": "diamond_chestplate",
+    "id": "diamond_sword",
     "Count": 1
   },
-  "number_of_planks": 24,
-  "planks_restock_time": 80,
+  "number_of_planks": 32,
+  "planks_restock_time": 70,
   "blocks_to_planks": 5,
   "food_item": {
     "id": "cooked_beef",
-    "Count": 5
+    "Count": 7
   },
   "food_restock_time": 800,
   "armor": [
     {
-      "id": "iron_helmet",
+      "id": "leather_helmet",
       "Count": 1
     },
     {
-      "id": "diamond_chestplate",
-      "Count": 1
+      "id": "iron_chestplate",
+      "Count": 1,
+      "tag": {
+       "Enchantments":[
+         {
+           "id": "protection",
+           "lvl": 1
+         }
+       ]
+      }
     },
     {
       "id": "leather_leggings",
       "Count": 1
     },
     {
-      "id": "netherite_boots",
+      "id": "iron_boots",
       "Count": 1
     }
   ],
   "items": [
     {
-      "id": "stone_sword",
+      "id": "diamond_sword",
       "Count": 1
     },
     {

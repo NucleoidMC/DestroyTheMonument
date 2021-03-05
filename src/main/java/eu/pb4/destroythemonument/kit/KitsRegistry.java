@@ -34,14 +34,14 @@ public class KitsRegistry {
         serverData.registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public Identifier getFabricId() {
-                return new Identifier(DTM.ID, "kits");
+                return new Identifier(DTM.ID, "kits_dtm");
             }
 
             @Override
             public void apply(ResourceManager manager) {
                 KITS.clear();
 
-                Collection<Identifier> resources = manager.findResources("kits", path -> path.endsWith(".json"));
+                Collection<Identifier> resources = manager.findResources("kits_dtm", path -> path.endsWith(".json"));
 
                 for (Identifier path : resources) {
                     try {
@@ -67,7 +67,7 @@ public class KitsRegistry {
 
     private static Identifier identifierFromPath(Identifier location) {
         String path = location.getPath();
-        path = path.substring("kits/".length(), path.length() - ".json".length());
+        path = path.substring("kits_dtm/".length(), path.length() - ".json".length());
         return new Identifier(location.getNamespace(), path);
     }
 

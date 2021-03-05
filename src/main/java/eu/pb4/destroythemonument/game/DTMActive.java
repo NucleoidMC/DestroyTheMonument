@@ -218,7 +218,7 @@ public class DTMActive {
         if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
             DTMPlayer attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
             attacker.kills += 1;
-            attacker.addToTimers(40);
+            attacker.addToTimers(60);
 
         }
 

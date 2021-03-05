@@ -4,6 +4,7 @@
   "destroythemonument.class.archer": "Archer",
   "destroythemonument.class.tank": "Tank",
   "destroythemonument.class.constructor": "Constructor",
+  "destroythemonument.class.berserker": "Berserker",
   "destroythemonument.text.selectclass": "Select class",
   "destroythemonument.text.selectedclass": "You have selected %s class.",
   "destroythemonument.text.classrespawn": " You will change to it after you respawn.",

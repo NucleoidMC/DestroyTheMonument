@@ -1,0 +1,74 @@
+{
+  "kit_name": "tank",
+  "icon": {
+    "id": "diamond_chestplate",
+    "Count": 1
+  },
+  "number_of_planks": 32,
+  "planks_restock_time": 70,
+  "blocks_to_planks": 5,
+  "food_item": {
+    "id": "cooked_beef",
+    "Count": 7
+  },
+  "food_restock_time": 800,
+  "armor": [
+    {
+      "id": "iron_helmet",
+      "Count": 1
+    },
+    {
+      "id": "diamond_chestplate",
+      "Count": 1,
+      "tag": {
+        "AttributeModifiers":
+        [
+          {
+            "AttributeName": "generic.knockback_resistance",
+            "Amount": 0.05,
+            "Operation": 0,
+            "UUID": [-121250, 803540, 111937, -160660],
+            "Slot": "chest",
+            "Name": "generic.knockback_resistance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "leather_leggings",
+      "Count": 1
+    },
+    {
+      "id": "netherite_boots",
+      "Count": 1
+    }
+  ],
+  "items": [
+    {
+      "id": "iron_sword",
+      "Count": 1
+    },
+    {
+      "id": "diamond_pickaxe",
+      "Count": 1,
+      "tag":{
+        "Enchantments":[
+          {
+            "id": "protection",
+            "lvl": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "wooden_axe",
+      "Count": 1,
+      "tag": {
+        "Enchantments": [{
+          "id": "efficiency",
+          "lvl": 1
+        }]
+      }
+    }
+  ]
+}
