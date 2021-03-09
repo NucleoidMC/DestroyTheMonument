@@ -22,5 +22,9 @@
     "destroythemonument:constructor",
     "destroythemonument:tank",
     "destroythemonument:berserker"
-  ]
+  ],
+
+  "custom": {
+    "gamegui:icon": "minecraft:red_concrete"
+  }
 }

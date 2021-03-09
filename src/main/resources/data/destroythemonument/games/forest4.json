@@ -24,5 +24,9 @@
     "destroythemonument:constructor",
     "destroythemonument:tank",
     "destroythemonument:berserker"
-  ]
+  ],
+
+  "custom": {
+    "gamegui:icon": "minecraft:oak_sapling"
+  }
 }

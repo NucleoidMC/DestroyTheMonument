@@ -2,6 +2,8 @@ package eu.pb4.destroythemonument;
 
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextColor;
 import xyz.nucleoid.plasmid.game.GameType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,8 @@ public class DTM implements ModInitializer {
 
     public static final String ID = "destroythemonument";
     public static final Logger LOGGER = LogManager.getLogger(ID);
+
+    public static final Style PREFIX_STYLE = Style.EMPTY.withColor(TextColor.fromRgb(0x858585));
 
     public static final GameType<DTMConfig> TYPE = GameType.register(
             new Identifier(ID, "destroythemonument"),

@@ -15,7 +15,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 
+import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.text.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -29,6 +31,7 @@ import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
+import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 import xyz.nucleoid.plasmid.util.PlayerRef;
@@ -39,6 +42,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameMode;
 import eu.pb4.destroythemonument.game.map.DTMMap;
+import eu.pb4.destroythemonument.DTM;
 
 import java.util.List;
 
@@ -212,7 +216,7 @@ public class DTMActive {
 
         Text deathMes = source.getDeathMessage(player);
 
-        Text text = new LiteralText("☠ ").formatted(Formatting.DARK_GRAY).append(deathMes.shallowCopy().formatted(Formatting.GRAY));
+        Text text = new LiteralText("☠ ").setStyle(DTM.PREFIX_STYLE).append(deathMes.shallowCopy().setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xbfbfbf))));
         this.gameSpace.getPlayers().sendMessage(text);
 
         if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
@@ -300,7 +304,7 @@ public class DTMActive {
                     regions.removeMonument(blockPos);
 
                     Text text = new LiteralText("⛏ ")
-                            .formatted(Formatting.GRAY)
+                            .setStyle(DTM.PREFIX_STYLE)
                             .append(new TranslatableText("destroythemonument.text.monumentbroken",
                                     player.getDisplayName(),
                                     new TranslatableText("destroythemonument.text.team", team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.WHITE));
@@ -346,6 +350,20 @@ public class DTMActive {
         this.scoreboard.tick();
 
         DTMStageManager.IdleTickResult result = this.stageManager.tick(time, gameSpace);
+
+        for (GameTeam team : this.teams.teams.values()) {
+            for (BlockBounds bounds : this.gameMap.teamRegions.get(team).monuments) {
+                int color = team.getColor();
+
+                float blue = ((float) color % 256) / 256;
+                float green = ((float) (color / 256) % 256) / 256;
+                float red = ((float) color / 65536) / 256;
+
+                BlockPos pos = bounds.getMin();
+
+                this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(red, green, blue, 0.8f), false, (float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, 0.2f, 0.2f, 0.2f, 0.01f, 5));
+            }
+        }
 
         switch (result) {
             case CONTINUE_TICK:
@@ -422,7 +440,7 @@ public class DTMActive {
     private void broadcastWin(WinResult result) {
         Text message;
         if (result.isWin()) {
-            message = new LiteralText("» ").formatted(Formatting.GRAY)
+            message = new LiteralText("» ").setStyle(DTM.PREFIX_STYLE)
                     .append(new TranslatableText("destroythemonument.text.gamewin",
                             new TranslatableText("destroythemonument.text.team",
                                     result.getWinningTeam().getDisplay())
@@ -430,7 +448,7 @@ public class DTMActive {
                                     ).formatted(Formatting.GOLD));
 
         } else {
-            message = new LiteralText("» ").formatted(Formatting.GRAY)
+            message = new LiteralText("» ").setStyle(DTM.PREFIX_STYLE)
                     .append(new TranslatableText("destroythemonument.text.gamenowin").formatted(Formatting.GOLD));
         }
 

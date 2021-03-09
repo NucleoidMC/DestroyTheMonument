@@ -9,7 +9,7 @@ import java.util.Set;
 public class DTMTeamRegions {
     private final GameTeam team;
     private final BlockBounds spawn;
-    private final Set<BlockBounds> monuments;
+    public final Set<BlockBounds> monuments;
     public final int monumentStartingCount;
     public final BlockBounds classChange;
 
