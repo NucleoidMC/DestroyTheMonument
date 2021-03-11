@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game.map;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
@@ -12,7 +13,6 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DTMMap {
     private final MapTemplate template;
@@ -31,7 +31,6 @@ public class DTMMap {
         this.spawn = template.getMetadata().getFirstRegionBounds("general_spawn");
         this.mapBounds = template.getBounds();
         this.mapDeathBounds = new BlockBounds(this.mapBounds.getMin().mutableCopy().add(-5, -5, -5), this.mapBounds.getMax().mutableCopy().add(5, 5, 5));
-
     }
 
     public ChunkGenerator asGenerator(MinecraftServer server) {
@@ -49,9 +48,13 @@ public class DTMMap {
 
     public void addTeamRegions(GameTeam team) {
         BlockBounds spawn = this.template.getMetadata().getFirstRegionBounds(team.getKey() + "_spawn");
-        Stream<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.getKey() + "_monument");
+        Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.getKey() + "_monument").collect(Collectors.toSet());
         BlockBounds classChange = this.template.getMetadata().getFirstRegionBounds(team.getKey() + "_class_change");
 
-        this.teamRegions.put(team, new DTMTeamRegions(team, spawn, monuments.collect(Collectors.toSet()), classChange));
+        for (BlockBounds monument : monuments) {
+            this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());
+        }
+
+        this.teamRegions.put(team, new DTMTeamRegions(team, spawn, monuments, classChange));
     }
 }

@@ -6,6 +6,7 @@ import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 
 import net.minecraft.block.Blocks;
@@ -15,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.particle.DustParticleEffect;
@@ -23,6 +25,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.event.*;
@@ -31,7 +34,6 @@ import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
-import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 import xyz.nucleoid.plasmid.util.PlayerRef;
@@ -44,6 +46,7 @@ import net.minecraft.world.GameMode;
 import eu.pb4.destroythemonument.game.map.DTMMap;
 import eu.pb4.destroythemonument.DTM;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -63,13 +66,13 @@ public class DTMActive {
 
     public long tickTime = 0;
 
-    private DTMActive(GameSpace gameSpace, DTMMap map, GlobalWidgets widgets, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+    private DTMActive(GameSpace gameSpace, DTMMap map, GlobalWidgets widgets, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players, DTMTeams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
         this.participants = new Object2ObjectOpenHashMap<>();
         this.spawnLogic = new DTMSpawnLogic(gameSpace, map, participants);
-        this.teams = gameSpace.addResource(new DTMTeams(gameSpace, map, config));
+        this.teams = teams;
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
 
 
@@ -96,10 +99,10 @@ public class DTMActive {
 
     }
 
-    public static void open(GameSpace gameSpace, DTMMap map, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players) {
+    public static void open(GameSpace gameSpace, DTMMap map, DTMConfig config, Multimap<GameTeam, ServerPlayerEntity> players, DTMTeams teams) {
         gameSpace.openGame(game -> {
             GlobalWidgets widgets = new GlobalWidgets(game);
-            DTMActive active = new DTMActive(gameSpace, map, widgets, config, players);
+            DTMActive active = new DTMActive(gameSpace, map, widgets, config, players, teams);
 
             game.setRule(GameRule.CRAFTING, RuleResult.DENY);
             game.setRule(GameRule.PORTALS, RuleResult.DENY);
@@ -311,6 +314,7 @@ public class DTMActive {
 
                     this.gameSpace.getPlayers().sendMessage(text);
                     this.maybeEliminate(team, regions);
+                    this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
                     dtmPlayer.brokenMonuments += 1;
                     return ActionResult.SUCCESS;
                 }
@@ -352,14 +356,12 @@ public class DTMActive {
         DTMStageManager.IdleTickResult result = this.stageManager.tick(time, gameSpace);
 
         for (GameTeam team : this.teams.teams.values()) {
-            for (BlockBounds bounds : this.gameMap.teamRegions.get(team).monuments) {
+            for (BlockPos pos : this.gameMap.teamRegions.get(team).monuments) {
                 int color = team.getColor();
 
                 float blue = ((float) color % 256) / 256;
                 float green = ((float) (color / 256) % 256) / 256;
                 float red = ((float) color / 65536) / 256;
-
-                BlockPos pos = bounds.getMin();
 
                 this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(red, green, blue, 0.8f), false, (float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, 0.2f, 0.2f, 0.2f, 0.01f, 5));
             }

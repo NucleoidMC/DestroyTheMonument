@@ -20,6 +20,7 @@ public class DTMWaiting {
     private final DTMMap map;
     private final DTMConfig config;
     private final DTMSpawnLogic spawnLogic;
+    private final DTMTeams teams;
 
     private final TeamSelectionLobby teamSelection;
 
@@ -29,6 +30,7 @@ public class DTMWaiting {
         this.map = map;
         this.config = config;
         this.spawnLogic = new DTMSpawnLogic(gameSpace, map, null);
+        this.teams = gameSpace.addResource(new DTMTeams(gameSpace, map, config));
 
         this.teamSelection = teamSelection;
     }
@@ -63,7 +65,7 @@ public class DTMWaiting {
         Multimap<GameTeam, ServerPlayerEntity> players = HashMultimap.create();
         this.teamSelection.allocate(players::put);
 
-        DTMActive.open(this.gameSpace, this.map, this.config, players);
+        DTMActive.open(this.gameSpace, this.map, this.config, players, this.teams);
         return StartResult.OK;
     }
 

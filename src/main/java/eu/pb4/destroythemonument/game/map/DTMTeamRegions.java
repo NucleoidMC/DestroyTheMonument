@@ -4,19 +4,23 @@ import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class DTMTeamRegions {
     private final GameTeam team;
     private final BlockBounds spawn;
-    public final Set<BlockBounds> monuments;
+    public final Set<BlockPos> monuments;
     public final int monumentStartingCount;
     public final BlockBounds classChange;
 
 
     public DTMTeamRegions(GameTeam team, BlockBounds spawn, Set<BlockBounds> monuments, BlockBounds classChange) {
         this.spawn = spawn;
-        this.monuments = monuments;
+        this.monuments = new HashSet<>();
+        for (BlockBounds bounds : monuments) {
+            this.monuments.add(bounds.getMin());
+        }
         this.team = team;
         this.classChange = classChange;
 
@@ -25,8 +29,8 @@ public class DTMTeamRegions {
 
 
     public boolean removeMonument(BlockPos pos) {
-        for (BlockBounds monument : this.monuments) {
-            if (monument.contains(pos)) {
+        for (BlockPos monument : this.monuments) {
+            if (monument.equals(pos)) {
                 this.monuments.remove(monument);
                 return true;
             }
@@ -36,8 +40,8 @@ public class DTMTeamRegions {
     }
 
     public boolean isMonument(BlockPos pos) {
-        for (BlockBounds monument : this.monuments) {
-            if (monument.contains(pos)) {
+        for (BlockPos monument : this.monuments) {
+            if (monument.equals(pos)) {
                 return true;
             }
         }
