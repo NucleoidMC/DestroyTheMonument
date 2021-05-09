@@ -18,6 +18,7 @@
     "fabricloader": ">=0.9.1",
     "fabric": "*",
     "minecraft": "1.16.x",
-    "plasmid": "0.4.x"
+    "plasmid": "0.4.x",
+    "sgui": "0.3.x"
   }
 }

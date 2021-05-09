@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.game.map.DTMMap;
+import eu.pb4.destroythemonument.map.Map;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.scoreboard.AbstractTeam;
@@ -13,8 +13,8 @@ import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
 
-public class DTMTeams implements AutoCloseable {
-    private final DTMMap map;
+public class Teams implements AutoCloseable {
+    private final Map map;
 
     public Object2ObjectMap<GameTeam, Team> scoreboardTeams = new Object2ObjectOpenHashMap<>();
     public Object2ObjectMap<String, GameTeam> teams = new Object2ObjectOpenHashMap<>();
@@ -22,7 +22,7 @@ public class DTMTeams implements AutoCloseable {
     final Scoreboard scoreboard;
 
 
-    public DTMTeams(GameSpace gameSpace, DTMMap map, DTMConfig config) {
+    public Teams(GameSpace gameSpace, Map map, GameConfig config) {
         this.scoreboard = gameSpace.getServer().getScoreboard();
         this.map = map;
 

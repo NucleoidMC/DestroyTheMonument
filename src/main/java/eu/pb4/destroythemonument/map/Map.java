@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game.map;
+package eu.pb4.destroythemonument.map;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -14,17 +14,17 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DTMMap {
+public class Map {
     private final MapTemplate template;
-    private final DTMMapConfig config;
+    private final MapConfig config;
     private final Set<BlockBounds> unbreakable;
     public BlockBounds spawn;
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
 
-    public final Object2ObjectMap<GameTeam, DTMTeamRegions> teamRegions = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectMap<GameTeam, TeamRegions> teamRegions = new Object2ObjectOpenHashMap<>();
 
-    public DTMMap(MapTemplate template, DTMMapConfig config) {
+    public Map(MapTemplate template, MapConfig config) {
         this.template = template;
         this.config = config;
         this.unbreakable = template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toSet());
@@ -55,6 +55,6 @@ public class DTMMap {
             this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());
         }
 
-        this.teamRegions.put(team, new DTMTeamRegions(team, spawn, monuments, classChange));
+        this.teamRegions.put(team, new TeamRegions(team, spawn, monuments, classChange));
     }
 }

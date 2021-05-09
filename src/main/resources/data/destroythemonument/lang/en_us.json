@@ -1,20 +1,38 @@
 {
   "game.destroythemonument.destroythemonument": "Destroy The Monument",
-  "destroythemonument.class.warrior": "Warrior",
-  "destroythemonument.class.archer": "Archer",
-  "destroythemonument.class.tank": "Tank",
-  "destroythemonument.class.constructor": "Constructor",
-  "destroythemonument.class.berserker": "Berserker",
-  "destroythemonument.text.selectclass": "Select class",
-  "destroythemonument.text.selectedclass": "You have selected %s class.",
-  "destroythemonument.text.classrespawn": " You will change to it after you respawn.",
-  "destroythemonument.text.about": " Destroy enemy's monuments, while protecting\n your own!\n You can select your class by clicking paper.",
-  "destroythemonument.text.cantbreakown": "You can't break your own monument!",
-  "destroythemonument.text.monumentbroken": "%s broke %s's Monument!",
-  "destroythemonument.text.team": "%s Team",
-  "destroythemonument.text.gamewin": "%s has won the game!",
-  "destroythemonument.text.gamenowin": "The game ended with a draw!",
-  "destroythemonument.text.monumentsleft": "%s left",
-  "destroythemonument.text.eliminated": "Eliminated!",
-  "destroythemonument.item.changeclass": "Change class"
+  "class.destroythemonument.warrior": "Warrior",
+  "class.destroythemonument.warrior.description": "Good damage and defense",
+  "class.destroythemonument.archer": "Archer",
+  "class.destroythemonument.archer.description": "Ideal for long range combat. Also fast",
+  "class.destroythemonument.tank": "Tank",
+  "class.destroythemonument.tank.description": "Can take many hits, but deals smaller damage",
+  "class.destroythemonument.constructor": "Constructor",
+  "class.destroythemonument.constructor.description": "Knows how do build and destroy...",
+  "class.destroythemonument.berserker": "Berserker",
+  "class.destroythemonument.berserker.description": "High damage, minimal armor",
+
+  "item.destroythemonument.change_class": "Select class",
+
+  "message.destroythemonument.selected_class": "You have selected %s class.",
+  "message.destroythemonument.class_respawn": "You will change to it after you respawn.",
+  "message.destroythemonument.about": " Destroy enemy's monuments, while protecting\n your own!\n You can select your class by clicking paper.",
+  "message.destroythemonument.cant_break_own": "You can't break your own monument!",
+  "message.destroythemonument.monument_broken": "%s broke %s's Monument!",
+  "message.destroythemonument.respawn_time": "Respawning in... %s",
+  "message.destroythemonument.game_end.winner": "%s has won the game!",
+  "message.destroythemonument.game_end.no_winner": "The game ended with a draw!",
+
+  "message.destroythemonument.invalid_game_type": "This game has invalid gamemode!",
+
+  "general.destroythemonument.team": "%s Team",
+
+  "scoreboard.destroythemonument.text.monuments_left": "%s left",
+  "scoreboard.destroythemonument.text.eliminated": "Eliminated!",
+
+  "ui.destroythemonument.select_class": "Select your class",
+  "ui.destroythemonument.class_preview": "%s's Inventory",
+  "ui.destroythemonument.return_selector": "Return to class selector",
+  "ui.destroythemonument.click_select": "Use left mouse button to select",
+  "ui.destroythemonument.click_preview": "Use right mouse button to preview"
+
 }

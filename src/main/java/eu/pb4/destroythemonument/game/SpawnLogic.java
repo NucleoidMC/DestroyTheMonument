@@ -7,16 +7,16 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameMode;
-import eu.pb4.destroythemonument.game.map.DTMMap;
+import eu.pb4.destroythemonument.map.Map;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
-public class DTMSpawnLogic {
+public class SpawnLogic {
     private final GameSpace gameSpace;
-    private final DTMMap map;
-    private final Object2ObjectMap<PlayerRef, DTMPlayer> participants;
+    private final Map map;
+    private final Object2ObjectMap<PlayerRef, PlayerData> participants;
 
-    public DTMSpawnLogic(GameSpace gameSpace, DTMMap map, Object2ObjectMap<PlayerRef, DTMPlayer> participants) {
+    public SpawnLogic(GameSpace gameSpace, Map map, Object2ObjectMap<PlayerRef, PlayerData> participants) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.participants = participants;
@@ -24,9 +24,10 @@ public class DTMSpawnLogic {
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
         player.setGameMode(gameMode);
+        player.inventory.clear();
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;
-        player.setHealth(20);
+        player.setHealth(player.getMaxHealth());
         player.getHungerManager().setFoodLevel(20);
         player.clearStatusEffects();
     }
@@ -34,7 +35,7 @@ public class DTMSpawnLogic {
     public void spawnPlayer(ServerPlayerEntity entity) {
         ServerWorld world = this.gameSpace.getWorld();
         if (this.participants != null) {
-            DTMPlayer player = participants.get(PlayerRef.of(entity));
+            PlayerData player = participants.get(PlayerRef.of(entity));
 
             if (player != null && player.team != null) {
                 BlockBounds spawn = this.map.teamRegions.get(player.team).getSpawn();

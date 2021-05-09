@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game.map;
+package eu.pb4.destroythemonument.map;
 
 import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
@@ -7,7 +7,7 @@ import xyz.nucleoid.plasmid.util.BlockBounds;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DTMTeamRegions {
+public class TeamRegions {
     private final GameTeam team;
     private final BlockBounds spawn;
     public final Set<BlockPos> monuments;
@@ -15,7 +15,7 @@ public class DTMTeamRegions {
     public final BlockBounds classChange;
 
 
-    public DTMTeamRegions(GameTeam team, BlockBounds spawn, Set<BlockBounds> monuments, BlockBounds classChange) {
+    public TeamRegions(GameTeam team, BlockBounds spawn, Set<BlockBounds> monuments, BlockBounds classChange) {
         this.spawn = spawn;
         this.monuments = new HashSet<>();
         for (BlockBounds bounds : monuments) {

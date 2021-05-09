@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game.map;
+package eu.pb4.destroythemonument.map;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.biome.BiomeKeys;
@@ -8,19 +8,19 @@ import xyz.nucleoid.plasmid.map.template.MapTemplateSerializer;
 
 import java.io.IOException;
 
-public class DTMMapBuilder {
+public class MapBuilder {
 
-    private final DTMMapConfig config;
+    private final MapConfig config;
 
-    public DTMMapBuilder(DTMMapConfig config) {
+    public MapBuilder(MapConfig config) {
         this.config = config;
     }
 
-    public DTMMap create() throws GameOpenException {
+    public Map create() throws GameOpenException {
         try {
             MapTemplate template = MapTemplateSerializer.INSTANCE.loadFromResource(this.config.id);
 
-            DTMMap map = new DTMMap(template, config);
+            Map map = new Map(template, config);
             template.setBiome(BiomeKeys.FOREST);
 
             return map;

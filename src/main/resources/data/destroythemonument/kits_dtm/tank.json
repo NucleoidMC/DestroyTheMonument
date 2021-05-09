@@ -1,9 +1,6 @@
 {
   "kit_name": "tank",
-  "icon": {
-    "id": "diamond_chestplate",
-    "Count": 1
-  },
+  "icon": "diamond_chestplate",
   "number_of_planks": 32,
   "planks_restock_time": 70,
   "blocks_to_planks": 5,

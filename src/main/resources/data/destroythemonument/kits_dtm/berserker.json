@@ -1,9 +1,6 @@
 {
   "kit_name": "berserker",
-  "icon": {
-    "id": "iron_axe",
-    "Count": 1
-  },
+  "icon": "iron_axe",
   "number_of_planks": 24,
   "planks_restock_time": 70,
   "blocks_to_planks": 5,

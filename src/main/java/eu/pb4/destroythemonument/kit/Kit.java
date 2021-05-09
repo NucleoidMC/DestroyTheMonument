@@ -2,11 +2,12 @@ package eu.pb4.destroythemonument.kit;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.destroythemonument.game.DTMPlayer;
+import eu.pb4.destroythemonument.game.PlayerData;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class Kit {
     public static final Codec<Kit> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("kit_name").forGetter(kit -> kit.name),
-            ItemStack.CODEC.fieldOf("icon").forGetter(kit -> kit.icon),
+            Identifier.CODEC.fieldOf("icon").forGetter(kit -> kit.icon),
             Codec.INT.fieldOf("number_of_planks").forGetter(kit -> kit.numberOfPlanks),
             Codec.INT.fieldOf("blocks_to_planks").forGetter(kit -> kit.blockToPlanks),
             Codec.INT.fieldOf("planks_restock_time").forGetter(kit -> kit.planksRestockTime),
@@ -28,7 +29,7 @@ public class Kit {
         ).apply(instance, Kit::new));
 
     public final String name;
-    public final ItemStack icon;
+    public final Identifier icon;
     public final int numberOfPlanks;
     public final int blockToPlanks;
     public final int planksRestockTime;
@@ -40,7 +41,7 @@ public class Kit {
     public final int additionalRestockTime;
 
 
-    public Kit(String name, ItemStack icon, int numberOfPlanks, int blockToPlanks, int planksRestockTime, ItemStack foodItem,
+    public Kit(String name, Identifier icon, int numberOfPlanks, int blockToPlanks, int planksRestockTime, ItemStack foodItem,
                int foodRestockTime, List<ItemStack> armor, List<ItemStack> items, ItemStack additionalItem, int additionalRestockTime) {
         this.name = name;
         this.icon = icon;
@@ -74,7 +75,7 @@ public class Kit {
         player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setColor(team.getColor()).build());
     }
 
-    public void maybeRestockPlayer(ServerPlayerEntity player, DTMPlayer dtmPlayer) {
+    public void maybeRestockPlayer(ServerPlayerEntity player, PlayerData dtmPlayer) {
         if (player.inventory.count(Items.OAK_PLANKS) >= this.numberOfPlanks) {
             dtmPlayer.buildBlockTimer = 0;
         } else {

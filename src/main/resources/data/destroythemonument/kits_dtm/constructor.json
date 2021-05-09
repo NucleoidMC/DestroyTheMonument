@@ -1,9 +1,6 @@
 {
   "kit_name": "constructor",
-  "icon": {
-    "id": "oak_planks",
-    "Count": 1
-  },
+  "icon": "oak_planks",
   "number_of_planks": 64,
   "planks_restock_time": 30,
   "blocks_to_planks": 2,

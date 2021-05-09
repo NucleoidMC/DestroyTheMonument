@@ -28,6 +28,9 @@ dependencies {
     // Plasmid
     modImplementation "xyz.nucleoid:plasmid:${project.plasmid_version}"
 
+    modImplementation include("eu.pb4:sgui:0.3.0")
+
+
     modRuntime("com.github.SuperCoder7979:databreaker:0.2.6") {
         exclude module: "fabric-loader"
     }

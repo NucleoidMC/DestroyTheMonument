@@ -1,9 +1,6 @@
 {
   "kit_name": "archer",
-  "icon": {
-    "id": "bow",
-    "Count": 1
-  },
+  "icon": "bow",
   "number_of_planks": 32,
   "planks_restock_time": 70,
   "blocks_to_planks": 5,

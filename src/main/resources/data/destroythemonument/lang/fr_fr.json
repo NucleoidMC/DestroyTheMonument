@@ -1,18 +1,21 @@
 {	
-	"destroythemonument.class.warrior": "Guerrier",
-	"destroythemonument.class.archer": "Archer",
-	"destroythemonument.class.tank": "Tank",
-	"destroythemonument.class.constructor": "Constructeur",
-	"destroythemonument.text.selectclass": "Choisir une classe",
-	"destroythemonument.text.selectedclass": "Vous avez choisi la classe %s.",
-	"destroythemonument.text.classrespawn": "La classe vous sera attribué lors de votre prochaine réapparition.",
-	"destroythemonument.text.about": "Détruisez les monuments ennemis\n tout en protégeant les vôtre !\n Vous pouvez choisir vôtre classe en utilisant le papier.",
-	"destroythemonument.text.cantbreakown": "Vous ne pouvez pas détruire vos monuments !",
-	"destroythemonument.text.monumentbroken": "%s a détruit un monument de l’équipe %s !",
-	"destroythemonument.text.team": "Équipe %s",
-	"destroythemonument.text.gamewin": "L’équipe %s a gagné !",
-	"destroythemonument.text.gamenowin": "Le jeu a fini ex æquo !",
-	"destroythemonument.text.monumentsleft": "%s a quitté",
-	"destroythemonument.text.eliminated": "Éliminé !",
-	"destroythemonument.item.changeclass": "Changer de classe"
-}	
+	"class.destroythemonument.warrior": "Guerrier",
+	"class.destroythemonument.archer": "Archer",
+	"class.destroythemonument.tank": "Tank",
+	"class.destroythemonument.constructor": "Constructeur",
+
+	"ui.destroythemonument.select_class": "Choisir une classe",
+	"item.destroythemonument.change_class": "Choisir une classe",
+
+	"message.destroythemonument.select_edclass": "Vous avez choisi la classe %s.",
+	"message.destroythemonument.class_respawn": "La classe vous sera attribué lors de votre prochaine réapparition.",
+	"message.destroythemonument.about": "Détruisez les monuments ennemis\n tout en protégeant les vôtre !\n Vous pouvez choisir vôtre classe en utilisant le papier.",
+	"message.destroythemonument.cant_break_own": "Vous ne pouvez pas détruire vos monuments !",
+	"message.destroythemonument.monument_broken": "%s a détruit un monument de l’équipe %s !",
+	"message.destroythemonument.game_end.winner": "L’équipe %s a gagné !",
+	"message.destroythemonument.game_end.no_winner": "Le jeu a fini ex æquo !",
+
+	"scoreboard.destroythemonument.monuments_left": "%s a quitté",
+	"scoreboard.destroythemonument.eliminated": "Éliminé !",
+
+	"general.destroythemonument.team": "Équipe %s"}

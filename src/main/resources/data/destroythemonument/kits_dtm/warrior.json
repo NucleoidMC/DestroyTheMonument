@@ -1,9 +1,6 @@
 {
   "kit_name": "warrior",
-  "icon": {
-    "id": "diamond_sword",
-    "Count": 1
-  },
+  "icon": "diamond_sword",
   "number_of_planks": 32,
   "planks_restock_time": 70,
   "blocks_to_planks": 5,

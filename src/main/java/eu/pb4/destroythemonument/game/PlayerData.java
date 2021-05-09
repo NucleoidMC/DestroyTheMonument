@@ -4,7 +4,7 @@ import eu.pb4.destroythemonument.kit.Kit;
 import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
-public class DTMPlayer {
+public class PlayerData {
     public final GameTeam team;
     public Kit activeKit;
     public Kit selectedKit;
@@ -23,7 +23,7 @@ public class DTMPlayer {
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
 
-    public DTMPlayer(GameTeam team, Kit defaultKit) {
+    public PlayerData(GameTeam team, Kit defaultKit) {
         this.selectedKit = defaultKit;
         this.activeKit = defaultKit;
         this.team = team;

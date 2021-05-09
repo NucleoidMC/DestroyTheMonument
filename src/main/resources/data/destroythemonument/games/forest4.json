@@ -1,5 +1,6 @@
 {
   "type": "destroythemonument:destroythemonument",
+  "gamemode": "standard",
   "name": "Destroy The Monument: Forest (4 Teams)",
   "map": {
     "id": "destroythemonument:forest4",
@@ -12,6 +13,7 @@
   },
   "allowJoiningInGame": true,
   "gameTime": 24000,
+  "tickRespawnTime": 60,
   "teams": [
     {"key": "oak", "display": "Oak", "color": "blue"},
     {"key": "acacia", "display": "Acacia", "color": "red"},
