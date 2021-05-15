@@ -5,9 +5,12 @@ import eu.pb4.destroythemonument.game.PlayerData;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -64,9 +67,11 @@ public class ClassSelectorUI extends SimpleGui {
             icon.addLoreLine(DtmUtil.getFormatted("»", DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
 
             icon.setCallback((x, clickType, z) -> {
-                if (this.playerData.selectedKit != kit && clickType.isLeft) {
+                if (clickType.isLeft) {
+                    this.player.playSound(SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 1);
                     changeKit(this.game, this.player, this.playerData, kit);
                 } else if (clickType.isRight) {
+                    this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
                     this.close();
                     new ClassPreviewUI(this.player, this.game, kit).open();
                 }
@@ -90,8 +95,9 @@ public class ClassSelectorUI extends SimpleGui {
 
         player.sendMessage(text, false);
 
-        if (classChange.contains(player.getBlockPos())) {
+        if (classChange.contains(player.getBlockPos()) && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
             playerData.activeKit = kit;
+            player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             playerData.resetTimers();
             game.setInventory(player, playerData);
         } else {

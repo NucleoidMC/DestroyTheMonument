@@ -1,14 +1,6 @@
 {
   "kit_name": "warrior",
   "icon": "diamond_sword",
-  "number_of_planks": 32,
-  "planks_restock_time": 70,
-  "blocks_to_planks": 5,
-  "food_item": {
-    "id": "cooked_beef",
-    "Count": 7
-  },
-  "food_restock_time": 800,
   "armor": [
     {
       "id": "leather_helmet",
@@ -18,12 +10,12 @@
       "id": "iron_chestplate",
       "Count": 1,
       "tag": {
-       "Enchantments":[
-         {
-           "id": "protection",
-           "lvl": 1
-         }
-       ]
+        "Enchantments": [
+          {
+            "id": "protection",
+            "lvl": 1
+          }
+        ]
       }
     },
     {
@@ -38,7 +30,15 @@
   "items": [
     {
       "id": "diamond_sword",
-      "Count": 1
+      "Count": 1,
+      "tag": {
+        "Enchantments": [
+          {
+            "id": "sharpness",
+            "lvl": 1
+          }
+        ]
+      }
     },
     {
       "id": "diamond_pickaxe",
@@ -48,11 +48,48 @@
       "id": "wooden_axe",
       "Count": 1,
       "tag": {
-        "Enchantments": [{
-          "id": "efficiency",
-          "lvl": 1
-        }]
+        "Enchantments": [
+          {
+            "id": "efficiency",
+            "lvl": 1
+          }
+        ],
+        "AttributeModifiers": [
+          {
+            "AttributeName": "generic.attack_damage",
+            "Amount": 0.00,
+            "Operation": 0,
+            "UUID": [
+              -121250,
+              803540,
+              111937,
+              -160660
+            ],
+            "Slot": "mainhand",
+            "Name": "generic.attack_damage"
+          }
+        ]
       }
+    }
+  ],
+  "restockable_items": [
+    {
+      "item": {
+        "id": "cooked_chicken",
+        "Count": 1
+      },
+      "restock_time": 800,
+      "max_count": 5,
+      "start_count": 3
+    },
+    {
+      "item": {
+        "id": "oak_planks",
+        "Count": 1
+      },
+      "restock_time": 65,
+      "max_count": 32,
+      "start_count": 24
     }
   ]
 }

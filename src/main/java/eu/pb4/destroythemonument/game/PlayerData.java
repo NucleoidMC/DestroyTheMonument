@@ -1,6 +1,7 @@
 package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.kit.Kit;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
@@ -14,11 +15,7 @@ public class PlayerData {
     public int brokenNonPlankBlocks = 0;
     public int brokenPlankBlocks = 0;
 
-    public int foodItemTimer = 0;
-    public int additionalItemTimer = 0;
-    public int additionalPowerTimer = 0;
-    public int buildBlockTimer = 0;
-
+    public Object2IntArrayMap<Kit.RestockableItem> restockTimers = new Object2IntArrayMap<>();
 
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
@@ -30,16 +27,14 @@ public class PlayerData {
     }
 
     public void resetTimers() {
-        this.foodItemTimer = 0;
-        this.additionalItemTimer = 0;
-        this.additionalPowerTimer = 0;
-        this.buildBlockTimer = 0;
+        for (Kit.RestockableItem key : this.activeKit.restockableItems) {
+            this.restockTimers.putIfAbsent(key, key.startingOffset);
+        }
     }
 
     public void addToTimers(int x) {
-        this.foodItemTimer += x;
-        this.additionalItemTimer += x;
-        this.additionalPowerTimer += x;
-        this.buildBlockTimer += x;
+        for (Kit.RestockableItem key : this.activeKit.restockableItems) {
+            this.restockTimers.put(key, this.restockTimers.getInt(key) + x);
+        }
     }
 }

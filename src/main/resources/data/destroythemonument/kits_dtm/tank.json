@@ -1,14 +1,7 @@
 {
   "kit_name": "tank",
   "icon": "diamond_chestplate",
-  "number_of_planks": 32,
-  "planks_restock_time": 70,
-  "blocks_to_planks": 5,
-  "food_item": {
-    "id": "cooked_beef",
-    "Count": 7
-  },
-  "food_restock_time": 800,
+  "health": 24,
   "armor": [
     {
       "id": "iron_helmet",
@@ -18,13 +11,17 @@
       "id": "diamond_chestplate",
       "Count": 1,
       "tag": {
-        "AttributeModifiers":
-        [
+        "AttributeModifiers": [
           {
             "AttributeName": "generic.knockback_resistance",
             "Amount": 0.05,
             "Operation": 0,
-            "UUID": [-121250, 803540, 111937, -160660],
+            "UUID": [
+              -121250,
+              803540,
+              111937,
+              -160660
+            ],
             "Slot": "chest",
             "Name": "generic.knockback_resistance"
           }
@@ -48,8 +45,8 @@
     {
       "id": "diamond_pickaxe",
       "Count": 1,
-      "tag":{
-        "Enchantments":[
+      "tag": {
+        "Enchantments": [
           {
             "id": "protection",
             "lvl": 1
@@ -61,11 +58,48 @@
       "id": "wooden_axe",
       "Count": 1,
       "tag": {
-        "Enchantments": [{
-          "id": "efficiency",
-          "lvl": 1
-        }]
+        "Enchantments": [
+          {
+            "id": "efficiency",
+            "lvl": 1
+          }
+        ],
+        "AttributeModifiers": [
+          {
+            "AttributeName": "generic.attack_damage",
+            "Amount": 0.00,
+            "Operation": 0,
+            "UUID": [
+              -121250,
+              803540,
+              111937,
+              -160660
+            ],
+            "Slot": "mainhand",
+            "Name": "generic.attack_damage"
+          }
+        ]
       }
+    }
+  ],
+  "restockable_items": [
+    {
+      "item": {
+        "id": "cooked_beef",
+        "Count": 1
+      },
+      "restock_time": 800,
+      "max_count": 5,
+      "start_count": 3
+    },
+    {
+      "item": {
+        "id": "oak_planks",
+        "Count": 1
+      },
+      "restock_time": 65,
+      "max_count": 32,
+      "start_count": 24
     }
   ]
 }

@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerAbilities;
@@ -226,7 +227,6 @@ public abstract class BaseGameLogic {
         dtmPlayer.deaths += 1;
 
         this.startRespawningPlayerSequence(player);
-        //;
         return ActionResult.FAIL;
     }
 
@@ -241,6 +241,9 @@ public abstract class BaseGameLogic {
             player.networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(abilities));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 120, 1, true, false));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING, 120, 10, true, false));
+            for (int x = 0; x < 9; x++) {
+                player.inventory.setStack(x, new ItemStack(Items.PAPER));
+            }
         } else {
             this.spawnParticipant(player);
         }
@@ -272,12 +275,13 @@ public abstract class BaseGameLogic {
     }
 
     protected void spawnParticipant(ServerPlayerEntity player) {
-        PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
-        if (this.gameMap.teamRegions.get(dtmPlayer.team).getMonumentCount() > 0) {
+        PlayerData playerData = this.participants.get(PlayerRef.of(player));
+        if (this.gameMap.teamRegions.get(playerData.team).getMonumentCount() > 0) {
+            playerData.activeKit = playerData.selectedKit;
+            player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
-            dtmPlayer.activeKit = dtmPlayer.selectedKit;
 
-            this.setInventory(player, dtmPlayer);
+            this.setInventory(player, playerData);
         } else {
             this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
         }
@@ -285,11 +289,11 @@ public abstract class BaseGameLogic {
     }
 
 
-    public void setInventory(ServerPlayerEntity player, PlayerData dtmPlayer) {
+    public void setInventory(ServerPlayerEntity player, PlayerData playerData) {
         player.inventory.clear();
 
-        dtmPlayer.activeKit.equipPlayer(player, dtmPlayer.team);
-        dtmPlayer.resetTimers();
+        playerData.activeKit.equipPlayer(player, playerData.team);
+        playerData.resetTimers();
 
         player.inventory.setStack(8, ItemStackBuilder.of(Items.PAPER)
                 .setName(DtmUtil.getText("item", "change_class")
@@ -360,7 +364,7 @@ public abstract class BaseGameLogic {
 
         dtmPlayer.brokenNonPlankBlocks += 1;
 
-        if (dtmPlayer.brokenNonPlankBlocks % dtmPlayer.activeKit.blockToPlanks == 0) {
+        if (dtmPlayer.brokenNonPlankBlocks % dtmPlayer.activeKit.blocksToPlanks == 0) {
             player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
         }
 

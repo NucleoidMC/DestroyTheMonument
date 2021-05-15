@@ -1,14 +1,7 @@
 {
   "kit_name": "constructor",
   "icon": "oak_planks",
-  "number_of_planks": 64,
-  "planks_restock_time": 30,
-  "blocks_to_planks": 2,
-  "food_item": {
-    "id": "cooked_beef",
-    "Count": 7
-  },
-  "food_restock_time": 800,
+  "blocks_to_planks": 1,
   "armor": [
     {
       "id": "golden_helmet",
@@ -30,13 +23,7 @@
   "items": [
     {
       "id": "stone_sword",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [{
-          "id": "knockback",
-          "lvl": 1
-        }]
-      }
+      "Count": 1
     },
     {
       "id": "diamond_pickaxe",
@@ -46,16 +33,57 @@
       "id": "wooden_axe",
       "Count": 1,
       "tag": {
-        "Enchantments": [{
-          "id": "efficiency",
-          "lvl": 3
-        }]
+        "Enchantments": [
+          {
+            "id": "efficiency",
+            "lvl": 3
+          }
+        ],
+        "AttributeModifiers": [
+          {
+            "AttributeName": "generic.attack_damage",
+            "Amount": 0.00,
+            "Operation": 0,
+            "UUID": [
+              -121250,
+              803540,
+              111937,
+              -160660
+            ],
+            "Slot": "mainhand",
+            "Name": "generic.attack_damage"
+          }
+        ]
       }
     }
   ],
-  "additional_item": {
-    "id": "tnt",
-    "Count": 1
-  },
-  "additional_restock_time": 1000
+  "restockable_items": [
+    {
+      "item": {
+        "id": "cooked_beef",
+        "Count": 1
+      },
+      "restock_time": 800,
+      "max_count": 5,
+      "start_count": 3
+    },
+    {
+      "item": {
+        "id": "oak_planks",
+        "Count": 1
+      },
+      "restock_time": 60,
+      "max_count": 64,
+      "start_count": 48
+    },
+    {
+      "item": {
+        "id": "tnt",
+        "Count": 1
+      },
+      "restock_time": 600,
+      "max_count": 4,
+      "start_offset": 400
+    }
+  ]
 }
