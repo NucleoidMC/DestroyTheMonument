@@ -1,26 +1,23 @@
 package eu.pb4.destroythemonument.other;
 
-import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.sgui.api.elements.AnimatedGuiElement;
-import eu.pb4.sgui.api.elements.AnimatedGuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 
 public class ClassPreviewUI extends SimpleGui {
-    private BaseGameLogic game;
-    private Kit kit;
+    private final ClassSelectorUI selectorUI;
+    private final Kit kit;
 
-    public ClassPreviewUI(ServerPlayerEntity player, BaseGameLogic game, Kit kit) {
-        super(ScreenHandlerType.GENERIC_9X3, player, false);
-        this.game = game;
+    public ClassPreviewUI(ClassSelectorUI selectorUI, Kit kit) {
+        super(ScreenHandlerType.GENERIC_9X3, selectorUI.getPlayer(), false);
+        this.selectorUI = selectorUI;
         this.kit = kit;
         this.setTitle(DtmUtil.getText("ui", "class_preview", DtmUtil.getText("class", kit.name)));
     }
@@ -66,7 +63,7 @@ public class ClassPreviewUI extends SimpleGui {
     @Override
     public void onClose() {
         this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
-        ClassSelectorUI.openSelector(player, this.game);
+        selectorUI.open();
         super.onClose();
     }
 }

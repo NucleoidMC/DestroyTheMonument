@@ -23,13 +23,18 @@ public class SpawnLogic {
     }
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
+       this.resetPlayer(player, gameMode, true);
+    }
+    public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
         player.setGameMode(gameMode);
-        player.inventory.clear();
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;
         player.setHealth(player.getMaxHealth());
         player.getHungerManager().setFoodLevel(20);
         player.clearStatusEffects();
+        if (resetInventory) {
+            player.inventory.clear();
+        }
     }
 
     public void spawnPlayer(ServerPlayerEntity entity) {

@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.other;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.PlayerData;
 import eu.pb4.destroythemonument.kit.Kit;
+import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -15,18 +16,24 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClassSelectorUI extends SimpleGui {
     private final PlayerData playerData;
     private final BaseGameLogic game;
+    private final List<Kit> kits;
 
-    public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game) {
-        super(getType(game.kits.size()), player, game.kits.size() > 53);
+    public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game, List<Kit> kits) {
+        super(getType(kits.size()), player, kits.size() > 53);
         this.playerData = data;
         this.game = game;
+        this.kits = kits;
         this.setTitle(DtmUtil.getText("ui", "select_class"));
     }
 
@@ -47,14 +54,27 @@ public class ClassSelectorUI extends SimpleGui {
     }
 
     public static void openSelector(ServerPlayerEntity player, BaseGameLogic logic) {
-        new ClassSelectorUI(player, logic.participants.get(PlayerRef.of(player)), logic).open();
+        new ClassSelectorUI(player, logic.participants.get(PlayerRef.of(player)), logic, logic.kits).open();
+    }
+
+    public static void openSelector(ServerPlayerEntity player, PlayerData data, List<Identifier> kits) {
+        ArrayList<Kit> kitsList = new ArrayList<>();
+
+        for (Identifier id : kits) {
+            Kit kit = KitsRegistry.get(id);
+            if (kit != null) {
+                kitsList.add(kit);
+            }
+        }
+
+        new ClassSelectorUI(player, data, null, kitsList).open();
     }
 
     @Override
     public void onUpdate(boolean firstUpdate) {
         int pos = 0;
 
-        for (Kit kit : this.game.kits) {
+        for (Kit kit : this.kits) {
             GuiElementBuilder icon = new GuiElementBuilder(Registry.ITEM.get(kit.icon));
             icon.setName(DtmUtil.getText("class", kit.name).setStyle(Style.EMPTY.withItalic(false)));
             icon.hideFlags((byte) 127);
@@ -73,7 +93,7 @@ public class ClassSelectorUI extends SimpleGui {
                 } else if (clickType.isRight) {
                     this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
                     this.close();
-                    new ClassPreviewUI(this.player, this.game, kit).open();
+                    new ClassPreviewUI(this, kit).open();
                 }
                 this.onUpdate(false);
             });
@@ -88,21 +108,22 @@ public class ClassSelectorUI extends SimpleGui {
     public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, Kit kit) {
         playerData.selectedKit = kit;
 
-        BlockBounds classChange = game.gameMap.teamRegions.get(playerData.team).classChange;
-
         MutableText text = DtmUtil.getFormatted("»", DtmUtil.getText("message", "selected_class",
                 DtmUtil.getText("class", kit.name).formatted(Formatting.GOLD)).formatted(Formatting.WHITE));
 
         player.sendMessage(text, false);
 
-        if (classChange.contains(player.getBlockPos()) && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
-            playerData.activeKit = kit;
-            player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
-            playerData.resetTimers();
-            game.setInventory(player, playerData);
-        } else {
-            player.sendMessage(DtmUtil.getFormatted("»", DtmUtil.getText("message", "class_respawn").formatted(Formatting.WHITE)), false);
-        }
+        if (game != null) {
+            BlockBounds classChange = game.gameMap.teamRegions.get(playerData.team).classChange;
 
+            if (classChange.contains(player.getBlockPos()) && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
+                playerData.activeKit = kit;
+                player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
+                playerData.resetTimers();
+                game.setInventory(player, playerData);
+            } else {
+                player.sendMessage(DtmUtil.getFormatted("»", DtmUtil.getText("message", "class_respawn").formatted(Formatting.WHITE)), false);
+            }
+        }
     }
 }

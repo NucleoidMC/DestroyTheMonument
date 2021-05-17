@@ -20,4 +20,9 @@ public class DtmUtil {
     public static MutableText getFormatted(String prefix, Text message) {
         return new LiteralText(prefix + " ").setStyle(PREFIX_STYLE).append(message);
     }
+
+
+    public static Identifier id(String path) {
+        return new Identifier(DTM.ID, path);
+    }
 }

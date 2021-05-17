@@ -5,14 +5,16 @@ import eu.pb4.destroythemonument.map.TeamRegions;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.other.ClassSelectorUI;
+import eu.pb4.destroythemonument.other.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -65,7 +67,7 @@ public abstract class BaseGameLogic {
 
     protected final SpawnLogic spawnLogic;
     public final Teams teams;
-    protected final GameScoreboard scoreboard;
+    protected GameScoreboard scoreboard;
     protected TimerBar timerBar = null;
     public final ArrayList<Kit> kits = new ArrayList<>();
 
@@ -75,11 +77,11 @@ public abstract class BaseGameLogic {
     protected boolean setSpectator = false;
     public boolean isFinished = false;
 
-    public BaseGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> players, Teams teams) {
+    public BaseGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
-        this.participants = new Object2ObjectOpenHashMap<>();
+        this.participants = participants;
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants);
         this.teams = teams;
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
@@ -90,11 +92,9 @@ public abstract class BaseGameLogic {
             }
         }
 
-        this.scoreboard = new GameScoreboard(widgets, "Destroy The Monument", this);
-
-        for (GameTeam team : players.keySet()) {
-            for (ServerPlayerEntity player : players.get(team)) {
-                this.participants.put(PlayerRef.of(player), new PlayerData(team, this.defaultKit));
+        for (GameTeam team : playerTeams.keySet()) {
+            for (ServerPlayerEntity player : playerTeams.get(team)) {
+                this.participants.get(PlayerRef.of(player)).team = team;
                 this.teams.addPlayer(player, team);
             }
         }
@@ -144,10 +144,28 @@ public abstract class BaseGameLogic {
     }
 
     protected TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
-        PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
+        PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
-        if (dtmPlayer != null && player.inventory.getMainHandStack().getItem() == Items.PAPER) {
+        ItemStack stack = player.inventory.getMainHandStack();
+
+        if (playerData != null && !stack.isEmpty() && stack.getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, this);
+            return TypedActionResult.success(player.getStackInHand(hand));
+        } else if (!stack.isEmpty() && stack.getItem() == Items.TNT) {
+            stack.decrement(1);
+            TntEntity tnt = new TntEntity(player.world, player.getX(), player.getY(), player.getZ(), player);
+
+            double pitchRad = Math.toRadians(-player.pitch);
+            double yawRad = Math.toRadians(player.yaw - 180);
+
+            double horizontal = Math.cos(pitchRad);
+            tnt.setVelocity(new Vec3d(
+                    Math.sin(yawRad) * horizontal,
+                    Math.sin(pitchRad),
+                    -Math.cos(yawRad) * horizontal
+            ).multiply(0.8));
+
+            player.world.spawnEntity(tnt);
         }
 
         return TypedActionResult.pass(player.getStackInHand(hand));
@@ -171,10 +189,10 @@ public abstract class BaseGameLogic {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
             if (this.config.allowJoiningInGame) {
                 GameTeam team = this.teams.getSmallestTeam();
-                PlayerData dtmPlayer = new PlayerData(team, this.defaultKit);
-                this.participants.put(PlayerRef.of(player), dtmPlayer);
+                PlayerData playerData = new PlayerData(this.defaultKit);
+                playerData.team = team;
+                this.participants.put(PlayerRef.of(player), playerData);
                 this.teams.addPlayer(player, team);
-
                 this.spawnParticipant(player);
             } else {
                 this.spawnSpectator(player);
@@ -242,7 +260,7 @@ public abstract class BaseGameLogic {
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 120, 1, true, false));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOW_FALLING, 120, 10, true, false));
             for (int x = 0; x < 9; x++) {
-                player.inventory.setStack(x, new ItemStack(Items.PAPER));
+                player.inventory.setStack(x, new ItemStack(DtmItems.CLASS_SELECTOR));
             }
         } else {
             this.spawnParticipant(player);
@@ -275,6 +293,7 @@ public abstract class BaseGameLogic {
     }
 
     protected void spawnParticipant(ServerPlayerEntity player) {
+        player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         if (this.gameMap.teamRegions.get(playerData.team).getMonumentCount() > 0) {
             playerData.activeKit = playerData.selectedKit;
@@ -295,9 +314,7 @@ public abstract class BaseGameLogic {
         playerData.activeKit.equipPlayer(player, playerData.team);
         playerData.resetTimers();
 
-        player.inventory.setStack(8, ItemStackBuilder.of(Items.PAPER)
-                .setName(DtmUtil.getText("item", "change_class")
-                        .setStyle(Style.EMPTY.withItalic(false).withColor(Formatting.GOLD))).build());
+        player.inventory.setStack(8, new ItemStack(DtmItems.CLASS_SELECTOR));
     }
 
 

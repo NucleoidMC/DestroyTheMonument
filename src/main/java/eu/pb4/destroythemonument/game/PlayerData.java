@@ -6,7 +6,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
 public class PlayerData {
-    public final GameTeam team;
+    public GameTeam team = null;
     public Kit activeKit;
     public Kit selectedKit;
     public int deaths = 0;
@@ -20,10 +20,9 @@ public class PlayerData {
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
 
-    public PlayerData(GameTeam team, Kit defaultKit) {
+    public PlayerData(Kit defaultKit) {
         this.selectedKit = defaultKit;
         this.activeKit = defaultKit;
-        this.team = team;
     }
 
     public void resetTimers() {

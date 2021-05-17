@@ -1,13 +1,11 @@
 package eu.pb4.destroythemonument.game_logic;
 
 import com.google.common.collect.Multimap;
-import eu.pb4.destroythemonument.game.BaseGameLogic;
-import eu.pb4.destroythemonument.game.GameConfig;
-import eu.pb4.destroythemonument.game.PlayerData;
-import eu.pb4.destroythemonument.game.Teams;
+import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.map.Map;
 import eu.pb4.destroythemonument.map.TeamRegions;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -23,8 +21,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class StandardGameLogic extends BaseGameLogic {
-    public StandardGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> players, Teams teams) {
-        super(gameSpace, map, widgets, config, players, teams);
+
+    public StandardGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+        super(gameSpace, map, widgets, config, playerTeams, participants, teams);
+        this.scoreboard = new GameScoreboard(widgets, "Destroy The Monument", this);
 
         List<Text> texts = new ArrayList<>();
 
@@ -70,10 +70,10 @@ public class StandardGameLogic extends BaseGameLogic {
         return aliveTeams <= 1;
     }
 
-    public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> players, Teams teams) {
+    public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.openGame(game -> {
             GlobalWidgets widgets = new GlobalWidgets(game);
-            BaseGameLogic active = new StandardGameLogic(gameSpace, map, widgets, config, players, teams);
+            BaseGameLogic active = new StandardGameLogic(gameSpace, map, widgets, config, playerTeams, participants, teams);
             active.setupGame(game, gameSpace, map, config);
         });
     }

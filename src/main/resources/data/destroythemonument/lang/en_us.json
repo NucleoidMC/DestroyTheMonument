@@ -11,7 +11,7 @@
   "class.destroythemonument.berserker": "Berserker",
   "class.destroythemonument.berserker.description": "High damage, minimal armor",
 
-  "item.destroythemonument.change_class": "Select class",
+  "item.destroythemonument.class_selector": "Select class",
 
   "message.destroythemonument.selected_class": "You have selected %s class.",
   "message.destroythemonument.class_respawn": "You will change to it after you respawn.",
