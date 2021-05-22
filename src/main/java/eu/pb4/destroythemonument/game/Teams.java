@@ -17,6 +17,8 @@ public class Teams implements AutoCloseable {
     private final Map map;
 
     public Object2ObjectMap<GameTeam, Team> scoreboardTeams = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectMap<GameTeam, TeamData> teamData = new Object2ObjectOpenHashMap<>();
+
     public Object2ObjectMap<String, GameTeam> teams = new Object2ObjectOpenHashMap<>();
 
     final Scoreboard scoreboard;
@@ -38,7 +40,7 @@ public class Teams implements AutoCloseable {
         int count = 9999;
 
         for (GameTeam team : this.teams.values()) {
-            if (this.scoreboardTeams.get(team).getPlayerList().size() <= count && this.map.teamRegions.get(team).getMonumentCount() > 0) {
+            if (this.scoreboardTeams.get(team).getPlayerList().size() <= count && this.teamData.get(team).getMonumentCount() > 0) {
                 smallest = team;
                 count = this.scoreboardTeams.get(team).getPlayerList().size();
             }
@@ -56,7 +58,10 @@ public class Teams implements AutoCloseable {
         scoreboardTeam.setFriendlyFireAllowed(false);
         scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
 
-        this.map.addTeamRegions(team);
+        TeamData teamData = new TeamData(team);
+
+        this.map.setTeamRegions(team, teamData);
+        this.teamData.put(team, teamData);
 
         return scoreboardTeam;
     }

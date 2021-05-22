@@ -1,21 +1,21 @@
 package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.Multimap;
-import eu.pb4.destroythemonument.map.TeamRegions;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.map.Map;
 import eu.pb4.destroythemonument.other.ClassSelectorUI;
 import eu.pb4.destroythemonument.other.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import eu.pb4.destroythemonument.other.FormattingUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.block.BlockState;
-
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerAbilities;
@@ -24,13 +24,19 @@ import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
-
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.text.*;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameLogic;
 import xyz.nucleoid.plasmid.game.GameSpace;
@@ -40,15 +46,8 @@ import xyz.nucleoid.plasmid.game.player.JoinResult;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
-import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 import xyz.nucleoid.plasmid.util.PlayerRef;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.world.GameMode;
-import eu.pb4.destroythemonument.map.Map;
+import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,29 +59,25 @@ public abstract class BaseGameLogic {
 
     public final GameSpace gameSpace;
     public final Map gameMap;
-    protected final Kit defaultKit;
-
     public final Object2ObjectMap<PlayerRef, PlayerData> participants;
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
-
-    protected final SpawnLogic spawnLogic;
     public final Teams teams;
+    public final ArrayList<Kit> kits = new ArrayList<>();
+    protected final Kit defaultKit;
+    protected final SpawnLogic spawnLogic;
+    public long tickTime = 0;
+    public boolean isFinished = false;
     protected GameScoreboard scoreboard;
     protected TimerBar timerBar = null;
-    public final ArrayList<Kit> kits = new ArrayList<>();
-
-    public long tickTime = 0;
-
     protected long closeTime = -1;
     protected boolean setSpectator = false;
-    public boolean isFinished = false;
 
     public BaseGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
         this.participants = participants;
-        this.spawnLogic = new SpawnLogic(gameSpace, map, participants);
+        this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
         for (Identifier id : this.config.kits) {
@@ -230,7 +225,7 @@ public abstract class BaseGameLogic {
 
         Text deathMes = source.getDeathMessage(player);
 
-        Text text = DtmUtil.getFormatted("☠", deathMes.shallowCopy().setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xbfbfbf))));
+        Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.shallowCopy());
         this.gameSpace.getPlayers().sendMessage(text);
 
         if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
@@ -280,7 +275,7 @@ public abstract class BaseGameLogic {
                     this.spawnParticipant(player);
                 } else {
                     if ((ticksLeft + 1) % 20 == 0) {
-                        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.TIMES,null,0, 90, 0));
+                        player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.TIMES, null, 0, 90, 0));
                         player.networkHandler.sendPacket(new TitleS2CPacket(TitleS2CPacket.Action.TITLE,
                                 DtmUtil.getText("message", "respawn_time", ticksLeft / 20 + 1).formatted(Formatting.GOLD)));
                     }
@@ -295,7 +290,7 @@ public abstract class BaseGameLogic {
     protected void spawnParticipant(ServerPlayerEntity player) {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
-        if (this.gameMap.teamRegions.get(playerData.team).getMonumentCount() > 0) {
+        if (this.teams.teamData.get(playerData.team).getMonumentCount() > 0) {
             playerData.activeKit = playerData.selectedKit;
             player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
@@ -316,7 +311,6 @@ public abstract class BaseGameLogic {
 
         player.inventory.setStack(8, new ItemStack(DtmItems.CLASS_SELECTOR));
     }
-
 
 
     protected void spawnSpectator(ServerPlayerEntity player) {
@@ -349,20 +343,21 @@ public abstract class BaseGameLogic {
             return ActionResult.FAIL;
         }
 
-        if (this.gameMap.teamRegions.get(dtmPlayer.team).isMonument(blockPos)) {
+        if (this.teams.teamData.get(dtmPlayer.team).isMonument(blockPos)) {
             player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
             return ActionResult.FAIL;
         } else {
             for (GameTeam team : this.config.teams) {
-                TeamRegions regions = this.gameMap.teamRegions.get(team);
+                TeamData regions = this.teams.teamData.get(team);
 
                 if (regions.isMonument(blockPos)) {
                     regions.removeMonument(blockPos);
 
-                    Text text = DtmUtil.getFormatted("⛏",
+                    Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
+                            FormattingUtil.GENERAL_STYLE,
                             DtmUtil.getText("message", "monument_broken",
                                     player.getDisplayName(),
-                                    DtmUtil.getText("general", "team", team.getDisplay()).formatted(team.getFormatting())).formatted(Formatting.WHITE));
+                                    DtmUtil.getText("general", "team", team.getDisplay()).formatted(team.getFormatting())));
 
                     this.gameSpace.getPlayers().sendMessage(text);
                     this.maybeEliminate(team, regions);
@@ -388,7 +383,7 @@ public abstract class BaseGameLogic {
         return ActionResult.PASS;
     }
 
-    protected abstract void maybeEliminate(GameTeam team, TeamRegions regions);
+    protected abstract void maybeEliminate(GameTeam team, TeamData regions);
 
     protected void tick() {
         this.scoreboard.tick();
@@ -396,7 +391,7 @@ public abstract class BaseGameLogic {
         TickType result = this.getTickType();
 
         for (GameTeam team : this.teams.teams.values()) {
-            for (BlockPos pos : this.gameMap.teamRegions.get(team).monuments) {
+            for (BlockPos pos : this.teams.teamData.get(team).monuments) {
                 int color = team.getColor();
 
                 float blue = ((float) color % 256) / 256;
@@ -428,7 +423,7 @@ public abstract class BaseGameLogic {
             this.isFinished = true;
         }
 
-        for (ServerPlayerEntity player : this.gameSpace.getPlayers() ) {
+        for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
             PlayerRef ref = PlayerRef.of(player);
             PlayerData dtmPlayer = this.participants.get(ref);
             if (dtmPlayer != null) {
@@ -456,8 +451,7 @@ public abstract class BaseGameLogic {
                 }
                 this.timerBar = null;
                 this.isFinished = true;
-            }
-            else if (timeLeft <= 6000) {
+            } else if (timeLeft <= 6000) {
                 if (this.timerBar == null) {
                     this.timerBar = new TimerBar(this.gameSpace.getWorld().getPlayers(), timeLeft);
                 }
@@ -499,12 +493,14 @@ public abstract class BaseGameLogic {
     protected void broadcastWin(WinResult result) {
         Text message;
         if (result.isWin()) {
-            message = DtmUtil.getFormatted("»",
-                    DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(result.getWinningTeam())).formatted(Formatting.GOLD));
+            message = FormattingUtil.format(FormattingUtil.STAR_PREFIX,
+                    FormattingUtil.WIN_STYLE,
+                    DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(result.getWinningTeam())));
 
         } else {
-            message = DtmUtil.getFormatted("»",
-                    DtmUtil.getText("message", "game_end/no_winner", DtmUtil.getTeamText(result.getWinningTeam())).formatted(Formatting.GOLD));
+            message = FormattingUtil.format(FormattingUtil.STAR_PREFIX,
+                    FormattingUtil.WIN_STYLE,
+                    DtmUtil.getText("message", "game_end/no_winner", DtmUtil.getTeamText(result.getWinningTeam())));
         }
 
         PlayerSet players = this.gameSpace.getPlayers();
@@ -513,7 +509,15 @@ public abstract class BaseGameLogic {
     }
 
     public abstract WinResult checkWinResult();
+
     public abstract Collection<String> getTeamScoreboards(GameTeam team, boolean compact);
+
+    public enum TickType {
+        CONTINUE_TICK,
+        TICK_FINISHED,
+        GAME_FINISHED,
+        GAME_CLOSED,
+    }
 
     public static class WinResult {
         final GameTeam winningTeam;
@@ -539,12 +543,5 @@ public abstract class BaseGameLogic {
         public GameTeam getWinningTeam() {
             return this.winningTeam;
         }
-    }
-
-    public enum TickType {
-        CONTINUE_TICK,
-        TICK_FINISHED,
-        GAME_FINISHED,
-        GAME_CLOSED,
     }
 }

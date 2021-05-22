@@ -1,5 +1,6 @@
 package eu.pb4.destroythemonument.map;
 
+import eu.pb4.destroythemonument.game.TeamData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.Blocks;
@@ -9,6 +10,7 @@ import xyz.nucleoid.plasmid.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import xyz.nucleoid.plasmid.map.template.TemplateRegion;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.Set;
@@ -22,7 +24,6 @@ public class Map {
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
 
-    public final Object2ObjectMap<GameTeam, TeamRegions> teamRegions = new Object2ObjectOpenHashMap<>();
 
     public Map(MapTemplate template, MapConfig config) {
         this.template = template;
@@ -46,8 +47,8 @@ public class Map {
         return false;
     }
 
-    public void addTeamRegions(GameTeam team) {
-        BlockBounds spawn = this.template.getMetadata().getFirstRegionBounds(team.getKey() + "_spawn");
+    public void setTeamRegions(GameTeam team, TeamData data) {
+        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.getKey() + "_spawn");
         Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.getKey() + "_monument").collect(Collectors.toSet());
         BlockBounds classChange = this.template.getMetadata().getFirstRegionBounds(team.getKey() + "_class_change");
 
@@ -55,6 +56,6 @@ public class Map {
             this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());
         }
 
-        this.teamRegions.put(team, new TeamRegions(team, spawn, monuments, classChange));
+        data.setTeamRegions(spawn.getBounds(), spawn.getData().getFloat("yaw"), monuments, classChange);
     }
 }

@@ -14,12 +14,14 @@ import xyz.nucleoid.plasmid.util.PlayerRef;
 public class SpawnLogic {
     private final GameSpace gameSpace;
     private final Map map;
+    private final Teams teams;
     private final Object2ObjectMap<PlayerRef, PlayerData> participants;
 
-    public SpawnLogic(GameSpace gameSpace, Map map, Object2ObjectMap<PlayerRef, PlayerData> participants) {
+    public SpawnLogic(GameSpace gameSpace, Map map, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.participants = participants;
+        this.teams = teams;
     }
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
@@ -43,12 +45,13 @@ public class SpawnLogic {
             PlayerData player = participants.get(PlayerRef.of(entity));
 
             if (player != null && player.team != null) {
-                BlockBounds spawn = this.map.teamRegions.get(player.team).getSpawn();
+                TeamData data = this.teams.teamData.get(player.team);
+                BlockBounds spawn = data.spawn;
 
                 double x = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getX(), spawn.getMax().getX());
                 double z = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getZ(), spawn.getMax().getZ());
 
-                entity.teleport(world, x, spawn.getMin().getY(), z, entity.yaw, entity.pitch);
+                entity.teleport(world, x, spawn.getMin().getY(), z, data.spawnYaw, 0);
                 return;
             }
         }

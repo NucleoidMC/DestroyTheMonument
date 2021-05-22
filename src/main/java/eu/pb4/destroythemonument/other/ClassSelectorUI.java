@@ -83,8 +83,8 @@ public class ClassSelectorUI extends SimpleGui {
             }
             icon.addLoreLine(DtmUtil.getText("class", kit.name + "/description").formatted(Formatting.RED));
             icon.addLoreLine(new LiteralText(""));
-            icon.addLoreLine(DtmUtil.getFormatted("»", DtmUtil.getText("ui", "click_select").formatted(Formatting.GRAY)));
-            icon.addLoreLine(DtmUtil.getFormatted("»", DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
+            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_select").formatted(Formatting.GRAY)));
+            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
 
             icon.setCallback((x, clickType, z) -> {
                 if (clickType.isLeft) {
@@ -108,13 +108,13 @@ public class ClassSelectorUI extends SimpleGui {
     public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, Kit kit) {
         playerData.selectedKit = kit;
 
-        MutableText text = DtmUtil.getFormatted("»", DtmUtil.getText("message", "selected_class",
-                DtmUtil.getText("class", kit.name).formatted(Formatting.GOLD)).formatted(Formatting.WHITE));
+        MutableText text = FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "selected_class",
+                DtmUtil.getText("class", kit.name).formatted(Formatting.GOLD)));
 
         player.sendMessage(text, false);
 
         if (game != null) {
-            BlockBounds classChange = game.gameMap.teamRegions.get(playerData.team).classChange;
+            BlockBounds classChange = game.teams.teamData.get(playerData.team).classChange;
 
             if (classChange.contains(player.getBlockPos()) && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
                 playerData.activeKit = kit;
@@ -122,7 +122,7 @@ public class ClassSelectorUI extends SimpleGui {
                 playerData.resetTimers();
                 game.setInventory(player, playerData);
             } else {
-                player.sendMessage(DtmUtil.getFormatted("»", DtmUtil.getText("message", "class_respawn").formatted(Formatting.WHITE)), false);
+                player.sendMessage(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "class_respawn")), false);
             }
         }
     }

@@ -5,23 +5,23 @@ import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.MapBuilder;
 import eu.pb4.destroythemonument.other.ClassSelectorUI;
 import eu.pb4.destroythemonument.other.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.GameMode;
+import xyz.nucleoid.fantasy.BubbleWorldConfig;
 import xyz.nucleoid.plasmid.game.*;
 import xyz.nucleoid.plasmid.game.event.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.world.GameMode;
-import eu.pb4.destroythemonument.map.Map;
-import eu.pb4.destroythemonument.map.MapBuilder;
-import xyz.nucleoid.fantasy.BubbleWorldConfig;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
@@ -43,7 +43,7 @@ public class WaitingLobby {
         this.gameSpace = gameSpace;
         this.map = map;
         this.config = config;
-        this.spawnLogic = new SpawnLogic(gameSpace, map, null);
+        this.spawnLogic = new SpawnLogic(gameSpace, map, null, null);
         this.teams = gameSpace.addResource(new Teams(gameSpace, map, config));
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
 

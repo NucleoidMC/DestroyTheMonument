@@ -3,7 +3,6 @@ package eu.pb4.destroythemonument.game_logic;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.map.Map;
-import eu.pb4.destroythemonument.map.TeamRegions;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -39,9 +38,17 @@ public class StandardGameLogic extends BaseGameLogic {
         }
     }
 
-    protected void maybeEliminate(GameTeam team, TeamRegions regions) {
+    public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+        gameSpace.openGame(game -> {
+            GlobalWidgets widgets = new GlobalWidgets(game);
+            BaseGameLogic active = new StandardGameLogic(gameSpace, map, widgets, config, playerTeams, participants, teams);
+            active.setupGame(game, gameSpace, map, config);
+        });
+    }
+
+    protected void maybeEliminate(GameTeam team, TeamData regions) {
         if (regions.getMonumentCount() <= 0) {
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers() ) {
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.team == team) {
                     player.setGameMode(GameMode.SPECTATOR);
@@ -62,7 +69,7 @@ public class StandardGameLogic extends BaseGameLogic {
                     players += 1;
                 }
             }
-            if (this.gameMap.teamRegions.get(team).getMonumentCount() > 0 && players > 0) {
+            if (this.teams.teamData.get(team).getMonumentCount() > 0 && players > 0) {
                 aliveTeams += 1;
             }
         }
@@ -70,20 +77,12 @@ public class StandardGameLogic extends BaseGameLogic {
         return aliveTeams <= 1;
     }
 
-    public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        gameSpace.openGame(game -> {
-            GlobalWidgets widgets = new GlobalWidgets(game);
-            BaseGameLogic active = new StandardGameLogic(gameSpace, map, widgets, config, playerTeams, participants, teams);
-            active.setupGame(game, gameSpace, map, config);
-        });
-    }
-
     public WinResult checkWinResult() {
         GameTeam winners = null;
         int monumentsWinner = 0;
 
         for (GameTeam team : this.config.teams) {
-            int monuments = this.gameMap.teamRegions.get(team).getMonumentCount();
+            int monuments = this.teams.teamData.get(team).getMonumentCount();
             int players = 0;
 
             for (PlayerData dtmPlayer : this.participants.values()) {
@@ -114,30 +113,29 @@ public class StandardGameLogic extends BaseGameLogic {
     public Collection<String> getTeamScoreboards(GameTeam team, boolean compact) {
         List<String> lines = new ArrayList<>();
 
-        int monuments = this.gameMap.teamRegions.get(team).getMonumentCount();
+        int monuments = this.teams.teamData.get(team).getMonumentCount();
 
         if (compact) {
-            lines.add(team.getFormatting().toString() + Formatting.BOLD.toString() + (monuments == 0 ? Formatting.STRIKETHROUGH.toString() : "")  + team.getDisplay() +
-                    Formatting.GRAY.toString() + " » " +
-                    Formatting.WHITE.toString() + monuments +
-                    Formatting.GRAY.toString() + "/" + Formatting.WHITE.toString() +
-                    this.gameMap.teamRegions.get(team).monumentStartingCount +
-                    Formatting.WHITE.toString());
-        }
-        else {
+            lines.add(team.getFormatting().toString() + Formatting.BOLD + (monuments == 0 ? Formatting.STRIKETHROUGH.toString() : "") + team.getDisplay() +
+                    Formatting.GRAY + " » " +
+                    Formatting.WHITE + monuments +
+                    Formatting.GRAY + "/" + Formatting.WHITE +
+                    this.teams.teamData.get(team).monumentStartingCount +
+                    Formatting.WHITE);
+        } else {
             if (monuments != 0) {
-                lines.add(team.getFormatting().toString() + Formatting.BOLD.toString() + team.getDisplay() + " Team:");
-                lines.add(Formatting.GRAY.toString() + "» " +
-                        Formatting.WHITE.toString() + monuments +
-                        Formatting.GRAY.toString() + "/" + Formatting.WHITE.toString() +
-                        this.gameMap.teamRegions.get(team).monumentStartingCount +
-                        Formatting.WHITE.toString() + " left"
+                lines.add(team.getFormatting().toString() + Formatting.BOLD + team.getDisplay() + " Team:");
+                lines.add(Formatting.GRAY + "» " +
+                        Formatting.WHITE + monuments +
+                        Formatting.GRAY + "/" + Formatting.WHITE +
+                        this.teams.teamData.get(team).monumentStartingCount +
+                        Formatting.WHITE + " left"
                 );
             } else {
-                lines.add(team.getFormatting().toString() + Formatting.BOLD.toString()
-                        + Formatting.STRIKETHROUGH.toString() + team.getDisplay() + " Team:");
-                lines.add(Formatting.GRAY.toString() + "» " +
-                        Formatting.WHITE.toString() + "Eliminated!"
+                lines.add(team.getFormatting().toString() + Formatting.BOLD
+                        + Formatting.STRIKETHROUGH + team.getDisplay() + " Team:");
+                lines.add(Formatting.GRAY + "» " +
+                        Formatting.WHITE + "Eliminated!"
                 );
             }
             lines.add(" ");
