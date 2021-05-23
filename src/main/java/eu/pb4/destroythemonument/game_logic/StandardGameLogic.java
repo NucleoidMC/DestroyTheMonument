@@ -22,7 +22,7 @@ import java.util.List;
 public class StandardGameLogic extends BaseGameLogic {
 
     public StandardGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        super(gameSpace, map, widgets, config, playerTeams, participants, teams);
+        super(gameSpace, map, config, playerTeams, participants, teams);
         this.scoreboard = new GameScoreboard(widgets, "Destroy The Monument", this);
 
         List<Text> texts = new ArrayList<>();

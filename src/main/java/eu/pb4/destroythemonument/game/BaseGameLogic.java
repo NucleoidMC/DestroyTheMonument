@@ -1,16 +1,19 @@
 package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.Multimap;
+import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.map.Map;
-import eu.pb4.destroythemonument.other.ClassSelectorUI;
-import eu.pb4.destroythemonument.other.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
+import eu.pb4.destroythemonument.ui.BlockSelectorUI;
+import eu.pb4.destroythemonument.ui.ClassSelectorUI;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.TntEntity;
@@ -19,6 +22,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerAbilities;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
@@ -30,9 +34,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -47,7 +49,6 @@ import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRule;
 import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.util.PlayerRef;
-import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,7 +73,7 @@ public abstract class BaseGameLogic {
     protected long closeTime = -1;
     protected boolean setSpectator = false;
 
-    public BaseGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public BaseGameLogic(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
@@ -93,6 +94,8 @@ public abstract class BaseGameLogic {
                 this.teams.addPlayer(player, team);
             }
         }
+
+        DTM.ACTIVE_GAMES.put(gameSpace, this);
     }
 
     public void setupGame(GameLogic game, GameSpace gameSpace, Map map, GameConfig config) {
@@ -104,7 +107,6 @@ public abstract class BaseGameLogic {
         game.setRule(GameRule.INTERACTION, RuleResult.ALLOW);
         game.setRule(GameRule.BLOCK_DROPS, RuleResult.DENY);
         game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
-        game.setRule(GameRule.THROW_ITEMS, RuleResult.DENY);
         game.setRule(GameRule.UNSTABLE_TNT, RuleResult.ALLOW);
 
         game.on(GameOpenListener.EVENT, this::onOpen);
@@ -123,6 +125,19 @@ public abstract class BaseGameLogic {
         game.on(PlayerDeathListener.EVENT, this::onPlayerDeath);
         game.on(ExplosionListener.EVENT, this::onExplosion);
         game.on(PlayerFireArrowListener.EVENT, this::onArrowShoot);
+        game.on(DropItemListener.EVENT, this::onPlayerDropItem);
+    }
+
+    private ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
+        if (this.participants.get(PlayerRef.of(player)) != null && stack != null) {
+            if (stack.getItem() == DtmItems.MULTI_BLOCK) {
+                BlockSelectorUI.openSelector((ServerPlayerEntity) player, this);
+            } else if (stack.getItem() == DtmItems.CLASS_SELECTOR) {
+                ClassSelectorUI.openSelector((ServerPlayerEntity) player, this);
+            }
+        }
+
+        return ActionResult.FAIL;
     }
 
     protected ActionResult onArrowShoot(ServerPlayerEntity player, ItemStack itemStack, ArrowItem arrowItem, int i, PersistentProjectileEntity projectile) {
@@ -131,11 +146,12 @@ public abstract class BaseGameLogic {
     }
 
     protected void onExplosion(List<BlockPos> blockPosList) {
-        blockPosList.removeIf(this::isBreakableWithExplosion);
-    }
-
-    protected boolean isBreakableWithExplosion(BlockPos blockPos) {
-        return this.gameSpace.getWorld().getBlockState(blockPos).getBlock() != Blocks.OAK_PLANKS;
+        for (BlockPos blockPos : blockPosList) {
+            if (TagRegistry.block(DtmUtil.id("building_blocks")).contains(this.gameSpace.getWorld().getBlockState(blockPos).getBlock())) {
+                this.gameSpace.getWorld().setBlockState(blockPos, Blocks.AIR.getDefaultState());
+            }
+        }
+        blockPosList.clear();
     }
 
     protected TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
@@ -368,8 +384,8 @@ public abstract class BaseGameLogic {
             }
         }
 
-        if (player.world.getBlockState(blockPos).getBlock() == Blocks.OAK_PLANKS) {
-            player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
+        if (TagRegistry.block(DtmUtil.id("building_blocks")).contains(player.world.getBlockState(blockPos).getBlock())) {
+            player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
             dtmPlayer.brokenPlankBlocks += 1;
             return ActionResult.SUCCESS;
         }
@@ -377,7 +393,7 @@ public abstract class BaseGameLogic {
         dtmPlayer.brokenNonPlankBlocks += 1;
 
         if (dtmPlayer.brokenNonPlankBlocks % dtmPlayer.activeKit.blocksToPlanks == 0) {
-            player.giveItemStack(new ItemStack(Items.OAK_PLANKS));
+            player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
         }
 
         return ActionResult.PASS;
@@ -500,7 +516,7 @@ public abstract class BaseGameLogic {
         } else {
             message = FormattingUtil.format(FormattingUtil.STAR_PREFIX,
                     FormattingUtil.WIN_STYLE,
-                    DtmUtil.getText("message", "game_end/no_winner", DtmUtil.getTeamText(result.getWinningTeam())));
+                    DtmUtil.getText("message", "game_end/no_winner"));
         }
 
         PlayerSet players = this.gameSpace.getPlayers();

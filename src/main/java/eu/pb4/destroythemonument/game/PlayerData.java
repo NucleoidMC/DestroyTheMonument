@@ -1,7 +1,10 @@
 package eu.pb4.destroythemonument.game;
 
+import eu.pb4.destroythemonument.items.MultiBlockItem;
 import eu.pb4.destroythemonument.kit.Kit;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 
@@ -19,6 +22,7 @@ public class PlayerData {
 
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
+    public Block selectedBlock = Blocks.OAK_PLANKS;
 
     public PlayerData(Kit defaultKit) {
         this.selectedKit = defaultKit;

@@ -69,7 +69,7 @@
     },
     {
       "item": {
-        "id": "oak_planks",
+        "id": "destroythemonument:multi_block",
         "Count": 1
       },
       "restock_time": 60,

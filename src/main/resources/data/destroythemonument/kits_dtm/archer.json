@@ -89,15 +89,6 @@
   "restockable_items": [
     {
       "item": {
-        "id": "arrow",
-        "Count": 1
-      },
-      "restock_time": 200,
-      "max_count": 10,
-      "start_count": 5
-    },
-    {
-      "item": {
         "id": "cooked_cod",
         "Count": 1
       },
@@ -107,12 +98,21 @@
     },
     {
       "item": {
-        "id": "oak_planks",
+        "id": "destroythemonument:multi_block",
         "Count": 1
       },
       "restock_time": 65,
       "max_count": 32,
       "start_count": 24
+    },
+    {
+      "item": {
+        "id": "arrow",
+        "Count": 1
+      },
+      "restock_time": 200,
+      "max_count": 10,
+      "start_count": 5
     }
   ]
 }

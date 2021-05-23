@@ -2,13 +2,14 @@ package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import eu.pb4.destroythemonument.game_logic.DebugGameLogic;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.map.Map;
 import eu.pb4.destroythemonument.map.MapBuilder;
-import eu.pb4.destroythemonument.other.ClassSelectorUI;
-import eu.pb4.destroythemonument.other.DtmItems;
+import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -95,6 +96,9 @@ public class WaitingLobby {
         switch (this.config.gamemode) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
+                break;
+            case "debug":
+                DebugGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
                 break;
             default:
                 return StartResult.error(DtmUtil.getText("message", "invalid_game_type"));

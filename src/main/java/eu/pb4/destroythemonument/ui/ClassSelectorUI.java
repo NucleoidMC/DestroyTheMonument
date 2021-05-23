@@ -1,9 +1,11 @@
-package eu.pb4.destroythemonument.other;
+package eu.pb4.destroythemonument.ui;
 
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.PlayerData;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.other.DtmUtil;
+import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.attribute.EntityAttributes;

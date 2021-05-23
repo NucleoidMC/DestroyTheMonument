@@ -12,6 +12,7 @@
   "class.destroythemonument.berserker.description": "High damage, minimal armor",
 
   "item.destroythemonument.class_selector": "Select class",
+  "item.destroythemonument.multi_block": "Multi Block",
 
   "message.destroythemonument.selected_class": "You have selected %s class.",
   "message.destroythemonument.class_respawn": "You will change to it after you respawn.",
@@ -33,6 +34,5 @@
   "ui.destroythemonument.class_preview": "%s's Inventory",
   "ui.destroythemonument.return_selector": "Return to class selector",
   "ui.destroythemonument.click_select": "Use left mouse button to select",
-  "ui.destroythemonument.click_preview": "Use right mouse button to preview"
-
-}
+  "ui.destroythemonument.click_preview": "Use right mouse button to preview",
+  "ui.destroythemonument.select_block": "Select block"}
