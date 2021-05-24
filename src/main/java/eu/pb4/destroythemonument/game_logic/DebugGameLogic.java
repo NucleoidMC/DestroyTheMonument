@@ -16,8 +16,8 @@ import xyz.nucleoid.plasmid.widget.GlobalWidgets;
 
 public class DebugGameLogic extends StandardGameLogic {
 
-    public DebugGameLogic(GameSpace gameSpace, Map map, GlobalWidgets widgets, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        super(gameSpace, map, widgets, config, playerTeams, participants, teams);
+    public DebugGameLogic(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+        super(gameSpace, map, config, playerTeams, participants, teams);
 
         Text text = new LiteralText("+-----------------DEBUG----------------+").formatted(Formatting.AQUA);
         this.gameSpace.getPlayers().sendMessage(text);
@@ -25,8 +25,7 @@ public class DebugGameLogic extends StandardGameLogic {
 
     public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.openGame(game -> {
-            GlobalWidgets widgets = new GlobalWidgets(game);
-            BaseGameLogic active = new DebugGameLogic(gameSpace, map, widgets, config, playerTeams, participants, teams);
+            BaseGameLogic active = new DebugGameLogic(gameSpace, map, config, playerTeams, participants, teams);
             active.setupGame(game, gameSpace, map, config);
         });
     }

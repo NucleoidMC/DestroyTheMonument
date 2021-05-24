@@ -10,6 +10,7 @@ import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -51,7 +52,6 @@ import xyz.nucleoid.plasmid.game.rule.RuleResult;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -66,9 +66,9 @@ public abstract class BaseGameLogic {
     public final ArrayList<Kit> kits = new ArrayList<>();
     protected final Kit defaultKit;
     protected final SpawnLogic spawnLogic;
+    protected final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
     public long tickTime = 0;
     public boolean isFinished = false;
-    protected GameScoreboard scoreboard;
     protected TimerBar timerBar = null;
     protected long closeTime = -1;
     protected boolean setSpectator = false;
@@ -85,6 +85,19 @@ public abstract class BaseGameLogic {
             Kit kit = KitsRegistry.get(id);
             if (kit != null) {
                 this.kits.add(kit);
+            }
+        }
+
+        this.buildSidebar();
+        this.globalSidebar.show();
+
+        for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+            PlayerData data = this.participants.get(PlayerRef.of(player));
+
+            if (data != null) {
+                this.setPlayerSidebar(player, data);
+            } else {
+                this.globalSidebar.addPlayer(player);
             }
         }
 
@@ -204,6 +217,8 @@ public abstract class BaseGameLogic {
                 playerData.team = team;
                 this.participants.put(PlayerRef.of(player), playerData);
                 this.teams.addPlayer(player, team);
+                this.setPlayerSidebar(player, playerData);
+
                 this.spawnParticipant(player);
             } else {
                 this.spawnSpectator(player);
@@ -222,6 +237,9 @@ public abstract class BaseGameLogic {
             if (this.timerBar != null) {
                 this.timerBar.removePlayer(player);
             }
+            dtmPlayer.sidebar.removePlayer(player);
+        } else {
+            this.globalSidebar.removePlayer(player);
         }
     }
 
@@ -402,8 +420,6 @@ public abstract class BaseGameLogic {
     protected abstract void maybeEliminate(GameTeam team, TeamData regions);
 
     protected void tick() {
-        this.scoreboard.tick();
-
         TickType result = this.getTickType();
 
         for (GameTeam team : this.teams.teams.values()) {
@@ -476,6 +492,10 @@ public abstract class BaseGameLogic {
         }
     }
 
+    protected abstract void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData);
+
+    protected abstract void buildSidebar();
+
     protected abstract boolean checkIfShouldEnd();
 
     protected TickType getTickType() {
@@ -526,7 +546,6 @@ public abstract class BaseGameLogic {
 
     public abstract WinResult checkWinResult();
 
-    public abstract Collection<String> getTeamScoreboards(GameTeam team, boolean compact);
 
     public enum TickType {
         CONTINUE_TICK,

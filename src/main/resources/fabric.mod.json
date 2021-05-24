@@ -14,6 +14,9 @@
       "eu.pb4.destroythemonument.DTM"
     ]
   },
+  "mixins": [
+    "destroythemonument.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.9.1",
     "fabric": "*",

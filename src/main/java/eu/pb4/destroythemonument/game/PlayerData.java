@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.items.MultiBlockItem;
 import eu.pb4.destroythemonument.kit.Kit;
+import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -23,6 +24,7 @@ public class PlayerData {
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
     public Block selectedBlock = Blocks.OAK_PLANKS;
+    public Sidebar sidebar;
 
     public PlayerData(Kit defaultKit) {
         this.selectedKit = defaultKit;

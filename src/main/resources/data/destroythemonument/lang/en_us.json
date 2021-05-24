@@ -27,8 +27,11 @@
 
   "general.destroythemonument.team": "%s Team",
 
-  "scoreboard.destroythemonument.text.monuments_left": "%s left",
-  "scoreboard.destroythemonument.text.eliminated": "Eliminated!",
+  "sidebar.destroythemonument.left": "%s left",
+  "sidebar.destroythemonument.eliminated": "Eliminated!",
+  "sidebar.destroythemonument.time": "Time: %s",
+  "sidebar.destroythemonument.standard_title": "Destroy The Monument",
+  "sidebar.destroythemonument.stats": "🗡: %s ☠: %s ⛏: %s",
 
   "ui.destroythemonument.select_class": "Select your class",
   "ui.destroythemonument.class_preview": "%s's Inventory",
