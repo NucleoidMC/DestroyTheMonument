@@ -50,7 +50,7 @@ public class Map {
     public void setTeamRegions(GameTeam team, TeamData data) {
         TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.getKey() + "_spawn");
         Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.getKey() + "_monument").collect(Collectors.toSet());
-        BlockBounds classChange = this.template.getMetadata().getFirstRegionBounds(team.getKey() + "_class_change");
+        Set<BlockBounds> classChange = this.template.getMetadata().getRegionBounds(team.getKey() + "_class_change").collect(Collectors.toSet());
 
         for (BlockBounds monument : monuments) {
             this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());

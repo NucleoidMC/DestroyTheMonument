@@ -1,9 +1,9 @@
 {
   "type": "destroythemonument:destroythemonument",
   "gamemode": "debug",
-  "name": "Destroy The Monument: Cubes/Debug",
+  "name": "Destroy The Monument: Debug",
   "map": {
-    "id": "destroythemonument:cubes",
+    "id": "destroythemonument:honey",
     "time": 0
   },
   "players": {

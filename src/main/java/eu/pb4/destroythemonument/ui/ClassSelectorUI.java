@@ -114,11 +114,16 @@ public class ClassSelectorUI extends SimpleGui {
                 DtmUtil.getText("class", kit.name).formatted(Formatting.GOLD)));
 
         player.sendMessage(text, false);
-
+        boolean isIn = false;
         if (game != null) {
-            BlockBounds classChange = game.teams.teamData.get(playerData.team).classChange;
+            for (BlockBounds classChange : game.teams.teamData.get(playerData.team).classChange) {
+                if (classChange.contains(player.getBlockPos())) {
+                    isIn = true;
+                    break;
+                }
+            }
 
-            if (classChange.contains(player.getBlockPos()) && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
+            if (isIn && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
                 playerData.activeKit = kit;
                 player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
                 playerData.resetTimers();

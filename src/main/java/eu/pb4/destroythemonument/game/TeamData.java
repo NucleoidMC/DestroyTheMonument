@@ -14,7 +14,7 @@ public class TeamData {
     public BlockBounds spawn;
     public float spawnYaw;
     public int monumentStartingCount;
-    public BlockBounds classChange;
+    public Set<BlockBounds> classChange;
 
 
     public TeamData(GameTeam team) {
@@ -23,7 +23,7 @@ public class TeamData {
 
     }
 
-    public void setTeamRegions(BlockBounds spawn, float spawnYaw, Set<BlockBounds> monuments, BlockBounds classChange) {
+    public void setTeamRegions(BlockBounds spawn, float spawnYaw, Set<BlockBounds> monuments, Set<BlockBounds> classChange) {
         this.spawn = spawn;
         this.spawnYaw = spawnYaw;
         for (BlockBounds bounds : monuments) {
