@@ -1,10 +1,9 @@
 {
   "type": "destroythemonument:destroythemonument",
   "gamemode": "standard",
-  "name": "Destroy The Monument: Cubes",
+  "translation": "map.destroythemonument.cubes",
   "map": {
-    "id": "destroythemonument:cubes",
-    "time": 0
+    "id": "destroythemonument:cubes"
   },
   "players": {
     "min": 2,

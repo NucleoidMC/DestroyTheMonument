@@ -1,20 +1,21 @@
 package eu.pb4.destroythemonument.game;
 
+import eu.pb4.destroythemonument.DTM;
 import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TeamData {
-    private final GameTeam team;
     public final Set<BlockPos> monuments;
-    public BlockBounds spawn;
+    private final GameTeam team;
     public float spawnYaw;
     public int monumentStartingCount;
     public Set<BlockBounds> classChange;
+    private List<BlockPos> spawn;
 
 
     public TeamData(GameTeam team) {
@@ -23,7 +24,11 @@ public class TeamData {
 
     }
 
-    public void setTeamRegions(BlockBounds spawn, float spawnYaw, Set<BlockBounds> monuments, Set<BlockBounds> classChange) {
+    public BlockPos getRandomSpawnPos() {
+        return this.spawn.get(DTM.RANDOM.nextInt(this.spawn.size()));
+    }
+
+    public void setTeamRegions(List<BlockPos> spawn, float spawnYaw, Set<BlockBounds> monuments, Set<BlockBounds> classChange) {
         this.spawn = spawn;
         this.spawnYaw = spawnYaw;
         for (BlockBounds bounds : monuments) {

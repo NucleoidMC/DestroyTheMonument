@@ -17,6 +17,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -371,46 +374,35 @@ public abstract class BaseGameLogic {
     }
 
     protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, BlockPos blockPos) {
-        PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
-
         if (this.gameMap.isUnbreakable(blockPos)) {
             return ActionResult.FAIL;
+        } else if (this.gameMap.isTater(blockPos)) {
+            Entity entity = new LightningEntity(EntityType.LIGHTNING_BOLT, player.world);
+            entity.updatePosition(player.getX(), player.getY(), player.getZ());
+            player.world.spawnEntity(entity);
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 6000, 2));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, 6000, 2));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 6000, 2));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 6000, 2));
+            player.inventory.clear();
+            return ActionResult.PASS;
         }
 
-        if (this.teams.teamData.get(dtmPlayer.team).isMonument(blockPos)) {
-            player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
-            return ActionResult.FAIL;
-        } else {
-            for (GameTeam team : this.config.teams) {
-                TeamData regions = this.teams.teamData.get(team);
+        PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
-                if (regions.isMonument(blockPos)) {
-                    regions.removeMonument(blockPos);
-
-                    Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
-                            FormattingUtil.GENERAL_STYLE,
-                            DtmUtil.getText("message", "monument_broken",
-                                    player.getDisplayName(),
-                                    DtmUtil.getText("general", "team", team.getDisplay()).formatted(team.getFormatting())));
-
-                    this.gameSpace.getPlayers().sendMessage(text);
-                    this.maybeEliminate(team, regions);
-                    this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
-                    dtmPlayer.brokenMonuments += 1;
-                    return ActionResult.SUCCESS;
-                }
-            }
+        if (playerData == null) {
+            return ActionResult.PASS;
         }
 
         if (TagRegistry.block(DtmUtil.id("building_blocks")).contains(player.world.getBlockState(blockPos).getBlock())) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
-            dtmPlayer.brokenPlankBlocks += 1;
+            playerData.brokenPlankBlocks += 1;
             return ActionResult.SUCCESS;
         }
 
-        dtmPlayer.brokenNonPlankBlocks += 1;
+        playerData.brokenNonPlankBlocks += 1;
 
-        if (dtmPlayer.brokenNonPlankBlocks % dtmPlayer.activeKit.blocksToPlanks == 0) {
+        if (playerData.brokenNonPlankBlocks % playerData.activeKit.blocksToPlanks == 0) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
         }
 

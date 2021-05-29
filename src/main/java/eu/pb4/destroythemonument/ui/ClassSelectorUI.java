@@ -78,8 +78,8 @@ public class ClassSelectorUI extends SimpleGui {
 
         for (Kit kit : this.kits) {
             GuiElementBuilder icon = new GuiElementBuilder(Registry.ITEM.get(kit.icon));
-            icon.setName(DtmUtil.getText("class", kit.name).setStyle(Style.EMPTY.withItalic(false)));
-            icon.hideFlags((byte) 127);
+            icon.setName(DtmUtil.getText("class", kit.name));
+            icon.hideFlags();
             if (kit == this.playerData.selectedKit) {
                 icon.glow();
             }
@@ -101,7 +101,6 @@ public class ClassSelectorUI extends SimpleGui {
             });
 
             this.setSlot(pos, icon);
-            pos++;
         }
 
         super.onUpdate(firstUpdate);

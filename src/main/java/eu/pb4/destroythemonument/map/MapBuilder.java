@@ -1,6 +1,8 @@
 package eu.pb4.destroythemonument.map;
 
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.BiomeKeys;
 import xyz.nucleoid.plasmid.game.GameOpenException;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
@@ -21,7 +23,7 @@ public class MapBuilder {
             MapTemplate template = MapTemplateSerializer.INSTANCE.loadFromResource(this.config.id);
 
             Map map = new Map(template, config);
-            template.setBiome(BiomeKeys.FOREST);
+            template.setBiome(RegistryKey.of(Registry.BIOME_KEY, config.biome));
 
             return map;
         } catch (IOException e) {

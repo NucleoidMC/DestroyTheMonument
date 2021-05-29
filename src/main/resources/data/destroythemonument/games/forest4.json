@@ -1,10 +1,9 @@
 {
   "type": "destroythemonument:destroythemonument",
   "gamemode": "standard",
-  "name": "Destroy The Monument: Forest (4 Teams)",
+  "translation": "map.destroythemonument.forest4",
   "map": {
-    "id": "destroythemonument:forest4",
-    "time": 0
+    "id": "destroythemonument:forest4"
   },
   "players": {
     "min": 4,

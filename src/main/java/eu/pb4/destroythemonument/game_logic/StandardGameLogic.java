@@ -8,12 +8,16 @@ import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sidebars.api.SidebarLine;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.player.GameTeam;
@@ -57,10 +61,43 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     @Override
+    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, BlockPos blockPos) {
+        PlayerData playerData = this.participants.get(PlayerRef.of(player));
+
+        if (playerData != null) {
+            if (this.teams.teamData.get(playerData.team).isMonument(blockPos)) {
+                player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
+                return ActionResult.FAIL;
+            } else {
+                for (GameTeam team : this.config.teams) {
+                    TeamData regions = this.teams.teamData.get(team);
+
+                    if (regions.isMonument(blockPos)) {
+                        regions.removeMonument(blockPos);
+
+                        Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
+                                FormattingUtil.GENERAL_STYLE,
+                                DtmUtil.getText("message", "monument_broken",
+                                        player.getDisplayName(),
+                                        DtmUtil.getText("general", "team", team.getDisplay()).formatted(team.getFormatting())));
+
+                        this.gameSpace.getPlayers().sendMessage(text);
+                        this.maybeEliminate(team, regions);
+                        this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
+                        playerData.brokenMonuments += 1;
+                        return ActionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+
+        return super.onPlayerBreakBlock(player, blockPos);
+    }
+
+    @Override
     protected void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData) {
         playerData.sidebar = this.globalSidebar;
         this.globalSidebar.addPlayer(player);
-        System.out.println(player);
     }
 
     @Override

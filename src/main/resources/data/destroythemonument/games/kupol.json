@@ -1,19 +1,20 @@
 {
   "type": "destroythemonument:destroythemonument",
-  "gamemode": "debug",
-  "name": "Destroy The Monument: Debug",
+  "gamemode": "standard",
+  "translation": "map.destroythemonument.kupol",
   "map": {
     "id": "destroythemonument:kupol",
-    "time": 12500
+    "time": 12500,
+    "biome": "minecraft:plains"
   },
   "players": {
-    "min": 1,
-    "threshold": 1,
+    "min": 2,
+    "threshold": 6,
     "max": 24
   },
   "allowJoiningInGame": true,
   "gameTime": 24000,
-  "tickRespawnTime": 20,
+  "tickRespawnTime": 60,
   "teams": [
     {"key": "red", "display": "Red", "color": "red"},
     {"key": "blue", "display": "Blue", "color": "blue"}
@@ -27,6 +28,6 @@
   ],
 
   "custom": {
-    "gamegui:icon": "minecraft:red_concrete"
+    "gamegui:icon": "minecraft:dark_prismarine"
   }
 }

@@ -27,7 +27,7 @@ dependencies {
     // Plasmid
     modImplementation "xyz.nucleoid:plasmid:${project.plasmid_version}"
 
-    modImplementation include("eu.pb4:sgui:0.3.1")
+    modImplementation include("eu.pb4:sgui:0.4.0")
     modImplementation include("eu.pb4:sidebar-api:0.0.1")
 
 

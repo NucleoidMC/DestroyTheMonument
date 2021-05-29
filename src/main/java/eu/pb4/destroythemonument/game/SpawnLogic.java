@@ -1,14 +1,13 @@
 package eu.pb4.destroythemonument.game;
 
+import eu.pb4.destroythemonument.map.Map;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.util.math.Vec3d;
-import xyz.nucleoid.plasmid.game.GameSpace;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import eu.pb4.destroythemonument.map.Map;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class SpawnLogic {
@@ -25,8 +24,9 @@ public class SpawnLogic {
     }
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
-       this.resetPlayer(player, gameMode, true);
+        this.resetPlayer(player, gameMode, true);
     }
+
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
         player.setGameMode(gameMode);
         player.setVelocity(Vec3d.ZERO);
@@ -43,22 +43,17 @@ public class SpawnLogic {
         ServerWorld world = this.gameSpace.getWorld();
         if (this.participants != null) {
             PlayerData player = participants.get(PlayerRef.of(entity));
-
             if (player != null && player.team != null) {
                 TeamData data = this.teams.teamData.get(player.team);
-                BlockBounds spawn = data.spawn;
 
-                double x = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getX(), spawn.getMax().getX());
-                double z = MathHelper.nextDouble(entity.getRandom(), spawn.getMin().getZ(), spawn.getMax().getZ());
-
-                entity.teleport(world, x, spawn.getMin().getY(), z, data.spawnYaw, 0);
+                BlockPos pos = data.getRandomSpawnPos();
+                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, data.spawnYaw, 0);
                 return;
             }
         }
 
-        double x = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getX(), this.map.spawn.getMax().getX());
-        double z = MathHelper.nextDouble(entity.getRandom(), this.map.spawn.getMin().getZ(), this.map.spawn.getMax().getZ());
+        BlockPos pos = this.map.getRandomSpawnPos();
 
-        entity.teleport(world, x, this.map.spawn.getMin().getY(), z, entity.yaw, entity.pitch);
+        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.yaw, entity.pitch);
     }
 }

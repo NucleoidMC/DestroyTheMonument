@@ -12,11 +12,13 @@ import org.apache.logging.log4j.Logger;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.WaitingLobby;
 
+import java.util.Random;
 import java.util.WeakHashMap;
 
 public class DTM implements ModInitializer {
     public static final String ID = "destroythemonument";
     public static final Logger LOGGER = LogManager.getLogger(ID);
+    public static final Random RANDOM = new Random();
 
     public static final GameType<GameConfig> TYPE = GameType.register(
             new Identifier(ID, "destroythemonument"),

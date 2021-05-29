@@ -4,13 +4,13 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game_logic.DebugGameLogic;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
+import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.map.Map;
 import eu.pb4.destroythemonument.map.MapBuilder;
-import eu.pb4.destroythemonument.ui.ClassSelectorUI;
-import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import eu.pb4.destroythemonument.ui.ClassSelectorUI;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.damage.DamageSource;
@@ -58,6 +58,7 @@ public class WaitingLobby {
 
         BubbleWorldConfig worldConfig = new BubbleWorldConfig()
                 .setGenerator(map.asGenerator(context.getServer()))
+                .setTimeOfDay(config.mapConfig.time)
                 .setDefaultGameMode(GameMode.SPECTATOR);
 
 
@@ -75,8 +76,17 @@ public class WaitingLobby {
             game.on(PlayerAddListener.EVENT, waiting::addPlayer);
             game.on(PlayerRemoveListener.EVENT, waiting::removePlayer);
             game.on(PlayerDeathListener.EVENT, waiting::onPlayerDeath);
+            game.on(PlayerDamageListener.EVENT, waiting::onPlayerDamage);
             game.on(UseItemListener.EVENT, waiting::onUseItem);
         });
+    }
+
+    private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource damageSource, float v) {
+        if (player.getY() < this.map.mapBounds.getMin().getY()) {
+            this.spawnLogic.spawnPlayer(player);
+        }
+
+        return ActionResult.FAIL;
     }
 
     private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {

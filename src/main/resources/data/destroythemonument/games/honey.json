@@ -1,10 +1,9 @@
 {
   "type": "destroythemonument:destroythemonument",
   "gamemode": "standard",
-  "name": "Destroy The Monument: Honey",
+  "translation": "map.destroythemonument.honey",
   "map": {
-    "id": "destroythemonument:honey",
-    "time": 0
+    "id": "destroythemonument:honey"
   },
   "players": {
     "min": 2,

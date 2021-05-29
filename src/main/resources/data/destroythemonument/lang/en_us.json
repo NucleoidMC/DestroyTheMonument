@@ -38,4 +38,10 @@
   "ui.destroythemonument.return_selector": "Return to class selector",
   "ui.destroythemonument.click_select": "Use left mouse button to select",
   "ui.destroythemonument.click_preview": "Use right mouse button to preview",
-  "ui.destroythemonument.select_block": "Select block"}
+  "ui.destroythemonument.select_block": "Select block",
+
+  "map.destroythemonument.cubes": "Destroy The Monument: Cubes",
+  "map.destroythemonument.honey": "Destroy The Monument: Honey",
+  "map.destroythemonument.kupol": "Destroy The Monument: Kupol",
+  "map.destroythemonument.forest4": "Destroy The Monument: Forest (4 Teams)"
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:banners",
+    "#minecraft:crops",
+    "#minecraft:carpets",
+    "#minecraft:signs",
+    "#minecraft:rails",
+    "#minecraft:small_flowers",
+    "#minecraft:tall_flowers"
+  ]
+}
