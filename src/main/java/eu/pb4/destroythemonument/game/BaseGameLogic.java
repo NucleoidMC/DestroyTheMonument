@@ -207,6 +207,15 @@ public abstract class BaseGameLogic {
 
     protected void onClose() {
         this.teams.close();
+        this.globalSidebar.hide();
+        for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+            PlayerData data = this.participants.get(PlayerRef.of(player));
+            if (player != null) {
+                data.sidebar.removePlayer(player);
+            } else {
+                this.globalSidebar.removePlayer(player);
+            }
+        }
         if (this.timerBar != null) {
             this.timerBar.remove();
         }
