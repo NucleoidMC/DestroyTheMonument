@@ -101,6 +101,7 @@ public class ClassSelectorUI extends SimpleGui {
             });
 
             this.setSlot(pos, icon);
+            pos++;
         }
 
         super.onUpdate(firstUpdate);
