@@ -124,6 +124,7 @@ public abstract class BaseGameLogic {
         game.setRule(GameRule.BLOCK_DROPS, RuleResult.DENY);
         game.setRule(GameRule.TEAM_CHAT, RuleResult.ALLOW);
         game.setRule(GameRule.UNSTABLE_TNT, RuleResult.ALLOW);
+        game.setRule(GameRule.MODIFY_ARMOR, RuleResult.DENY);
 
         game.on(GameOpenListener.EVENT, this::onOpen);
         game.on(GameCloseListener.EVENT, this::onClose);
