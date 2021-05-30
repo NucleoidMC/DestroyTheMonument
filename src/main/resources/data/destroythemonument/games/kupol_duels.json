@@ -1,7 +1,7 @@
 {
   "type": "destroythemonument:destroythemonument",
   "gamemode": "standard",
-  "translation": "map.destroythemonument.kupol",
+  "translation": "map.destroythemonument.kupol_duels",
   "map": {
     "id": "destroythemonument:kupol",
     "time": 12500,
@@ -9,12 +9,12 @@
   },
   "players": {
     "min": 2,
-    "threshold": 4,
-    "max": 24
+    "threshold": 2,
+    "max": 2
   },
-  "allowJoiningInGame": true,
+  "allowJoiningInGame": false,
   "gameTime": 24000,
-  "tickRespawnTime": 60,
+  "tickRespawnTime": 40,
   "teams": [
     {"key": "red", "display": "Red", "color": "red"},
     {"key": "blue", "display": "Blue", "color": "blue"}
