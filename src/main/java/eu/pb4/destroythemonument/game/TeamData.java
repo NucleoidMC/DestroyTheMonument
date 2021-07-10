@@ -2,7 +2,7 @@ package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.DTM;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.HashSet;

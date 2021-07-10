@@ -20,8 +20,7 @@
   "depends": {
     "fabricloader": ">=0.9.1",
     "fabric": "*",
-    "minecraft": "1.16.x",
-    "plasmid": "0.4.x",
-    "sgui": ">=0.4.0"
+    "minecraft": ">=1.17.1",
+    "plasmid": "0.5.x"
   }
 }

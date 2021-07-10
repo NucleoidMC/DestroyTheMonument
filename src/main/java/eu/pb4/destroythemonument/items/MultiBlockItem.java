@@ -10,7 +10,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.registry.Registry;
-import xyz.nucleoid.plasmid.game.ManagedGameSpace;
+import xyz.nucleoid.plasmid.game.GameSpace;
+import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
+import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class MultiBlockItem extends BlockItem implements VirtualItem {
@@ -25,14 +27,16 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
 
     @Override
     protected BlockState getPlacementState(ItemPlacementContext context) {
-        ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(context.getWorld());
-        if (gameSpace != null) {
-            BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
+        if (context.getPlayer() != null) {
+            GameSpace gameSpace = GameSpaceManager.get().byPlayer(context.getPlayer());
+            if (gameSpace != null) {
+                BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
 
-            if (logic != null) {
-                Block block = logic.participants.get(PlayerRef.of(context.getPlayer())).selectedBlock;
-                BlockState state = block.getPlacementState(context);
-                return state != null && this.canPlace(context, state) ? state : null;
+                if (logic != null) {
+                    Block block = logic.participants.get(PlayerRef.of(context.getPlayer())).selectedBlock;
+                    BlockState state = block.getPlacementState(context);
+                    return state != null && this.canPlace(context, state) ? state : null;
+                }
             }
         }
 
@@ -48,8 +52,7 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
     @Override
     public ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         Item item = Items.BIRCH_PLANKS;
-
-        ManagedGameSpace gameSpace = ManagedGameSpace.forWorld(player.world);
+        GameSpace gameSpace = GameSpaceManager.get().byPlayer(player);
         if (gameSpace != null) {
             BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
 

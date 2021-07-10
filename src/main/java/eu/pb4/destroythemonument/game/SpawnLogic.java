@@ -28,19 +28,19 @@ public class SpawnLogic {
     }
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
-        player.setGameMode(gameMode);
+        player.changeGameMode(gameMode);
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;
         player.setHealth(player.getMaxHealth());
         player.getHungerManager().setFoodLevel(20);
         player.clearStatusEffects();
         if (resetInventory) {
-            player.inventory.clear();
+            player.getInventory().clear();
         }
     }
 
     public void spawnPlayer(ServerPlayerEntity entity) {
-        ServerWorld world = this.gameSpace.getWorld();
+        ServerWorld world = this.map.world;
         if (this.participants != null) {
             PlayerData player = participants.get(PlayerRef.of(entity));
             if (player != null && player.team != null) {
@@ -54,6 +54,6 @@ public class SpawnLogic {
 
         BlockPos pos = this.map.getRandomSpawnPos();
 
-        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.yaw, entity.pitch);
+        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.getYaw(), entity.getPitch());
     }
 }

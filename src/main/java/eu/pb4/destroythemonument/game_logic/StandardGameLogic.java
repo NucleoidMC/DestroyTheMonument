@@ -3,13 +3,13 @@ package eu.pb4.destroythemonument.game_logic;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.map.Map;
-import eu.pb4.destroythemonument.mixin.StyleAccessor;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
-import eu.pb4.sidebars.api.SidebarLine;
+import eu.pb4.sidebars.api.lines.SidebarLine;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        gameSpace.openGame(game -> {
+        gameSpace.setActivity(gameSpace.getSourceConfig(), game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, playerTeams, participants, teams);
             active.setupGame(game, gameSpace, map, config);
         });
@@ -54,14 +54,14 @@ public class StandardGameLogic extends BaseGameLogic {
             for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.team == team) {
-                    player.setGameMode(GameMode.SPECTATOR);
+                    player.changeGameMode(GameMode.SPECTATOR);
                 }
             }
         }
     }
 
     @Override
-    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, BlockPos blockPos) {
+    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData != null) {
@@ -79,7 +79,7 @@ public class StandardGameLogic extends BaseGameLogic {
                                 FormattingUtil.GENERAL_STYLE,
                                 DtmUtil.getText("message", "monument_broken",
                                         player.getDisplayName(),
-                                        DtmUtil.getText("general", "team", team.getDisplay()).formatted(team.getFormatting())));
+                                        DtmUtil.getText("general", "team", team.display()).formatted(team.formatting())));
 
                         this.gameSpace.getPlayers().sendMessage(text);
                         this.maybeEliminate(team, regions);
@@ -91,7 +91,7 @@ public class StandardGameLogic extends BaseGameLogic {
             }
         }
 
-        return super.onPlayerBreakBlock(player, blockPos);
+        return super.onPlayerBreakBlock(player, world, blockPos);
     }
 
     @Override
@@ -157,97 +157,75 @@ public class StandardGameLogic extends BaseGameLogic {
         List<GameTeam> teamList = this.config.teams;
 
         boolean compact = teamList.size() > 4;
-        int value = compact ? 4 + teamList.size() : 3 + teamList.size() * 3;
         this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
 
-        this.globalSidebar.setLine(--value, new LiteralText(""));
-        for (GameTeam team : teamList) {
+        this.globalSidebar.set(b -> {
+
+            b.add(LiteralText.EMPTY);
+            for (GameTeam team : teamList) {
+                if (compact) {
+                    b.add((x) -> {
+                                int monuments = this.teams.teamData.get(team).getMonumentCount();
+
+                                return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.formatting()).withStrikethrough(monuments == 0))
+                                        .append(new LiteralText(" » ").setStyle(FormattingUtil.PREFIX_STYLE))
+                                        .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
+                                        .append(new LiteralText("/").formatted(Formatting.GRAY))
+                                        .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount).formatted(Formatting.WHITE));
+                            }
+                    );
+                } else {
+                    b.add((x) -> {
+                        int monuments = this.teams.teamData.get(team).getMonumentCount();
+
+                        return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.formatting()).withStrikethrough(monuments == 0));
+                    });
+
+                    b.add((x) -> {
+                        int monuments = this.teams.teamData.get(team).getMonumentCount();
+
+                        if (monuments != 0) {
+                            return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX,
+                                    FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "left", new LiteralText("" + monuments)
+                                            .append(new LiteralText("/").formatted(Formatting.GRAY))
+                                            .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount))));
+                        } else {
+                            return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "eliminated"));
+                        }
+                    });
+
+                    b.add(LiteralText.EMPTY);
+                }
+            }
 
             if (compact) {
-                this.globalSidebar.setLine(SidebarLine.create(--value, (x) -> {
-                            int monuments = this.teams.teamData.get(team).getMonumentCount();
+                b.add(new LiteralText(""));
+            }
 
-                            Style teamStyle = StyleAccessor.invokeInit(
-                                    TextColor.fromFormatting(team.getFormatting()),
-                                    true,
-                                    false,
-                                    false,
-                                    monuments == 0,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null);
+            b.add((player) -> {
+                if (player != null) {
+                    PlayerData data = this.participants.get(PlayerRef.of(player));
 
-                            return DtmUtil.getTeamText(team).setStyle(teamStyle)
-                                    .append(new LiteralText(" » ").setStyle(FormattingUtil.PREFIX_STYLE))
-                                    .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
-                                    .append(new LiteralText("/").formatted(Formatting.GRAY))
-                                    .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount).formatted(Formatting.WHITE));
-                        }
-
-                ));
-            } else {
-                this.globalSidebar.setLine(SidebarLine.create(--value, (x) -> {
-                    int monuments = this.teams.teamData.get(team).getMonumentCount();
-
-                    Style teamStyle = StyleAccessor.invokeInit(
-                            TextColor.fromFormatting(team.getFormatting()),
-                            true,
-                            false,
-                            false,
-                            monuments == 0,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null);
-
-                    return DtmUtil.getTeamText(team).setStyle(teamStyle);
-                }));
-
-                this.globalSidebar.setLine(SidebarLine.create(--value, (x) -> {
-                    int monuments = this.teams.teamData.get(team).getMonumentCount();
-
-                    if (monuments != 0) {
-                        return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX,
-                                FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "left", new LiteralText("" + monuments)
-                                        .append(new LiteralText("/").formatted(Formatting.GRAY))
-                                        .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount))));
-                    } else {
-                        return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "eliminated"));
+                    if (data != null) {
+                        return DtmUtil.getText("sidebar", "stats",
+                                new LiteralText("" + data.kills).formatted(Formatting.WHITE),
+                                new LiteralText("" + data.deaths).formatted(Formatting.WHITE),
+                                new LiteralText("" + data.brokenMonuments).formatted(Formatting.WHITE)
+                        ).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xf2a600)));
                     }
-                }));
+                }
+                return LiteralText.EMPTY;
+            });
 
-                this.globalSidebar.setLine(--value, new LiteralText(""));
-            }
-        }
+            b.add((player) -> {
+                long seconds = (this.tickTime / 20) % 60;
+                long minutes = this.tickTime / (20 * 60);
 
-        if (compact) {
-            this.globalSidebar.setLine(--value, new LiteralText(""));
-        }
-
-        this.globalSidebar.setLine(SidebarLine.create(--value, (handler) -> {
-            PlayerData data = this.participants.get(PlayerRef.of(handler.player));
-
-            if (data != null) {
-                return DtmUtil.getText("sidebar", "stats",
-                        new LiteralText("" + data.kills).formatted(Formatting.WHITE),
-                        new LiteralText("" + data.deaths).formatted(Formatting.WHITE),
-                        new LiteralText("" + data.brokenMonuments).formatted(Formatting.WHITE)
-                ).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xf2a600)));
-            }
-            return new LiteralText("");
-        }));
-
-        this.globalSidebar.setLine(SidebarLine.create(--value, (handler) -> {
-            long seconds = (this.tickTime / 20) % 60;
-            long minutes = this.tickTime / (20 * 60);
-
-            return FormattingUtil.formatScoreboard(FormattingUtil.TIME_PREFIX,
-                    DtmUtil.getText("sidebar", "time",
-                            new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
-        }));
+                return FormattingUtil.formatScoreboard(FormattingUtil.TIME_PREFIX,
+                        DtmUtil.getText("sidebar", "time",
+                                new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
+            });
+        });
     }
 }
 

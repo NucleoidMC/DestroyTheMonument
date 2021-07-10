@@ -10,7 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import org.apache.commons.lang3.RandomStringUtils;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 
 public class Teams implements AutoCloseable {
@@ -30,7 +30,7 @@ public class Teams implements AutoCloseable {
 
         for (GameTeam team : config.teams) {
             this.scoreboardTeams.put(team, this.createTeam(team));
-            this.teams.put(team.getKey(), team);
+            this.teams.put(team.key(), team);
 
         }
     }
@@ -53,13 +53,11 @@ public class Teams implements AutoCloseable {
 
     private Team createTeam(GameTeam team) {
         Team scoreboardTeam = this.scoreboard.addTeam(RandomStringUtils.randomAlphanumeric(16));
-        scoreboardTeam.setDisplayName(new LiteralText(team.getDisplay()).formatted(team.getFormatting()));
-        scoreboardTeam.setColor(team.getFormatting());
+        scoreboardTeam.setDisplayName(new LiteralText(team.display()).formatted(team.formatting()));
+        scoreboardTeam.setColor(team.formatting());
         scoreboardTeam.setFriendlyFireAllowed(false);
         scoreboardTeam.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
-
         TeamData teamData = new TeamData(team);
-
         this.map.setTeamRegions(team, teamData);
         this.teamData.put(team, teamData);
 

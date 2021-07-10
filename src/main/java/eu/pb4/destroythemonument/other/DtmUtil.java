@@ -4,7 +4,7 @@ import eu.pb4.destroythemonument.DTM;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class DtmUtil {
     public static MutableText getText(String type, String path, Object... values) {
@@ -12,7 +12,7 @@ public class DtmUtil {
     }
 
     public static MutableText getTeamText(GameTeam team) {
-        return getText("general", "team", team.getDisplay()).formatted(team.getFormatting());
+        return getText("general", "team", team.display()).formatted(team.formatting());
     }
 
     public static Identifier id(String path) {

@@ -7,7 +7,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 import java.util.List;
@@ -45,28 +45,28 @@ public class Kit {
 
     public void equipPlayer(ServerPlayerEntity player, GameTeam team) {
         for (ItemStack itemStack : this.items) {
-            player.inventory.insertStack(ItemStackBuilder.of(itemStack).setUnbreakable().build());
+            player.getInventory().insertStack(ItemStackBuilder.of(itemStack).setUnbreakable().build());
         }
 
         for (RestockableItem ri : this.restockableItems) {
             if (ri.startingCount > 0) {
                 ItemStack stack = ri.itemStack.copy();
                 stack.setCount(ri.startingCount);
-                player.inventory.insertStack(stack);
+                player.getInventory().insertStack(stack);
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setColor(team.getColor()).build());
-        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setColor(team.getColor()).build());
-        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setColor(team.getColor()).build());
-        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setColor(team.getColor()).build());
+        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.color()).build());
+        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.color()).build());
+        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.color()).build());
+        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.color()).build());
     }
 
     public void maybeRestockPlayer(ServerPlayerEntity player, PlayerData playerData) {
         for (RestockableItem ri : this.restockableItems) {
-            if (playerData.restockTimers.getInt(ri) >= ri.restockTime && player.inventory.count(ri.itemStack.getItem()) < ri.maxCount) {
+            if (playerData.restockTimers.getInt(ri) >= ri.restockTime && player.getInventory().count(ri.itemStack.getItem()) < ri.maxCount) {
                 ItemStack stack = ri.itemStack.copy();
-                player.inventory.insertStack(stack);
+                player.getInventory().insertStack(stack);
                 playerData.restockTimers.put(ri, 0);
             }
         }

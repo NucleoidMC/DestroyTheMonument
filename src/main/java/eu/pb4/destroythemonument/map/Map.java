@@ -7,9 +7,11 @@ import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.map.template.MapTemplate;
 import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
 import xyz.nucleoid.plasmid.map.template.TemplateRegion;
@@ -28,6 +30,7 @@ public class Map {
     private final List<BlockPos> validSpawn;
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
+    public ServerWorld world;
 
 
     public Map(MapTemplate template, MapConfig config) {
@@ -69,9 +72,9 @@ public class Map {
     }
 
     public void setTeamRegions(GameTeam team, TeamData data) {
-        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.getKey() + "_spawn");
-        Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.getKey() + "_monument").collect(Collectors.toSet());
-        Set<BlockBounds> classChange = this.template.getMetadata().getRegionBounds(team.getKey() + "_class_change").collect(Collectors.toSet());
+        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.key() + "_spawn");
+        Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.key() + "_monument").collect(Collectors.toSet());
+        Set<BlockBounds> classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
 
         for (BlockBounds monument : monuments) {
             this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());
@@ -91,5 +94,10 @@ public class Map {
 
     public BlockPos getRandomSpawnPos() {
         return this.validSpawn.get(DTM.RANDOM.nextInt(this.validSpawn.size()));
+    }
+
+    public Vec3d getRandomSpawnPosAsVec3d() {
+        BlockPos pos = getRandomSpawnPos();
+        return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
     }
 }

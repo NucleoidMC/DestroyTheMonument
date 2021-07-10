@@ -22,8 +22,8 @@ public class DTM implements ModInitializer {
 
     public static final GameType<GameConfig> TYPE = GameType.register(
             new Identifier(ID, "destroythemonument"),
-            WaitingLobby::open,
-            GameConfig.CODEC
+            GameConfig.CODEC,
+            WaitingLobby::open
     );
 
     public static final WeakHashMap<GameSpace, BaseGameLogic> ACTIVE_GAMES = new WeakHashMap<>();

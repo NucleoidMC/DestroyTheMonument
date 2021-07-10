@@ -1,13 +1,12 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.items.MultiBlockItem;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.game.player.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class PlayerData {
     public GameTeam team = null;

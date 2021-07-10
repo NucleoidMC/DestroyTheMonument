@@ -2,9 +2,8 @@
   "required": true,
   "minVersion": "0.8",
   "package": "eu.pb4.destroythemonument.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "StyleAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
