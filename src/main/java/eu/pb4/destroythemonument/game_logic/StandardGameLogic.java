@@ -5,7 +5,6 @@ import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.map.Map;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
-import eu.pb4.sidebars.api.lines.SidebarLine;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,9 +18,11 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
+import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.PlayerRef;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class StandardGameLogic extends BaseGameLogic {
         List<Text> texts = new ArrayList<>();
 
         texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
-        texts.add(new LiteralText("§6§l           Destroy The Monument").formatted(Formatting.GOLD));
+        texts.add(new LiteralText("           Destroy The Monument").formatted(Formatting.GOLD, Formatting.BOLD));
         texts.add(DtmUtil.getText("message", "about").formatted(Formatting.WHITE));
         texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
 
@@ -45,8 +46,12 @@ public class StandardGameLogic extends BaseGameLogic {
     public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.setActivity(gameSpace.getSourceConfig(), game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, playerTeams, participants, teams);
-            active.setupGame(game, gameSpace, map, config);
+            active.setupGame(game, map, config);
         });
+    }
+
+    public void setupGame(GameActivity game, Map map, GameConfig config) {
+        super.setupGame(game, map, config);
     }
 
     protected void maybeEliminate(GameTeam team, TeamData regions) {
@@ -167,7 +172,7 @@ public class StandardGameLogic extends BaseGameLogic {
                     b.add((x) -> {
                                 int monuments = this.teams.teamData.get(team).getMonumentCount();
 
-                                return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.formatting()).withStrikethrough(monuments == 0))
+                                return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0))
                                         .append(new LiteralText(" » ").setStyle(FormattingUtil.PREFIX_STYLE))
                                         .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
                                         .append(new LiteralText("/").formatted(Formatting.GRAY))
@@ -178,7 +183,7 @@ public class StandardGameLogic extends BaseGameLogic {
                     b.add((x) -> {
                         int monuments = this.teams.teamData.get(team).getMonumentCount();
 
-                        return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.formatting()).withStrikethrough(monuments == 0));
+                        return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0));
                     });
 
                     b.add((x) -> {

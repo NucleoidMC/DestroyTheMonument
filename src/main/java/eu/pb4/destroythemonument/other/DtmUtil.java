@@ -12,7 +12,7 @@ public class DtmUtil {
     }
 
     public static MutableText getTeamText(GameTeam team) {
-        return getText("general", "team", team.display()).formatted(team.formatting());
+        return getText("general", "team", team.display()).setStyle(Style.EMPTY.withColor(team.color()));
     }
 
     public static Identifier id(String path) {

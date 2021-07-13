@@ -42,11 +42,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
-import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
@@ -69,7 +69,7 @@ public abstract class BaseGameLogic {
 
     public final GameSpace gameSpace;
     public final Map gameMap;
-    public final Object2ObjectMap<PlayerRef, @Nullable PlayerData> participants;
+    public final Object2ObjectMap<PlayerRef, PlayerData> participants;
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
     public final Teams teams;
     public final ArrayList<Kit> kits = new ArrayList<>();
@@ -120,7 +120,7 @@ public abstract class BaseGameLogic {
         DTM.ACTIVE_GAMES.put(gameSpace, this);
     }
 
-    public void setupGame(GameActivity game, GameSpace gameSpace, Map map, GameConfig config) {
+    public void setupGame(GameActivity game, Map map, GameConfig config) {
         game.setRule(GameRuleType.CRAFTING, ActionResult.FAIL);
         game.setRule(GameRuleType.PORTALS, ActionResult.FAIL);
         game.setRule(GameRuleType.PVP, ActionResult.PASS);
@@ -148,6 +148,9 @@ public abstract class BaseGameLogic {
         game.listen(ExplosionDetonatedEvent.EVENT, this::onExplosion);
         game.listen(ArrowFireEvent.EVENT, this::onArrowShoot);
         game.listen(ItemThrowEvent.EVENT, this::onPlayerDropItem);
+
+        this.teams.manager.applyTo(game);
+        TeamChat.applyTo(game, this.teams.manager);
     }
 
     private ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
@@ -212,7 +215,6 @@ public abstract class BaseGameLogic {
     }
 
     protected void onClose(GameCloseReason reason) {
-        this.teams.close();
         this.globalSidebar.hide();
         for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
             PlayerData data = this.participants.get(PlayerRef.of(player));
@@ -251,7 +253,7 @@ public abstract class BaseGameLogic {
     protected void removePlayer(ServerPlayerEntity player) {
         PlayerData dtmPlayer = this.participants.remove(PlayerRef.of(player));
         if (dtmPlayer != null) {
-            this.teams.removePlayer(player, dtmPlayer.team);
+            this.teams.removePlayer(player);
             if (this.timerBar != null) {
                 this.timerBar.removePlayer(player);
             }
@@ -430,7 +432,7 @@ public abstract class BaseGameLogic {
 
         for (GameTeam team : this.teams.teams.values()) {
             for (BlockPos pos : this.teams.teamData.get(team).monuments) {
-                int color = team.color();
+                int color = team.color().getRgb();
 
                 float blue = ((float) color % 256) / 256;
                 float green = ((float) (color / 256) % 256) / 256;

@@ -11,11 +11,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.map_templates.MapTemplate;
+import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.map.template.MapTemplate;
-import xyz.nucleoid.plasmid.map.template.TemplateChunkGenerator;
-import xyz.nucleoid.plasmid.map.template.TemplateRegion;
-import xyz.nucleoid.plasmid.util.BlockBounds;
+import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,8 @@ public class Map {
             }
         }
         this.mapBounds = template.getBounds();
-        this.mapDeathBounds = new BlockBounds(this.mapBounds.getMin().mutableCopy().add(-5, -5, -5), this.mapBounds.getMax().mutableCopy().add(5, 5, 5));
-        this.taters = template.getMetadata().getRegionBounds("tater").map((r) -> r.getMin()).collect(Collectors.toSet());
+        this.mapDeathBounds = BlockBounds.of(this.mapBounds.min().mutableCopy().add(-5, -5, -5), this.mapBounds.max().mutableCopy().add(5, 5, 5));
+        this.taters = template.getMetadata().getRegionBounds("tater").map((r) -> r.min()).collect(Collectors.toSet());
     }
 
     public ChunkGenerator asGenerator(MinecraftServer server) {
@@ -77,7 +78,7 @@ public class Map {
         Set<BlockBounds> classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
 
         for (BlockBounds monument : monuments) {
-            this.template.setBlockState(monument.getMin(), Blocks.BEACON.getDefaultState());
+            this.template.setBlockState(monument.min(), Blocks.BEACON.getDefaultState());
         }
 
         List<BlockPos> validSpawnPos = new ArrayList<>();

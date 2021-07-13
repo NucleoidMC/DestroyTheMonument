@@ -2,8 +2,8 @@ package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.DTM;
 import net.minecraft.util.math.BlockPos;
+import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.util.BlockBounds;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +32,7 @@ public class TeamData {
         this.spawn = spawn;
         this.spawnYaw = spawnYaw;
         for (BlockBounds bounds : monuments) {
-            this.monuments.add(bounds.getMin());
+            this.monuments.add(bounds.min());
         }
         this.classChange = classChange;
         this.monumentStartingCount = monuments.size();

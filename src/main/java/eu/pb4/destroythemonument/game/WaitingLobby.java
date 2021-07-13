@@ -19,18 +19,16 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.*;
 import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
@@ -50,12 +48,12 @@ public class WaitingLobby {
     private final Kit defaultKit;
 
 
-    private WaitingLobby(GameSpace gameSpace, Map map, GameConfig config, TeamSelectionLobby teamSelection) {
+    private WaitingLobby(GameSpace gameSpace, TeamManager manager, Map map, GameConfig config, TeamSelectionLobby teamSelection) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.config = config;
         this.spawnLogic = new SpawnLogic(gameSpace, map, null, null);
-        this.teams = new Teams(gameSpace, map, config);
+        this.teams = new Teams(manager, gameSpace, map, config);
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
 
         this.teamSelection = teamSelection;
@@ -64,7 +62,7 @@ public class WaitingLobby {
     public static GameOpenProcedure open(GameOpenContext<GameConfig> context) {
         GameConfig config = context.config();
         MapBuilder generator = new MapBuilder(config.mapConfig);
-        Map map = generator.create();
+        Map map = generator.create(context.server());
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.asGenerator(context.server()))
@@ -73,14 +71,19 @@ public class WaitingLobby {
 
 
         return context.openWithWorld(worldConfig, (game, world) -> {
-
             map.world = world;
             GameWaitingLobby.applyTo(game, config.playerConfig);
 
+            TeamManager teamManager = new TeamManager(world.getServer());
+            teamManager.applyTo(game);
+
             List<GameTeam> teams = context.config().teams;
+            for (GameTeam team : teams) {
+                teamManager.registerTeam(team);
+            }
             TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(game, teams);
 
-            WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), map, context.config(), teamSelection);
+            WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), teamManager, map, context.config(), teamSelection);
             game.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
             game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(world, map.getRandomSpawnPosAsVec3d()));
             game.listen(GamePlayerEvents.JOIN, waiting::addPlayer);
@@ -92,7 +95,7 @@ public class WaitingLobby {
     }
 
     private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource damageSource, float v) {
-        if (player.getY() < this.map.mapBounds.getMin().getY()) {
+        if (player.getY() < this.map.mapBounds.min().getY()) {
             this.spawnLogic.spawnPlayer(player);
         }
 

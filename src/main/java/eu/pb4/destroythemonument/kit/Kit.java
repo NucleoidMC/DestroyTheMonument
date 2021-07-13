@@ -56,10 +56,10 @@ public class Kit {
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.color()).build());
-        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.color()).build());
-        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.color()).build());
-        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.color()).build());
+        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.dye().getRgb()).build());
+        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.dye().getRgb()).build());
+        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.dye().getRgb()).build());
+        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.dye().getRgb()).build());
     }
 
     public void maybeRestockPlayer(ServerPlayerEntity player, PlayerData playerData) {

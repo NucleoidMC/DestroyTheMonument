@@ -3,16 +3,12 @@ package eu.pb4.destroythemonument.ui;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.PlayerData;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class BlockSelectorUI extends SimpleGui {

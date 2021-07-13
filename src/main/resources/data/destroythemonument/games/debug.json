@@ -15,7 +15,17 @@
   "gameTime": 24000,
   "tickRespawnTime": 20,
   "teams": [
-    {"key": "red", "display": "Red", "color": "red"},
+    {
+      "key": "red",
+      "display": "Red",
+      "color": {
+        "chat": "#ff00ff",
+        "dye": "#ff0000",
+        "block_dye": "green",
+        "firework": "#00ff00",
+        "formatting": "gold"
+      }
+    },
     {"key": "blue", "display": "Blue", "color": "blue"}
   ],
   "kits": [
