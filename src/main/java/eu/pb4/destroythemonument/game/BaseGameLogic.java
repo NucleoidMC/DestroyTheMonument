@@ -128,7 +128,6 @@ public abstract class BaseGameLogic {
         game.setRule(GameRuleType.FALL_DAMAGE, ActionResult.PASS);
         game.setRule(GameRuleType.INTERACTION, ActionResult.PASS);
         game.setRule(GameRuleType.BLOCK_DROPS, ActionResult.FAIL);
-        game.setRule(GameRuleType.UNSTABLE_TNT, ActionResult.PASS);
         game.setRule(GameRuleType.MODIFY_ARMOR, ActionResult.FAIL);
 
         game.listen(GameActivityEvents.CREATE, this::onOpen);
@@ -276,24 +275,27 @@ public abstract class BaseGameLogic {
 
     protected ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
+        if (dtmPlayer != null) {
+            Text deathMes = source.getDeathMessage(player);
 
-        Text deathMes = source.getDeathMessage(player);
+            Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.shallowCopy());
+            this.gameSpace.getPlayers().sendMessage(text);
 
-        Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.shallowCopy());
-        this.gameSpace.getPlayers().sendMessage(text);
+            if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
+                PlayerData attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
+                attacker.kills += 1;
+                attacker.addToTimers(60);
 
-        if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
-            PlayerData attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
-            attacker.kills += 1;
-            attacker.addToTimers(60);
+            }
 
+            dtmPlayer.lastAttackTime = 0;
+            dtmPlayer.lastAttacker = null;
+            dtmPlayer.deaths += 1;
+
+            this.startRespawningPlayerSequence(player);
+        } else {
+            this.spawnLogic.spawnPlayer(player);
         }
-
-        dtmPlayer.lastAttackTime = 0;
-        dtmPlayer.lastAttacker = null;
-        dtmPlayer.deaths += 1;
-
-        this.startRespawningPlayerSequence(player);
         return ActionResult.FAIL;
     }
 
@@ -383,6 +385,13 @@ public abstract class BaseGameLogic {
 
             player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, slot, itemUsageContext.getStack()));
 
+            return ActionResult.FAIL;
+        }
+
+        if (itemUsageContext.getStack().getItem() == Items.TNT) {
+            itemUsageContext.getStack().decrement(1);
+            TntEntity tnt = new TntEntity(player.world, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, player);
+            player.world.spawnEntity(tnt);
             return ActionResult.FAIL;
         }
 
