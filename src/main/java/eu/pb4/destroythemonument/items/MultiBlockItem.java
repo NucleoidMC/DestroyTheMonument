@@ -12,7 +12,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
-import xyz.nucleoid.plasmid.game.manager.ManagedGameSpace;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class MultiBlockItem extends BlockItem implements VirtualItem {
@@ -58,6 +57,12 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
 
             if (logic != null) {
                 item = logic.participants.get(PlayerRef.of(player)).selectedBlock.asItem();
+            }
+
+            if (item instanceof VirtualItem virtualItem) {
+                ItemStack stack = item.getDefaultStack();
+                stack.setCount(itemStack.getCount());
+                return virtualItem.getVirtualItemStack(stack, player);
             }
         }
 

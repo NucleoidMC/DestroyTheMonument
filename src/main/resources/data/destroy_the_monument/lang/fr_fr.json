@@ -1,0 +1,21 @@
+{	
+	"class.destroy_the_monument.warrior": "Guerrier",
+	"class.destroy_the_monument.archer": "Archer",
+	"class.destroy_the_monument.tank": "Tank",
+	"class.destroy_the_monument.constructor": "Constructeur",
+
+	"ui.destroy_the_monument.select_class": "Choisir une classe",
+	"item.destroy_the_monument.change_class": "Choisir une classe",
+
+	"message.destroy_the_monument.select_edclass": "Vous avez choisi la classe %s.",
+	"message.destroy_the_monument.class_respawn": "La classe vous sera attribué lors de votre prochaine réapparition.",
+	"message.destroy_the_monument.about": "Détruisez les monuments ennemis\n tout en protégeant les vôtre !\n Vous pouvez choisir vôtre classe en utilisant le papier.",
+	"message.destroy_the_monument.cant_break_own": "Vous ne pouvez pas détruire vos monuments !",
+	"message.destroy_the_monument.monument_broken": "%s a détruit un monument de l’équipe %s !",
+	"message.destroy_the_monument.game_end.winner": "L’équipe %s a gagné !",
+	"message.destroy_the_monument.game_end.no_winner": "Le jeu a fini ex æquo !",
+
+	"scoreboard.destroy_the_monument.monuments_left": "%s a quitté",
+	"scoreboard.destroy_the_monument.eliminated": "Éliminé !",
+
+	"general.destroy_the_monument.team": "Équipe %s"}

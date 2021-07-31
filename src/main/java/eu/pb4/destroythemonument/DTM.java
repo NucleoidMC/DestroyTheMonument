@@ -1,5 +1,6 @@
 package eu.pb4.destroythemonument;
 
+import eu.pb4.destroythemonument.blocks.DtmBlocks;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.items.DtmItems;
@@ -16,12 +17,12 @@ import java.util.Random;
 import java.util.WeakHashMap;
 
 public class DTM implements ModInitializer {
-    public static final String ID = "destroythemonument";
+    public static final String ID = "destroy_the_monument";
     public static final Logger LOGGER = LogManager.getLogger(ID);
     public static final Random RANDOM = new Random();
 
     public static final GameType<GameConfig> TYPE = GameType.register(
-            new Identifier(ID, "destroythemonument"),
+            new Identifier(ID, ID),
             GameConfig.CODEC,
             WaitingLobby::open
     );
@@ -31,6 +32,7 @@ public class DTM implements ModInitializer {
     @Override
     public void onInitialize() {
         DtmItems.registerItems();
+        DtmBlocks.register();
         KitsRegistry.register();
     }
 }

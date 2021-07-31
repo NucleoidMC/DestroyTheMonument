@@ -1,61 +1,31 @@
 {
-  "kit_name": "tank",
-  "icon": "diamond_chestplate",
-  "health": 24,
+  "kit_name": "archer",
+  "icon": "bow",
+  "health": 18,
   "armor": [
     {
-      "id": "iron_helmet",
+      "id": "leather_helmet",
       "Count": 1
     },
     {
-      "id": "diamond_chestplate",
-      "Count": 1,
-      "tag": {
-        "AttributeModifiers": [
-          {
-            "AttributeName": "generic.knockback_resistance",
-            "Amount": 0.05,
-            "Operation": 0,
-            "UUID": [
-              -121250,
-              803540,
-              111937,
-              -160660
-            ],
-            "Slot": "chest",
-            "Name": "generic.knockback_resistance"
-          },
-          {
-            "AttributeName": "generic.armor",
-            "Amount": 8,
-            "Operation": 0,
-            "UUID": [
-              -121250,
-              800040,
-              111037,
-              -160360
-            ],
-            "Slot": "chest",
-            "Name": "generic.armor"
-          }
-        ]
-      }
+      "id": "chainmail_chestplate",
+      "Count": 1
     },
     {
       "id": "leather_leggings",
       "Count": 1
     },
     {
-      "id": "netherite_boots",
+      "id": "golden_boots",
       "Count": 1,
       "tag": {
         "AttributeModifiers": [
           {
             "AttributeName": "generic.movement_speed",
-            "Amount": -0.05,
+            "Amount": 0.05,
             "Operation": 0,
             "UUID": [
-              -121200,
+              -121250,
               803540,
               111937,
               -160660
@@ -69,20 +39,24 @@
   ],
   "items": [
     {
-      "id": "iron_sword",
-      "Count": 1
-    },
-    {
-      "id": "diamond_pickaxe",
+      "id": "golden_sword",
       "Count": 1,
       "tag": {
         "Enchantments": [
           {
-            "id": "protection",
+            "id": "sharpness",
             "lvl": 1
           }
         ]
       }
+    },
+    {
+      "id": "bow",
+      "Count": 1
+    },
+    {
+      "id": "diamond_pickaxe",
+      "Count": 1
     },
     {
       "id": "wooden_axe",
@@ -115,7 +89,7 @@
   "restockable_items": [
     {
       "item": {
-        "id": "cooked_beef",
+        "id": "cooked_cod",
         "Count": 1
       },
       "restock_time": 800,
@@ -124,12 +98,21 @@
     },
     {
       "item": {
-        "id": "destroythemonument:multi_block",
+        "id": "destroy_the_monument:multi_block",
         "Count": 1
       },
       "restock_time": 65,
       "max_count": 32,
       "start_count": 24
+    },
+    {
+      "item": {
+        "id": "arrow",
+        "Count": 1
+      },
+      "restock_time": 200,
+      "max_count": 10,
+      "start_count": 5
     }
   ]
 }

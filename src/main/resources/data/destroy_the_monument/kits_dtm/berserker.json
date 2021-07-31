@@ -49,7 +49,7 @@
     },
     {
       "item": {
-        "id": "destroythemonument:multi_block",
+        "id": "destroy_the_monument:multi_block",
         "Count": 1
       },
       "restock_time": 65,

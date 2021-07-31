@@ -1,9 +1,9 @@
 {
-  "type": "destroythemonument:destroythemonument",
+  "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroythemonument.kupol_duels",
+  "translation": "map.destroy_the_monument.kupol_duels",
   "map": {
-    "id": "destroythemonument:kupol",
+    "id": "destroy_the_monument:kupol",
     "time": 12500,
     "biome": "minecraft:plains"
   },
@@ -20,11 +20,11 @@
     {"key": "blue", "display": "Blue", "color": "blue"}
   ],
   "kits": [
-    "destroythemonument:warrior",
-    "destroythemonument:archer",
-    "destroythemonument:constructor",
-    "destroythemonument:tank",
-    "destroythemonument:berserker"
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
   ],
 
   "custom": {

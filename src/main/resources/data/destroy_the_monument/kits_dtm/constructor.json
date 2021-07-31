@@ -1,22 +1,15 @@
 {
-  "kit_name": "warrior",
-  "icon": "diamond_sword",
+  "kit_name": "constructor",
+  "icon": "oak_planks",
+  "blocks_to_planks": 1,
   "armor": [
     {
-      "id": "leather_helmet",
+      "id": "golden_helmet",
       "Count": 1
     },
     {
-      "id": "iron_chestplate",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "protection",
-            "lvl": 1
-          }
-        ]
-      }
+      "id": "chainmail_chestplate",
+      "Count": 1
     },
     {
       "id": "leather_leggings",
@@ -29,16 +22,8 @@
   ],
   "items": [
     {
-      "id": "diamond_sword",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "sharpness",
-            "lvl": 1
-          }
-        ]
-      }
+      "id": "stone_sword",
+      "Count": 1
     },
     {
       "id": "diamond_pickaxe",
@@ -51,7 +36,7 @@
         "Enchantments": [
           {
             "id": "efficiency",
-            "lvl": 1
+            "lvl": 3
           }
         ],
         "AttributeModifiers": [
@@ -75,7 +60,7 @@
   "restockable_items": [
     {
       "item": {
-        "id": "cooked_chicken",
+        "id": "cooked_beef",
         "Count": 1
       },
       "restock_time": 800,
@@ -84,12 +69,21 @@
     },
     {
       "item": {
-        "id": "destroythemonument:multi_block",
+        "id": "destroy_the_monument:multi_block",
         "Count": 1
       },
-      "restock_time": 65,
-      "max_count": 32,
-      "start_count": 24
+      "restock_time": 60,
+      "max_count": 64,
+      "start_count": 48
+    },
+    {
+      "item": {
+        "id": "tnt",
+        "Count": 1
+      },
+      "restock_time": 600,
+      "max_count": 4,
+      "start_offset": 400
     }
   ]
 }

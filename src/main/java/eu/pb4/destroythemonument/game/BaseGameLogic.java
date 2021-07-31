@@ -31,12 +31,14 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
@@ -54,6 +56,7 @@ import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPlaceEvent;
+import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
@@ -142,6 +145,8 @@ public abstract class BaseGameLogic {
         game.listen(BlockPlaceEvent.BEFORE, this::onPlayerPlaceBlock);
 
         game.listen(ItemUseEvent.EVENT, this::onUseItem);
+        game.listen(BlockUseEvent.EVENT, this::onUseBlock);
+
         game.listen(PlayerDamageEvent.EVENT, this::onPlayerDamage);
         game.listen(PlayerDeathEvent.EVENT, this::onPlayerDeath);
         game.listen(ExplosionDetonatedEvent.EVENT, this::onExplosion);
@@ -204,6 +209,16 @@ public abstract class BaseGameLogic {
         }
 
         return TypedActionResult.pass(player.getStackInHand(hand));
+    }
+
+    protected ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
+        if (this.gameMap.isTater(hitResult.getBlockPos())) {
+            player.getServerWorld().spawnParticles(ParticleTypes.HEART,
+                    hitResult.getBlockPos().getX() + 0.5d, hitResult.getBlockPos().getY() + 0.5d, hitResult.getBlockPos().getZ() + 0.5d,
+                    5, 0.5d, 0.5d, 0.5d, 0.1d);
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 99999, 0, true, false)); }
+
+        return ActionResult.PASS;
     }
 
     protected void onOpen() {

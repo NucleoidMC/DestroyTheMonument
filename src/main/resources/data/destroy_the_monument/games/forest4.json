@@ -1,9 +1,9 @@
 {
-  "type": "destroythemonument:destroythemonument",
+  "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroythemonument.forest4",
+  "translation": "map.destroy_the_monument.forest4",
   "map": {
-    "id": "destroythemonument:forest4"
+    "id": "destroy_the_monument:forest4"
   },
   "players": {
     "min": 4,
@@ -20,11 +20,11 @@
     {"key": "birch", "display": "Birch", "color": "yellow"}
   ],
   "kits": [
-    "destroythemonument:warrior",
-    "destroythemonument:archer",
-    "destroythemonument:constructor",
-    "destroythemonument:tank",
-    "destroythemonument:berserker"
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
   ],
 
   "custom": {

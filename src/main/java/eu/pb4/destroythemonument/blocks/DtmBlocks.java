@@ -1,0 +1,20 @@
+package eu.pb4.destroythemonument.blocks;
+
+import eu.pb4.destroythemonument.other.DtmUtil;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.registry.Registry;
+
+public class DtmBlocks {
+    public static final Block WEAK_GLASS = new WeakGlassBlock(AbstractBlock.Settings.copy(Blocks.GLASS).strength(0.2f, 0).dropsNothing());
+
+    public static void register() {
+        register("weak_glass", WEAK_GLASS);
+    }
+
+    private static void register(String name, Block block) {
+        Registry.register(Registry.BLOCK, DtmUtil.id(name), block);
+    }
+
+}
