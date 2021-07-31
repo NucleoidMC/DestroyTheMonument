@@ -31,7 +31,7 @@ public class Teams {
         int count = 9999;
 
         for (GameTeam team : this.teams.values()) {
-            int size = this.manager.getPlayers(team).size();
+            int size = this.manager.playersIn(team).size();
             if (size <= count && this.teamData.get(team).getMonumentCount() > 0) {
                 smallest = team;
                 count = size;
@@ -42,7 +42,7 @@ public class Teams {
     }
 
     private void createTeam(GameTeam team) {
-        this.manager.registerTeam(team);
+        this.manager.addTeam(team);
         this.manager.setCollisionRule(team, AbstractTeam.CollisionRule.PUSH_OWN_TEAM);
         TeamData teamData = new TeamData(team);
         this.map.setTeamRegions(team, teamData);
@@ -50,10 +50,10 @@ public class Teams {
     }
 
     public void addPlayer(ServerPlayerEntity player, GameTeam team) {
-        this.manager.setPlayerTeam(player, team);
+        this.manager.addPlayerTo(player, team);
     }
 
     public void removePlayer(ServerPlayerEntity player) {
-        this.manager.removePlayerTeam(player);
+        this.manager.removePlayer(player);
     }
 }

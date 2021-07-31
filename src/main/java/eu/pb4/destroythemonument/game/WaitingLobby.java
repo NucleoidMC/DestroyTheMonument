@@ -74,12 +74,11 @@ public class WaitingLobby {
             map.world = world;
             GameWaitingLobby.applyTo(game, config.playerConfig);
 
-            TeamManager teamManager = new TeamManager(world.getServer());
-            teamManager.applyTo(game);
+            TeamManager teamManager = TeamManager.applyTo(game);
 
             List<GameTeam> teams = context.config().teams;
             for (GameTeam team : teams) {
-                teamManager.registerTeam(team);
+                teamManager.addTeam(team);
             }
             TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(game, teams);
 

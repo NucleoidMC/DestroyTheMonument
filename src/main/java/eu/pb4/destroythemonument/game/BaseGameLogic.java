@@ -148,7 +148,7 @@ public abstract class BaseGameLogic {
         game.listen(ArrowFireEvent.EVENT, this::onArrowShoot);
         game.listen(ItemThrowEvent.EVENT, this::onPlayerDropItem);
 
-        this.teams.manager.applyTo(game);
+        this.teams.manager.applySelfTo(game);
         TeamChat.applyTo(game, this.teams.manager);
     }
 

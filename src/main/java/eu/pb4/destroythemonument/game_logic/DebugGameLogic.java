@@ -22,7 +22,7 @@ public class DebugGameLogic extends StandardGameLogic {
     }
 
     public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        gameSpace.setActivity(gameSpace.getSourceConfig() , game -> {
+        gameSpace.setActivity(game -> {
             BaseGameLogic active = new DebugGameLogic(gameSpace, map, config, playerTeams, participants, teams);
             active.setupGame(game, map, config);
         });

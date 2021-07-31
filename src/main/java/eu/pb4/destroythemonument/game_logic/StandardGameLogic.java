@@ -44,7 +44,7 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        gameSpace.setActivity(gameSpace.getSourceConfig(), game -> {
+        gameSpace.setActivity(game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, playerTeams, participants, teams);
             active.setupGame(game, map, config);
         });
