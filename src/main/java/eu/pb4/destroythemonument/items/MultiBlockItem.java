@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.items;
 
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.PlayerData;
 import eu.pb4.polymer.item.ItemHelper;
 import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.block.Block;
@@ -56,7 +57,11 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
             BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
 
             if (logic != null) {
-                item = logic.participants.get(PlayerRef.of(player)).selectedBlock.asItem();
+                PlayerData data = logic.participants.get(PlayerRef.of(player));
+
+                if (data != null) {
+                    item = data.selectedBlock.asItem();
+                }
             }
 
             if (item instanceof VirtualItem virtualItem) {
