@@ -74,7 +74,7 @@ public class WaitingLobby {
             map.world = world;
             GameWaitingLobby.applyTo(game, config.playerConfig);
 
-            TeamManager teamManager = TeamManager.applyTo(game);
+            TeamManager teamManager = TeamManager.addTo(game);
 
             List<GameTeam> teams = context.config().teams;
             for (GameTeam team : teams) {
