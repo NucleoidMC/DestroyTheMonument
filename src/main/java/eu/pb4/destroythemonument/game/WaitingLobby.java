@@ -72,7 +72,7 @@ public class WaitingLobby {
 
         return context.openWithWorld(worldConfig, (game, world) -> {
             map.world = world;
-            GameWaitingLobby.applyTo(game, config.playerConfig);
+            GameWaitingLobby.addTo(game, config.playerConfig);
 
             TeamManager teamManager = TeamManager.addTo(game);
 
