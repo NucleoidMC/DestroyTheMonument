@@ -40,6 +40,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.GameMode;
@@ -56,6 +57,7 @@ import xyz.nucleoid.plasmid.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPlaceEvent;
+import xyz.nucleoid.stimuli.event.block.BlockPunchEvent;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
@@ -143,6 +145,7 @@ public abstract class BaseGameLogic {
         game.listen(GameActivityEvents.TICK, this::tick);
         game.listen(BlockBreakEvent.EVENT, this::onPlayerBreakBlock);
         game.listen(BlockPlaceEvent.BEFORE, this::onPlayerPlaceBlock);
+        game.listen(BlockPunchEvent.EVENT, this::onBlockPunch);
 
         game.listen(ItemUseEvent.EVENT, this::onUseItem);
         game.listen(BlockUseEvent.EVENT, this::onUseBlock);
@@ -155,6 +158,14 @@ public abstract class BaseGameLogic {
 
         this.teams.manager.applyTo(game);
         TeamChat.addTo(game, this.teams.manager);
+    }
+
+    private ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
+        PlayerData data = this.participants.get(PlayerRef.of(player));
+        if (data != null) {
+            data.activeKit.updateMainTool(player, player.world.getBlockState(blockPos));
+        }
+        return ActionResult.PASS;
     }
 
     private ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {

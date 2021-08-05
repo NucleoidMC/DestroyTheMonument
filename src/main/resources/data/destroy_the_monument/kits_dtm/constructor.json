@@ -2,6 +2,19 @@
   "kit_name": "constructor",
   "icon": "oak_planks",
   "blocks_to_planks": 1,
+  "pickaxe_tool": "diamond_pickaxe",
+  "axe_tool": {
+    "id": "wooden_axe",
+    "Count": 1,
+    "tag": {
+      "Enchantments": [
+        {
+          "id": "efficiency",
+          "lvl": 3
+        }
+      ]
+    }
+  },
   "armor": [
     {
       "id": "golden_helmet",
@@ -24,37 +37,6 @@
     {
       "id": "stone_sword",
       "Count": 1
-    },
-    {
-      "id": "diamond_pickaxe",
-      "Count": 1
-    },
-    {
-      "id": "wooden_axe",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "efficiency",
-            "lvl": 3
-          }
-        ],
-        "AttributeModifiers": [
-          {
-            "AttributeName": "generic.attack_damage",
-            "Amount": 0.00,
-            "Operation": 0,
-            "UUID": [
-              -121250,
-              803540,
-              111937,
-              -160660
-            ],
-            "Slot": "mainhand",
-            "Name": "generic.attack_damage"
-          }
-        ]
-      }
     }
   ],
   "restockable_items": [

@@ -2,6 +2,19 @@
   "kit_name": "tank",
   "icon": "diamond_chestplate",
   "health": 24,
+  "pickaxe_tool": "diamond_pickaxe",
+  "axe_tool": {
+    "id": "wooden_axe",
+    "Count": 1,
+    "tag": {
+      "Enchantments": [
+        {
+          "id": "efficiency",
+          "lvl": 1
+        }
+      ]
+    }
+  },
   "armor": [
     {
       "id": "iron_helmet",
@@ -71,45 +84,6 @@
     {
       "id": "iron_sword",
       "Count": 1
-    },
-    {
-      "id": "diamond_pickaxe",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "protection",
-            "lvl": 1
-          }
-        ]
-      }
-    },
-    {
-      "id": "wooden_axe",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "efficiency",
-            "lvl": 1
-          }
-        ],
-        "AttributeModifiers": [
-          {
-            "AttributeName": "generic.attack_damage",
-            "Amount": 0.00,
-            "Operation": 0,
-            "UUID": [
-              -121250,
-              803540,
-              111937,
-              -160660
-            ],
-            "Slot": "mainhand",
-            "Name": "generic.attack_damage"
-          }
-        ]
-      }
     }
   ],
   "restockable_items": [

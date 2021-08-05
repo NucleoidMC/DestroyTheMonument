@@ -1,6 +1,19 @@
 {
   "kit_name": "warrior",
   "icon": "diamond_sword",
+  "pickaxe_tool": "diamond_pickaxe",
+  "axe_tool": {
+    "id": "wooden_axe",
+    "Count": 1,
+    "tag": {
+      "Enchantments": [
+        {
+          "id": "efficiency",
+          "lvl": 1
+        }
+      ]
+    }
+  },
   "armor": [
     {
       "id": "leather_helmet",
@@ -36,37 +49,6 @@
           {
             "id": "sharpness",
             "lvl": 1
-          }
-        ]
-      }
-    },
-    {
-      "id": "diamond_pickaxe",
-      "Count": 1
-    },
-    {
-      "id": "wooden_axe",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "efficiency",
-            "lvl": 1
-          }
-        ],
-        "AttributeModifiers": [
-          {
-            "AttributeName": "generic.attack_damage",
-            "Amount": 0.00,
-            "Operation": 0,
-            "UUID": [
-              -121250,
-              803540,
-              111937,
-              -160660
-            ],
-            "Slot": "mainhand",
-            "Name": "generic.attack_damage"
           }
         ]
       }

@@ -1,6 +1,19 @@
 {
   "kit_name": "berserker",
   "icon": "iron_axe",
+  "pickaxe_tool": "diamond_pickaxe",
+  "axe_tool": {
+    "id": "wooden_axe",
+    "Count": 1,
+    "tag": {
+      "Enchantments": [
+        {
+          "id": "efficiency",
+          "lvl": 1
+        }
+      ]
+    }
+  },
   "armor": [
     {
       "id": "iron_helmet",
@@ -31,10 +44,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "diamond_pickaxe",
-      "Count": 1
     }
   ],
   "restockable_items": [
