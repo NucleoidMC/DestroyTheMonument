@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.game;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.items.DtmItems;
+import eu.pb4.destroythemonument.items.DtmMapItem;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.map.Map;
@@ -388,6 +389,8 @@ public abstract class BaseGameLogic {
         player.getInventory().clear();
 
         playerData.activeKit.equipPlayer(player, playerData.team);
+        DtmMapItem.updateMap(player, playerData, this);
+
         playerData.resetTimers();
 
         player.getInventory().setStack(8, new ItemStack(DtmItems.CLASS_SELECTOR));
@@ -512,6 +515,10 @@ public abstract class BaseGameLogic {
                 } else {
                     player.kill();
                 }
+            }
+
+            if (this.tickTime % 4 == 0 && player.getMainHandStack().getItem() == DtmItems.MAP || player.getOffHandStack().getItem() == DtmItems.MAP) {
+                DtmMapItem.updateMap(player, dtmPlayer, this);
             }
         }
 

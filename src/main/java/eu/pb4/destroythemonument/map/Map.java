@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
@@ -90,7 +91,7 @@ public class Map {
             }
         }
 
-        data.setTeamRegions(validSpawnPos, spawn.getData().getFloat("yaw"), monuments, classChange);
+        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange);
     }
 
     public BlockPos getRandomSpawnPos() {

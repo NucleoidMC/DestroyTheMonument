@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class TeamData {
     public final Set<BlockPos> monuments;
-    private final GameTeam team;
+    public final GameTeam team;
     public float spawnYaw;
     public int monumentStartingCount;
     public Set<BlockBounds> classChange;

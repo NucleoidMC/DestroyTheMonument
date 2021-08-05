@@ -13,12 +13,13 @@ public class DtmItems {
     public static final Item CLASS_SELECTOR = createBasic(Items.PAPER, Rarity.EPIC);
     public static final Item MULTI_BLOCK = new MultiBlockItem(new Item.Settings());
     public static final Item WEAK_GLASS = new VirtualBlockItem(DtmBlocks.WEAK_GLASS, new Item.Settings(), Items.GLASS);
+    public static final Item MAP = new DtmMapItem(new Item.Settings());
 
     public static void registerItems() {
         register("class_selector", CLASS_SELECTOR);
         register("multi_block", MULTI_BLOCK);
         register("weak_glass", WEAK_GLASS);
-
+        register("map", MAP);
     }
 
     private static Item createBasic(Item virtual) {

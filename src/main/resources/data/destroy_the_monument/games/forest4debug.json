@@ -1,0 +1,33 @@
+{
+  "type": "destroy_the_monument:destroy_the_monument",
+  "gamemode": "standard",
+  "translation": "map.destroy_the_monument.forest4deb",
+  "map": {
+    "id": "destroy_the_monument:forest4"
+  },
+  "players": {
+    "min": 1,
+    "threshold": 12,
+    "max": 48
+  },
+  "allowJoiningInGame": true,
+  "gameTime": 24000,
+  "tickRespawnTime": 60,
+  "teams": [
+    {"key": "oak", "display": "Oak", "color": "blue"},
+    {"key": "acacia", "display": "Acacia", "color": "red"},
+    {"key": "jungle", "display": "Jungle", "color": "green"},
+    {"key": "birch", "display": "Birch", "color": "yellow"}
+  ],
+  "kits": [
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
+  ],
+
+  "custom": {
+    "gamegui:icon": "minecraft:oak_sapling"
+  }
+}

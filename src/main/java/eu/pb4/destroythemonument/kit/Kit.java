@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.kit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.destroythemonument.game.PlayerData;
+import eu.pb4.destroythemonument.items.DtmItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -83,6 +84,8 @@ public class Kit {
         player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
         player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
         player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
+
+        player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
     }
 
     public void updateMainTool(ServerPlayerEntity player, BlockState state) {
