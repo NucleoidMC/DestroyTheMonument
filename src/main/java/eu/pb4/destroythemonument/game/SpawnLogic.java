@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.GameMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -12,11 +12,11 @@ import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class SpawnLogic {
     private final GameSpace gameSpace;
-    private final Map map;
+    private final GameMap map;
     private final Teams teams;
     private final Object2ObjectMap<PlayerRef, PlayerData> participants;
 
-    public SpawnLogic(GameSpace gameSpace, Map map, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public SpawnLogic(GameSpace gameSpace, GameMap map, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.participants = participants;

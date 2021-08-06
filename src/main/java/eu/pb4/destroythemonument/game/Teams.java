@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.GameMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.scoreboard.AbstractTeam;
@@ -11,12 +11,12 @@ import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 
 
 public class Teams {
-    private final Map map;
+    private final GameMap map;
     public final TeamManager manager;
     public Object2ObjectMap<GameTeam, TeamData> teamData = new Object2ObjectOpenHashMap<>();
     public Object2ObjectMap<String, GameTeam> teams = new Object2ObjectOpenHashMap<>();
 
-    public Teams(TeamManager manager, GameSpace gameSpace, Map map, GameConfig config) {
+    public Teams(TeamManager manager, GameSpace gameSpace, GameMap map, GameConfig config) {
         this.manager = manager;
         this.map = map;
 

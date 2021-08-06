@@ -7,7 +7,7 @@ import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
-import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.GameMap;
 import eu.pb4.destroythemonument.map.MapBuilder;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
@@ -38,7 +38,7 @@ import java.util.List;
 
 public class WaitingLobby {
     private final GameSpace gameSpace;
-    private final Map map;
+    private final GameMap map;
     private final GameConfig config;
     private final SpawnLogic spawnLogic;
     private final Teams teams;
@@ -48,7 +48,7 @@ public class WaitingLobby {
     private final Kit defaultKit;
 
 
-    private WaitingLobby(GameSpace gameSpace, TeamManager manager, Map map, GameConfig config, TeamSelectionLobby teamSelection) {
+    private WaitingLobby(GameSpace gameSpace, TeamManager manager, GameMap map, GameConfig config, TeamSelectionLobby teamSelection) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.config = config;
@@ -62,7 +62,7 @@ public class WaitingLobby {
     public static GameOpenProcedure open(GameOpenContext<GameConfig> context) {
         GameConfig config = context.config();
         MapBuilder generator = new MapBuilder(config.mapConfig);
-        Map map = generator.create(context.server());
+        GameMap map = generator.create(context.server());
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.asGenerator(context.server()))

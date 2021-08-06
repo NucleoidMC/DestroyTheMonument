@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Map {
+public class GameMap {
     private final MapTemplate template;
     private final MapConfig config;
     private final Set<BlockBounds> unbreakable;
@@ -35,7 +35,7 @@ public class Map {
     public ServerWorld world;
 
 
-    public Map(MapTemplate template, MapConfig config) {
+    public GameMap(MapTemplate template, MapConfig config) {
         this.template = template;
         this.config = config;
         this.unbreakable = template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toSet());

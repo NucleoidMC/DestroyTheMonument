@@ -18,11 +18,11 @@ public class MapBuilder {
         this.config = config;
     }
 
-    public Map create(MinecraftServer server) throws GameOpenException {
+    public GameMap create(MinecraftServer server) throws GameOpenException {
         try {
             MapTemplate template = MapTemplateSerializer.loadFromResource(server, this.config.id);
 
-            Map map = new Map(template, config);
+            GameMap map = new GameMap(template, config);
             template.setBiome(RegistryKey.of(Registry.BIOME_KEY, config.biome));
 
             return map;

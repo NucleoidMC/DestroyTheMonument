@@ -2,7 +2,7 @@ package eu.pb4.destroythemonument.game_logic;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
-import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StandardGameLogic extends BaseGameLogic {
-    public StandardGameLogic(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, playerTeams, participants, teams);
         List<Text> texts = new ArrayList<>();
 
@@ -43,14 +43,14 @@ public class StandardGameLogic extends BaseGameLogic {
         }
     }
 
-    public static void open(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, playerTeams, participants, teams);
             active.setupGame(game, map, config);
         });
     }
 
-    public void setupGame(GameActivity game, Map map, GameConfig config) {
+    public void setupGame(GameActivity game, GameMap map, GameConfig config) {
         super.setupGame(game, map, config);
     }
 

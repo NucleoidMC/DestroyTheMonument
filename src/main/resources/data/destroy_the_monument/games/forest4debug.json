@@ -1,6 +1,6 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
-  "gamemode": "standard",
+  "gamemode": "debug",
   "translation": "map.destroy_the_monument.forest4deb",
   "map": {
     "id": "destroy_the_monument:forest4"

@@ -6,7 +6,7 @@ import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.items.DtmMapItem;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
-import eu.pb4.destroythemonument.map.Map;
+import eu.pb4.destroythemonument.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
@@ -74,7 +74,7 @@ public abstract class BaseGameLogic {
     public final GameConfig config;
 
     public final GameSpace gameSpace;
-    public final Map gameMap;
+    public final GameMap gameMap;
     public final Object2ObjectMap<PlayerRef, PlayerData> participants;
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
     public final Teams teams;
@@ -87,8 +87,9 @@ public abstract class BaseGameLogic {
     protected TimerBar timerBar = null;
     protected long closeTime = -1;
     protected boolean setSpectator = false;
+    public MapRenderer mapRenderer;
 
-    public BaseGameLogic(GameSpace gameSpace, Map map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
@@ -96,6 +97,7 @@ public abstract class BaseGameLogic {
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
         this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
+        this.mapRenderer = new MapRenderer(this);
         for (Identifier id : this.config.kits) {
             Kit kit = KitsRegistry.get(id);
             if (kit != null) {
@@ -126,7 +128,7 @@ public abstract class BaseGameLogic {
         DTM.ACTIVE_GAMES.put(gameSpace, this);
     }
 
-    public void setupGame(GameActivity game, Map map, GameConfig config) {
+    public void setupGame(GameActivity game, GameMap map, GameConfig config) {
         game.setRule(GameRuleType.CRAFTING, ActionResult.FAIL);
         game.setRule(GameRuleType.PORTALS, ActionResult.FAIL);
         game.setRule(GameRuleType.PVP, ActionResult.PASS);
@@ -389,7 +391,7 @@ public abstract class BaseGameLogic {
         player.getInventory().clear();
 
         playerData.activeKit.equipPlayer(player, playerData.team);
-        DtmMapItem.updateMap(player, playerData, this);
+        this.mapRenderer.updateMap(player, playerData);
 
         playerData.resetTimers();
 
@@ -439,7 +441,6 @@ public abstract class BaseGameLogic {
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 6000, 2));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 6000, 2));
             player.getInventory().clear();
-            return ActionResult.PASS;
         }
 
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
@@ -501,6 +502,8 @@ public abstract class BaseGameLogic {
             this.isFinished = true;
         }
 
+        this.mapRenderer.tick();
+
         for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
             PlayerRef ref = PlayerRef.of(player);
             PlayerData dtmPlayer = this.participants.get(ref);
@@ -517,8 +520,8 @@ public abstract class BaseGameLogic {
                 }
             }
 
-            if (this.tickTime % 4 == 0 && player.getMainHandStack().getItem() == DtmItems.MAP || player.getOffHandStack().getItem() == DtmItems.MAP) {
-                DtmMapItem.updateMap(player, dtmPlayer, this);
+            if (this.tickTime % 5 == 0 && (player.getMainHandStack().getItem() == DtmItems.MAP || player.getOffHandStack().getItem() == DtmItems.MAP)) {
+                this.mapRenderer.updateMap(player, dtmPlayer);
             }
         }
 
