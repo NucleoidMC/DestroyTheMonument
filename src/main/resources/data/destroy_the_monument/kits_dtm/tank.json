@@ -65,7 +65,7 @@
         "AttributeModifiers": [
           {
             "AttributeName": "generic.movement_speed",
-            "Amount": -0.05,
+            "Amount": -0.025,
             "Operation": 0,
             "UUID": [
               -121200,
