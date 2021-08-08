@@ -20,10 +20,10 @@ public class MapBuilder {
 
     public GameMap create(MinecraftServer server) throws GameOpenException {
         try {
-            MapTemplate template = MapTemplateSerializer.loadFromResource(server, this.config.id);
+            MapTemplate template = MapTemplateSerializer.loadFromResource(server, this.config.id());
 
             GameMap map = new GameMap(template, config);
-            template.setBiome(RegistryKey.of(Registry.BIOME_KEY, config.biome));
+            template.setBiome(RegistryKey.of(Registry.BIOME_KEY, config.biome()));
 
             return map;
         } catch (IOException e) {

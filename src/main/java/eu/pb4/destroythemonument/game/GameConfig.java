@@ -3,42 +3,29 @@ package eu.pb4.destroythemonument.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
+import xyz.nucleoid.codecs.MoreCodecs;
 import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
 import eu.pb4.destroythemonument.map.MapConfig;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 import java.util.List;
 
-public class GameConfig {
+public record GameConfig(String gamemode, PlayerConfig players,
+                         MapConfig map, List<GameTeam> teams,
+                         boolean allowJoiningInGame, int gameTime,
+                         List<Identifier> kits, int tickRespawnTime,
+                         String shortName) {
+
     public static final Codec<GameConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("gamemode").forGetter(config -> config.gamemode),
-            PlayerConfig.CODEC.fieldOf("players").forGetter(config -> config.playerConfig),
-            MapConfig.CODEC.fieldOf("map").forGetter(config -> config.mapConfig),
-            GameTeam.CODEC.listOf().fieldOf("teams").forGetter(config -> config.teams),
-            Codec.BOOL.optionalFieldOf("allowJoiningInGame", false).forGetter(config -> config.allowJoiningInGame),
-            Codec.INT.optionalFieldOf("gameTime", -1).forGetter(config -> config.gameTime),
-            Codec.list(Identifier.CODEC).fieldOf("kits").forGetter(config -> config.kits),
-            Codec.INT.optionalFieldOf("tickRespawnTime", 60).forGetter(config -> config.tickRespawnTime)
+            Codec.STRING.fieldOf("gamemode").forGetter(GameConfig::gamemode),
+            PlayerConfig.CODEC.fieldOf("players").forGetter(GameConfig::players),
+            MapConfig.CODEC.fieldOf("map").forGetter(GameConfig::map),
+            GameTeam.CODEC.listOf().fieldOf("teams").forGetter(GameConfig::teams),
+            Codec.BOOL.optionalFieldOf("allowJoiningInGame", false).forGetter(GameConfig::allowJoiningInGame),
+            Codec.INT.optionalFieldOf("gameTime", -1).forGetter(GameConfig::gameTime),
+            Codec.list(Identifier.CODEC).fieldOf("kits").forGetter(GameConfig::kits),
+            Codec.INT.optionalFieldOf("tickRespawnTime", 60).forGetter(GameConfig::tickRespawnTime),
+            Codec.STRING.fieldOf("short_name").forGetter(GameConfig::shortName)
             ).apply(instance, GameConfig::new));
-
-    public final PlayerConfig playerConfig;
-    public final MapConfig mapConfig;
-    public final List<GameTeam> teams;
-    public final boolean allowJoiningInGame;
-    public final int gameTime;
-    public final List<Identifier> kits;
-    public final String gamemode;
-    public final int tickRespawnTime;
-
-
-    public GameConfig(String gamemode, PlayerConfig players, MapConfig mapConfig, List<GameTeam> teams, boolean allowJoiningInGame, int gameTime, List<Identifier> kits, int tickRespawnTime) {
-        this.gamemode = gamemode;
-        this.playerConfig = players;
-        this.mapConfig = mapConfig;
-        this.teams = teams;
-        this.allowJoiningInGame = allowJoiningInGame;
-        this.gameTime = gameTime;
-        this.kits = kits;
-        this.tickRespawnTime = tickRespawnTime;
-    }
 }

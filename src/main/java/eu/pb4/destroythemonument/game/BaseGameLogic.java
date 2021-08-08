@@ -96,9 +96,9 @@ public abstract class BaseGameLogic {
         this.participants = participants;
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
-        this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
+        this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
         this.mapRenderer = new MapRenderer(this);
-        for (Identifier id : this.config.kits) {
+        for (Identifier id : this.config.kits()) {
             Kit kit = KitsRegistry.get(id);
             if (kit != null) {
                 this.kits.add(kit);
@@ -259,7 +259,7 @@ public abstract class BaseGameLogic {
 
     protected void addPlayer(ServerPlayerEntity player) {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
-            if (this.config.allowJoiningInGame) {
+            if (this.config.allowJoiningInGame()) {
                 GameTeam team = this.teams.getSmallestTeam();
                 PlayerData playerData = new PlayerData(this.defaultKit);
                 playerData.team = team;
@@ -329,8 +329,8 @@ public abstract class BaseGameLogic {
     }
 
     protected void startRespawningPlayerSequence(ServerPlayerEntity player) {
-        if (this.config.tickRespawnTime > 0) {
-            this.deadPlayers.put(PlayerRef.of(player), this.config.tickRespawnTime);
+        if (this.config.tickRespawnTime() > 0) {
+            this.deadPlayers.put(PlayerRef.of(player), this.config.tickRespawnTime());
             player.teleport(player.getX(), player.getY() + 1000, player.getZ());
             this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
             player.networkHandler.sendPacket(new GameStateChangeS2CPacket(new GameStateChangeS2CPacket.Reason(3), 3));
@@ -527,8 +527,8 @@ public abstract class BaseGameLogic {
 
         this.tickTime += 1;
 
-        if (this.config.gameTime > 0) {
-            long timeLeft = this.config.gameTime - this.tickTime;
+        if (this.config.gameTime() > 0) {
+            long timeLeft = this.config.gameTime() - this.tickTime;
 
             if (timeLeft <= 0) {
                 if (this.timerBar != null) {
@@ -540,7 +540,7 @@ public abstract class BaseGameLogic {
                 if (this.timerBar == null) {
                     this.timerBar = new TimerBar(this.gameMap.world.getPlayers(), timeLeft);
                 }
-                this.timerBar.update(timeLeft, this.config.gameTime);
+                this.timerBar.update(timeLeft, this.config.gameTime());
             }
         }
     }

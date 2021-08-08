@@ -2,8 +2,10 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "translation": "map.destroy_the_monument.kuber",
+  "short_name": "map.destroy_the_monument.kuber.short",
   "map": {
-    "id": "destroy_the_monument:kuber"
+    "id": "destroy_the_monument:kuber",
+    "author": "Sockfriends"
   },
   "players": {
     "min": 2,

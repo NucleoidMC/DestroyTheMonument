@@ -2,8 +2,10 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "translation": "map.destroy_the_monument.cubes",
+  "short_name": "map.destroy_the_monument.cubes.short",
   "map": {
-    "id": "destroy_the_monument:cubes"
+    "id": "destroy_the_monument:cubes",
+    "author": "Patbox"
   },
   "players": {
     "min": 2,

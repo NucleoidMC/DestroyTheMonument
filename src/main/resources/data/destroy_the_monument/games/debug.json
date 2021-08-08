@@ -2,6 +2,8 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "debug",
   "name": "Destroy The Monument: Debug",
+  "short_name": "DTM: Debug",
+
   "map": {
     "id": "destroy_the_monument:kupol",
     "time": 12500

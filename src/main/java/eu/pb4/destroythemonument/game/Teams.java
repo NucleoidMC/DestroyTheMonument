@@ -20,7 +20,7 @@ public class Teams {
         this.manager = manager;
         this.map = map;
 
-        for (GameTeam team : config.teams) {
+        for (GameTeam team : config.teams()) {
             this.teams.put(team.key(), team);
             this.createTeam(team);
         }

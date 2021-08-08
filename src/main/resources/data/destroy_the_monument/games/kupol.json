@@ -2,10 +2,12 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "translation": "map.destroy_the_monument.kupol",
+  "short_name": "map.destroy_the_monument.kupol.short",
   "map": {
     "id": "destroy_the_monument:kupol",
     "time": 12500,
-    "biome": "minecraft:plains"
+    "biome": "minecraft:plains",
+    "author": "Sockfriends"
   },
   "players": {
     "min": 2,

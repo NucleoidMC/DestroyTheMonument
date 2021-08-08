@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import eu.pb4.destroythemonument.experimental.GameWaitingLobby;
 import eu.pb4.destroythemonument.game_logic.DebugGameLogic;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.items.DtmItems;
@@ -16,14 +17,17 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.*;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
@@ -54,35 +58,49 @@ public class WaitingLobby {
         this.config = config;
         this.spawnLogic = new SpawnLogic(gameSpace, map, null, null);
         this.teams = new Teams(manager, gameSpace, map, config);
-        this.defaultKit = KitsRegistry.get(this.config.kits.get(0));
+        this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
 
         this.teamSelection = teamSelection;
     }
 
     public static GameOpenProcedure open(GameOpenContext<GameConfig> context) {
         GameConfig config = context.config();
-        MapBuilder generator = new MapBuilder(config.mapConfig);
+        MapBuilder generator = new MapBuilder(config.map());
         GameMap map = generator.create(context.server());
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.asGenerator(context.server()))
-                .setTimeOfDay(config.mapConfig.time)
+                .setTimeOfDay(config.map().time())
                 .setGameRule(GameRules.DO_DAYLIGHT_CYCLE, false);
 
 
         return context.openWithWorld(worldConfig, (game, world) -> {
             map.world = world;
-            GameWaitingLobby.addTo(game, config.playerConfig);
+            var baseWaitingLobby = GameWaitingLobby.addTo(game, config.players());
+            baseWaitingLobby.setSidebarLines(List.of(
+                    DtmUtil.getText("sidebar", "about.1").formatted(Formatting.YELLOW),
+                    DtmUtil.getText("sidebar", "about.2").formatted(Formatting.YELLOW),
+                    DtmUtil.getText("sidebar", "about.3").formatted(Formatting.YELLOW),
+                    LiteralText.EMPTY,
+                    DtmUtil.getText("sidebar", "about.map",
+                            new LiteralText(config.map().author()).setStyle(Style.EMPTY.withColor(Formatting.WHITE).withBold(false)))
+                            .setStyle(Style.EMPTY.withColor(Formatting.GREEN).withBold(true))
+            ));
+
+            if (config.shortName() != null) {
+                baseWaitingLobby.setSidebarTitle(new TranslatableText(config.shortName()).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
+            }
 
             TeamManager teamManager = TeamManager.addTo(game);
 
-            List<GameTeam> teams = context.config().teams;
+            List<GameTeam> teams = context.config().teams();
             for (GameTeam team : teams) {
                 teamManager.addTeam(team);
             }
             TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(game, teams);
 
             WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), teamManager, map, context.config(), teamSelection);
+
             game.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
             game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(world, map.getRandomSpawnPosAsVec3d()));
             game.listen(GamePlayerEvents.JOIN, waiting::addPlayer);
@@ -105,7 +123,7 @@ public class WaitingLobby {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData != null && player.getInventory().getMainHandStack().getItem() == DtmItems.CLASS_SELECTOR) {
-            ClassSelectorUI.openSelector(player, playerData, this.config.kits);
+            ClassSelectorUI.openSelector(player, playerData, this.config.kits());
         }
 
         return TypedActionResult.pass(player.getStackInHand(hand));
@@ -114,7 +132,7 @@ public class WaitingLobby {
     private GameResult requestStart() {
         Multimap<GameTeam, ServerPlayerEntity> playerTeams = HashMultimap.create();
         this.teamSelection.allocate(playerTeams::put);
-        switch (this.config.gamemode) {
+        switch (this.config.gamemode()) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
                 break;

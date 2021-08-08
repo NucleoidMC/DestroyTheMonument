@@ -2,6 +2,7 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "translation": "map.destroy_the_monument.honey",
+  "short_name": "map.destroy_the_monument.honey.short",
   "map": {
     "id": "destroy_the_monument:honey"
   },

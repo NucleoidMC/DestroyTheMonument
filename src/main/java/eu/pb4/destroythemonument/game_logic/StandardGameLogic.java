@@ -74,7 +74,7 @@ public class StandardGameLogic extends BaseGameLogic {
                 player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
                 return ActionResult.FAIL;
             } else {
-                for (GameTeam team : this.config.teams) {
+                for (GameTeam team : this.config.teams()) {
                     TeamData regions = this.teams.teamData.get(team);
 
                     if (regions.isMonument(blockPos)) {
@@ -109,7 +109,7 @@ public class StandardGameLogic extends BaseGameLogic {
     protected boolean checkIfShouldEnd() {
         int aliveTeams = 0;
 
-        for (GameTeam team : this.config.teams) {
+        for (GameTeam team : this.config.teams()) {
             int players = 0;
 
             for (PlayerData dtmPlayer : this.participants.values()) {
@@ -129,7 +129,7 @@ public class StandardGameLogic extends BaseGameLogic {
         GameTeam winners = null;
         int monumentsWinner = 0;
 
-        for (GameTeam team : this.config.teams) {
+        for (GameTeam team : this.config.teams()) {
             int monuments = this.teams.teamData.get(team).getMonumentCount();
             int players = 0;
 
@@ -159,7 +159,7 @@ public class StandardGameLogic extends BaseGameLogic {
 
     @Override
     protected void buildSidebar() {
-        List<GameTeam> teamList = this.config.teams;
+        List<GameTeam> teamList = this.config.teams();
 
         boolean compact = teamList.size() > 4;
         this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));

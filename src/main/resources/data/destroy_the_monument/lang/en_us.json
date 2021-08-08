@@ -36,6 +36,12 @@
   "sidebar.destroy_the_monument.standard_title": "Destroy The Monument",
   "sidebar.destroy_the_monument.stats": "🗡: %s ☠: %s ⛏: %s",
 
+
+  "sidebar.destroy_the_monument.about.1": "Destroy enemy's monuments,",
+  "sidebar.destroy_the_monument.about.2": "while protecting your own!",
+  "sidebar.destroy_the_monument.about.3": "The last team standing wins!",
+  "sidebar.destroy_the_monument.about.map": "Map by: %s",
+
   "ui.destroy_the_monument.select_class": "Select your class",
   "ui.destroy_the_monument.class_preview": "%s's Inventory",
   "ui.destroy_the_monument.return_selector": "Return to class selector",
@@ -48,5 +54,12 @@
   "map.destroy_the_monument.kupol": "Destroy The Monument: Kupol",
   "map.destroy_the_monument.forest4": "Destroy The Monument: Forest (4 Teams)",
   "map.destroy_the_monument.kupol_duels": "Destroy The Monument: Kupol (Duels)",
-  "map.destroy_the_monument.kuber": "Destroy The Monument: Kuber"
+  "map.destroy_the_monument.kuber": "Destroy The Monument: Kuber",
+
+  "map.destroy_the_monument.cubes.short": "DTM: Cubes",
+  "map.destroy_the_monument.honey.short": "DTM: Honey",
+  "map.destroy_the_monument.kupol.short": "DTM: Kupol",
+  "map.destroy_the_monument.forest4.short": "DTM: Forest (4 Teams)",
+  "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
+  "map.destroy_the_monument.kuber.short": "DTM: Kuber"
 }

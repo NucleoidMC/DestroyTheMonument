@@ -2,8 +2,10 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "translation": "map.destroy_the_monument.forest4",
+  "short_name": "map.destroy_the_monument.forest4.short",
   "map": {
-    "id": "destroy_the_monument:forest4"
+    "id": "destroy_the_monument:forest4",
+    "author": "Patbox"
   },
   "players": {
     "min": 4,

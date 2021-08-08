@@ -1,7 +1,8 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "debug",
-  "translation": "map.destroy_the_monument.forest4deb",
+  "translation": "DTM Forest Debug",
+  "short_name": "DTM Forest Debug ",
   "map": {
     "id": "destroy_the_monument:forest4"
   },
