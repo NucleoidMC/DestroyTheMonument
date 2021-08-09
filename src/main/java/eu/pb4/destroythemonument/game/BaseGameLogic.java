@@ -55,6 +55,8 @@ import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
 import xyz.nucleoid.plasmid.game.player.PlayerSet;
 import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.game.stats.GameStatisticBundle;
+import xyz.nucleoid.plasmid.game.stats.StatisticKeys;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPlaceEvent;
@@ -79,6 +81,7 @@ public abstract class BaseGameLogic {
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
     public final Teams teams;
     public final ArrayList<Kit> kits = new ArrayList<>();
+    public final GameStatisticBundle statistics;
     protected final Kit defaultKit;
     protected final SpawnLogic spawnLogic;
     protected final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
@@ -96,6 +99,7 @@ public abstract class BaseGameLogic {
         this.participants = participants;
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
+        this.statistics = gameSpace.getStatistics(DTM.ID);
         this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
         this.mapRenderer = new MapRenderer(this);
         for (Identifier id : this.config.kits()) {
@@ -297,6 +301,8 @@ public abstract class BaseGameLogic {
         if (source.getAttacker() instanceof ServerPlayerEntity) {
             dtmPlayer.lastAttackTime = player.world.getTime();
             dtmPlayer.lastAttacker = (ServerPlayerEntity) source.getAttacker();
+            this.statistics.forPlayer((ServerPlayerEntity) source.getAttacker()).increment(StatisticKeys.DAMAGE_DEALT, amount);
+            this.statistics.forPlayer(player).increment(StatisticKeys.DAMAGE_TAKEN, amount);
         }
 
         return ActionResult.PASS;
@@ -314,12 +320,13 @@ public abstract class BaseGameLogic {
                 PlayerData attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
                 attacker.kills += 1;
                 attacker.addToTimers(60);
-
+                this.statistics.forPlayer(dtmPlayer.lastAttacker).increment(StatisticKeys.KILLS, 1);
             }
 
             dtmPlayer.lastAttackTime = 0;
             dtmPlayer.lastAttacker = null;
             dtmPlayer.deaths += 1;
+            this.statistics.forPlayer(player).increment(StatisticKeys.DEATHS, 1);
 
             this.startRespawningPlayerSequence(player);
         } else {
@@ -586,6 +593,14 @@ public abstract class BaseGameLogic {
                     FormattingUtil.WIN_STYLE,
                     DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(result.getWinningTeam())));
 
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+                PlayerData playerData = this.participants.get(PlayerRef.of(player));
+                if (playerData.team.equals(result.winningTeam)) {
+                    this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_WON, 1);
+                } else {
+                    this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_LOST, 1);
+                }
+            }
         } else {
             message = FormattingUtil.format(FormattingUtil.STAR_PREFIX,
                     FormattingUtil.WIN_STYLE,
