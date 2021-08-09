@@ -61,5 +61,8 @@
   "map.destroy_the_monument.kupol.short": "DTM: Kupol",
   "map.destroy_the_monument.forest4.short": "DTM: Forest (4 Teams)",
   "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
-  "map.destroy_the_monument.kuber.short": "DTM: Kuber"
+  "map.destroy_the_monument.kuber.short": "DTM: Kuber",
+
+  "statistic.bundle.destroy_the_monument": "Destroy the monument",
+  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed"
 }

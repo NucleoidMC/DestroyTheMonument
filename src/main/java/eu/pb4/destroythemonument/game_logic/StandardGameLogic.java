@@ -90,6 +90,7 @@ public class StandardGameLogic extends BaseGameLogic {
                         this.maybeEliminate(team, regions);
                         this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
                         playerData.brokenMonuments += 1;
+                        this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
                         return ActionResult.SUCCESS;
                     }
                 }
