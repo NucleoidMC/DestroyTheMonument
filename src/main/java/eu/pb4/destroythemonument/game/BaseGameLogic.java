@@ -548,13 +548,15 @@ public abstract class BaseGameLogic {
         TickType result = this.getTickType();
 
         for (var monument : this.gameMap.monuments) {
-            int color = monument.teamData.team.color().getRgb();
+            if (monument.isAlive()) {
+                int color = monument.teamData.team.color().getRgb();
 
-            float blue = ((float) color % 256) / 256;
-            float green = ((float) (color / 256) % 256) / 256;
-            float red = ((float) color / 65536) / 256;
+                float blue = ((float) color % 256) / 256;
+                float green = ((float) (color / 256) % 256) / 256;
+                float red = ((float) color / 65536) / 256;
 
-            this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(new Vec3f(red, green, blue), 0.8f), false, monument.pos.getX() + 0.5d, monument.pos.getY() + 0.5d, monument.pos.getZ() + 0.5d, 0.2f, 0.2f, 0.2f, 0.01f, 5));
+                this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(new Vec3f(red, green, blue), 0.8f), false, monument.pos.getX() + 0.5d, monument.pos.getY() + 0.5d, monument.pos.getZ() + 0.5d, 0.2f, 0.2f, 0.2f, 0.01f, 5));
+            }
         }
 
         this.tickDeadPlayers();
