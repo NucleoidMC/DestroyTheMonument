@@ -6,7 +6,7 @@
     "minecraft:oak_fence",
     "minecraft:oak_fence_gate",
     "minecraft:oak_trapdoor",
-    "minecraft:ladder",
+    "destroy_the_monument:ladder",
     "destroy_the_monument:weak_glass"
   ]
 }

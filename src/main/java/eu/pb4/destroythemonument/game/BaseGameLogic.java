@@ -1,16 +1,21 @@
 package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
 import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.items.DtmItems;
-import eu.pb4.destroythemonument.items.DtmMapItem;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
-import eu.pb4.destroythemonument.map.GameMap;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
+import eu.pb4.destroythemonument.other.MarkedPacket;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -30,20 +35,25 @@ import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
+import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
 import xyz.nucleoid.plasmid.game.GameActivity;
@@ -66,6 +76,7 @@ import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
+import xyz.nucleoid.stimuli.event.player.PlayerS2CPacketEvent;
 import xyz.nucleoid.stimuli.event.projectile.ArrowFireEvent;
 import xyz.nucleoid.stimuli.event.world.ExplosionDetonatedEvent;
 
@@ -163,11 +174,13 @@ public abstract class BaseGameLogic {
         game.listen(ArrowFireEvent.EVENT, this::onArrowShoot);
         game.listen(ItemThrowEvent.EVENT, this::onPlayerDropItem);
 
+        game.listen(PlayerS2CPacketEvent.EVENT, this::onServerPacket);
+
         this.teams.manager.applyTo(game);
         TeamChat.addTo(game, this.teams.manager);
     }
 
-    private ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
+    protected ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
         PlayerData data = this.participants.get(PlayerRef.of(player));
         if (data != null) {
             data.activeKit.updateMainTool(player, player.world.getBlockState(blockPos));
@@ -175,7 +188,7 @@ public abstract class BaseGameLogic {
         return ActionResult.PASS;
     }
 
-    private ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
+    protected ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
         if (this.participants.get(PlayerRef.of(player)) != null && stack != null) {
             if (stack.getItem() == DtmItems.MULTI_BLOCK) {
                 BlockSelectorUI.openSelector((ServerPlayerEntity) player, this);
@@ -239,6 +252,35 @@ public abstract class BaseGameLogic {
         return ActionResult.PASS;
     }
 
+    protected ActionResult onServerPacket(ServerPlayerEntity player, Packet<?> packet) {
+        if (MarkedPacket.is(packet)) {
+            return ActionResult.PASS;
+        }
+
+        if (packet instanceof EntityEquipmentUpdateS2CPacket equipmentUpdate) {
+            var list = new ArrayList<Pair<EquipmentSlot, ItemStack>>();
+            boolean cancel = false;
+
+            for (var pair : equipmentUpdate.getEquipmentList()) {
+                if (pair.getSecond().getItem() == DtmItems.MAP) {
+                    cancel = true;
+                    list.add(new Pair<>(pair.getFirst(), ItemStack.EMPTY));
+                } else {
+                    list.add(pair);
+                }
+            }
+
+            if (cancel) {
+                if (list.size() > 0) {
+                    player.networkHandler.sendPacket(MarkedPacket.mark(new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list)));
+                }
+                return ActionResult.FAIL;
+            }
+        }
+
+        return ActionResult.PASS;
+    }
+
     protected void onOpen() {
         ServerWorld world = this.gameMap.world;
         for (PlayerRef ref : this.participants.keySet()) {
@@ -263,18 +305,47 @@ public abstract class BaseGameLogic {
 
     protected void addPlayer(ServerPlayerEntity player) {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
-            if (this.config.allowJoiningInGame()) {
-                GameTeam team = this.teams.getSmallestTeam();
-                PlayerData playerData = new PlayerData(this.defaultKit);
-                playerData.team = team;
-                this.participants.put(PlayerRef.of(player), playerData);
-                this.teams.addPlayer(player, team);
-                this.setPlayerSidebar(player, playerData);
+            if (this.config.allowJoiningInGame() && this.participants.size() < this.config.players().maxPlayers()) {
+                var gui = new SimpleGui(ScreenHandlerType.GENERIC_9X3, player, false);
+                gui.setTitle(DtmUtil.getText("ui", "join_selector.title"));
+                gui.setSlot(11, new GuiElementBuilder(Items.DIAMOND_SWORD)
+                        .setName(DtmUtil.getText("ui", "join_selector.play").formatted(Formatting.GOLD))
+                        .hideFlags()
+                        .setCallback((x, y, z, p) -> {
+                    this.globalSidebar.removePlayer(player);
+                    gui.close();
 
-                this.spawnParticipant(player);
-            } else {
-                this.spawnSpectator(player);
+                    GameTeam team = this.teams.getSmallestTeam();
+                    PlayerData playerData = new PlayerData(this.defaultKit);
+                    playerData.team = team;
+                    this.participants.put(PlayerRef.of(player), playerData);
+                    this.teams.addPlayer(player, team);
+                    this.setPlayerSidebar(player, playerData);
+                    this.spawnParticipant(player);
+                }));
+
+                gui.setSlot(15, new GuiElementBuilder(Items.ENDER_EYE)
+                        .hideFlags()
+                        .setName(DtmUtil.getText("ui", "join_selector.spectate").formatted(Formatting.GOLD))
+                        .setCallback((x, y, z, p) -> {
+                            gui.close();
+                        }));
+
+
+                var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy()).asStack();
+
+                for (int x = 0; x < 9; x++) {
+                    gui.setSlot(x, empty);
+                    gui.setSlot(x + 18, empty);
+                }
+                gui.setSlot(9, empty);
+                gui.setSlot(17, empty);
+
+                gui.open();
             }
+            this.spawnSpectator(player);
+        } else {
+            this.spawnParticipant(player);
         }
 
         if (this.timerBar != null) {
@@ -381,7 +452,7 @@ public abstract class BaseGameLogic {
     protected void spawnParticipant(ServerPlayerEntity player) {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
-        if (this.teams.teamData.get(playerData.team).getMonumentCount() > 0) {
+        if (this.teams.teamData.get(playerData.team).aliveMonuments.size() > 0) {
             playerData.activeKit = playerData.selectedKit;
             player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
@@ -476,17 +547,16 @@ public abstract class BaseGameLogic {
     protected void tick() {
         TickType result = this.getTickType();
 
-        for (GameTeam team : this.teams.teams.values()) {
-            for (BlockPos pos : this.teams.teamData.get(team).monuments) {
-                int color = team.color().getRgb();
+        for (var monument : this.gameMap.monuments) {
+            int color = monument.teamData.team.color().getRgb();
 
-                float blue = ((float) color % 256) / 256;
-                float green = ((float) (color / 256) % 256) / 256;
-                float red = ((float) color / 65536) / 256;
+            float blue = ((float) color % 256) / 256;
+            float green = ((float) (color / 256) % 256) / 256;
+            float red = ((float) color / 65536) / 256;
 
-                this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(new Vec3f(red, green, blue), 0.8f), false, (float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, 0.2f, 0.2f, 0.2f, 0.01f, 5));
-            }
+            this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(new Vec3f(red, green, blue), 0.8f), false, monument.pos.getX() + 0.5d, monument.pos.getY() + 0.5d, monument.pos.getZ() + 0.5d, 0.2f, 0.2f, 0.2f, 0.01f, 5));
         }
+
         this.tickDeadPlayers();
 
         switch (result) {

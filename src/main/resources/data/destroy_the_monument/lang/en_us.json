@@ -16,6 +16,7 @@
   "item.destroy_the_monument.map": "Map",
 
   "block.destroy_the_monument.weak_glass": "Weak Glass Block",
+  "block.destroy_the_monument.ladder": "Ladder",
 
   "message.destroy_the_monument.selected_class": "You have selected %s class.",
   "message.destroy_the_monument.class_respawn": "You will change to it after you respawn.",
@@ -49,6 +50,10 @@
   "ui.destroy_the_monument.click_preview": "Use right mouse button to preview",
   "ui.destroy_the_monument.select_block": "Select block",
 
+  "ui.destroy_the_monument.join_selector.title": "Play or spectate",
+  "ui.destroy_the_monument.join_selector.play": "Join the game",
+  "ui.destroy_the_monument.join_selector.spectate": "Stay as spectator",
+
   "map.destroy_the_monument.cubes": "Destroy The Monument: Cubes",
   "map.destroy_the_monument.honey": "Destroy The Monument: Honey",
   "map.destroy_the_monument.kupol": "Destroy The Monument: Kupol",
@@ -63,6 +68,10 @@
   "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
   "map.destroy_the_monument.kuber.short": "DTM: Kuber",
 
-  "statistic.bundle.destroy_the_monument": "Destroy the monument",
-  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed"
+  "statistic.bundle.destroy_the_monument": "Destroy The Monument",
+  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed",
+
+
+
+  "text.plasmid.game.waiting_lobby.sidebar.players": "Players: %s%s%s"
 }

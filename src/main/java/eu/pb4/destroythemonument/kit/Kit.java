@@ -2,7 +2,7 @@ package eu.pb4.destroythemonument.kit;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import eu.pb4.destroythemonument.game.PlayerData;
+import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.items.DtmItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EquipmentSlot;

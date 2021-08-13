@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game;
+package eu.pb4.destroythemonument.game.data;
 
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.sidebars.api.Sidebar;

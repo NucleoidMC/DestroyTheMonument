@@ -1,6 +1,7 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.map.GameMap;
+import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.scoreboard.AbstractTeam;
@@ -32,7 +33,7 @@ public class Teams {
 
         for (GameTeam team : this.teams.values()) {
             int size = this.manager.playersIn(team).size();
-            if (size <= count && this.teamData.get(team).getMonumentCount() > 0) {
+            if (size <= count && this.teamData.get(team).aliveMonuments.size() > 0) {
                 smallest = team;
                 count = size;
             }

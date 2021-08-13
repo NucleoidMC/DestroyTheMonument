@@ -1,7 +1,8 @@
-package eu.pb4.destroythemonument.map;
+package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
-import eu.pb4.destroythemonument.game.TeamData;
+import eu.pb4.destroythemonument.game.data.Monument;
+import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
@@ -26,13 +27,14 @@ import java.util.stream.Collectors;
 
 public class GameMap {
     private final MapTemplate template;
-    private final MapConfig config;
+    public final MapConfig config;
     private final Set<BlockBounds> unbreakable;
     private final Set<BlockPos> taters;
     private final List<BlockPos> validSpawn;
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
     public ServerWorld world;
+    public final List<Monument> monuments = new ArrayList<>();
 
 
     public GameMap(MapTemplate template, MapConfig config) {
@@ -75,11 +77,11 @@ public class GameMap {
 
     public void setTeamRegions(GameTeam team, TeamData data) {
         TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.key() + "_spawn");
-        Set<BlockBounds> monuments = this.template.getMetadata().getRegionBounds(team.key() + "_monument").collect(Collectors.toSet());
-        Set<BlockBounds> classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
+        var monuments = this.template.getMetadata().getRegions(team.key() + "_monument").collect(Collectors.toList());
+        var classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
 
-        for (BlockBounds monument : monuments) {
-            this.template.setBlockState(monument.min(), Blocks.BEACON.getDefaultState());
+        for (var monument : monuments) {
+            this.template.setBlockState(monument.getBounds().min(), this.config.monument());
         }
 
         List<BlockPos> validSpawnPos = new ArrayList<>();
@@ -91,7 +93,7 @@ public class GameMap {
             }
         }
 
-        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange);
+        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this);
     }
 
     public BlockPos getRandomSpawnPos() {

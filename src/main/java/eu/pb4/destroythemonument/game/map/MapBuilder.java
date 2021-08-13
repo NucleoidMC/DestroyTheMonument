@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.map;
+package eu.pb4.destroythemonument.game.map;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.LiteralText;

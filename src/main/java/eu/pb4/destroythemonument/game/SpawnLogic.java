@@ -1,6 +1,8 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.map.GameMap;
+import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;

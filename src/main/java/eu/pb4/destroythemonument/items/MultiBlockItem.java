@@ -2,7 +2,7 @@ package eu.pb4.destroythemonument.items;
 
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
-import eu.pb4.destroythemonument.game.PlayerData;
+import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.polymer.item.ItemHelper;
 import eu.pb4.polymer.item.VirtualItem;
 import net.minecraft.block.Block;
@@ -64,10 +64,12 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
                 }
             }
 
-            if (item instanceof VirtualItem virtualItem) {
+            if (item instanceof VirtualItem virtualItem && item != this) {
                 ItemStack stack = item.getDefaultStack();
                 stack.setCount(itemStack.getCount());
-                return virtualItem.getVirtualItemStack(stack, player);
+                ItemStack out = virtualItem.getVirtualItemStack(stack, player);
+                out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+                return out;
             }
         }
 

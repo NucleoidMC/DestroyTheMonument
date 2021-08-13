@@ -1,6 +1,8 @@
 package eu.pb4.destroythemonument.game;
 
-import eu.pb4.destroythemonument.map.GameMap;
+import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import net.minecraft.block.MapColor;
 import net.minecraft.item.map.MapIcon;
 import net.minecraft.item.map.MapState;
@@ -183,26 +185,25 @@ public class MapRenderer {
             }
         }
 
-        for (TeamData data : logic.teams.teamData.values()) {
-            MapIcon.Type type = MapIcon.Type.byId((byte) (data.team.blockDyeColor().getId() + 10));
+        for (var monument : this.map.monuments) {
+            int mX = rotationSymX * (monument.pos.getX() - playerX) * 2 - 1;
+            int mZ = rotationSymZ * (monument.pos.getZ() - playerZ) * 2 - 1;
 
-            for (BlockPos monument : data.monuments) {
-                int mX = rotationSymX * (monument.getX() - playerX) * 2 - 1;
-                int mZ = rotationSymZ * (monument.getZ() - playerZ) * 2 - 1;
-
-                if (replaceXZ) {
-                    int tmp = mX;
-                    mX = mZ;
-                    mZ = tmp;
-                }
-
-                if (mX >= 128 || mX <= -128 || mZ >= 128 || mZ < -128) {
-                    continue;
-                }
-
-                icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, null));
+            if (replaceXZ) {
+                int tmp = mX;
+                mX = mZ;
+                mZ = tmp;
             }
 
+            if (mX >= 128 || mX <= -128 || mZ >= 128 || mZ < -128) {
+                continue;
+            }
+            var type = monument.isAlive() ? MapIcon.Type.byId((byte) (monument.teamData.team.blockDyeColor().getId() + 10)) : MapIcon.Type.RED_X;
+
+            icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, null));
+        }
+
+        for (TeamData data : logic.teams.teamData.values()) {
             if (playerData == null || playerData.team == data.team) {
                 for (ServerPlayerEntity entity : logic.teams.manager.playersIn(data.team)) {
                     if (entity == player) {

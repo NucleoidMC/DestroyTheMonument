@@ -2,7 +2,9 @@ package eu.pb4.destroythemonument.game_logic;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
-import eu.pb4.destroythemonument.map.GameMap;
+import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -55,7 +57,7 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     protected void maybeEliminate(GameTeam team, TeamData regions) {
-        if (regions.getMonumentCount() <= 0) {
+        if (regions.aliveMonuments.size() <= 0) {
             for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.team == team) {
@@ -70,15 +72,15 @@ public class StandardGameLogic extends BaseGameLogic {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData != null) {
-            if (this.teams.teamData.get(playerData.team).isMonument(blockPos)) {
+            if (this.teams.teamData.get(playerData.team).isAliveMonument(blockPos)) {
                 player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
                 return ActionResult.FAIL;
             } else {
                 for (GameTeam team : this.config.teams()) {
                     TeamData regions = this.teams.teamData.get(team);
 
-                    if (regions.isMonument(blockPos)) {
-                        regions.removeMonument(blockPos);
+                    if (regions.isAliveMonument(blockPos)) {
+                        regions.breakMonument(blockPos);
 
                         Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
                                 FormattingUtil.GENERAL_STYLE,
@@ -118,7 +120,7 @@ public class StandardGameLogic extends BaseGameLogic {
                     players += 1;
                 }
             }
-            if (this.teams.teamData.get(team).getMonumentCount() > 0 && players > 0) {
+            if (this.teams.teamData.get(team).aliveMonuments.size() > 0 && players > 0) {
                 aliveTeams += 1;
             }
         }
@@ -131,7 +133,7 @@ public class StandardGameLogic extends BaseGameLogic {
         int monumentsWinner = 0;
 
         for (GameTeam team : this.config.teams()) {
-            int monuments = this.teams.teamData.get(team).getMonumentCount();
+            int monuments = this.teams.teamData.get(team).aliveMonuments.size();
             int players = 0;
 
             for (PlayerData dtmPlayer : this.participants.values()) {
@@ -171,7 +173,7 @@ public class StandardGameLogic extends BaseGameLogic {
             for (GameTeam team : teamList) {
                 if (compact) {
                     b.add((x) -> {
-                                int monuments = this.teams.teamData.get(team).getMonumentCount();
+                                int monuments = this.teams.teamData.get(team).aliveMonuments.size();
 
                                 return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0))
                                         .append(new LiteralText(" » ").setStyle(FormattingUtil.PREFIX_STYLE))
@@ -182,13 +184,13 @@ public class StandardGameLogic extends BaseGameLogic {
                     );
                 } else {
                     b.add((x) -> {
-                        int monuments = this.teams.teamData.get(team).getMonumentCount();
+                        int monuments = this.teams.teamData.get(team).aliveMonuments.size();
 
                         return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0));
                     });
 
                     b.add((x) -> {
-                        int monuments = this.teams.teamData.get(team).getMonumentCount();
+                        int monuments = this.teams.teamData.get(team).aliveMonuments.size();
 
                         if (monuments != 0) {
                             return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX,

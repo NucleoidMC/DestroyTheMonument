@@ -244,6 +244,11 @@ public final class GameWaitingLobby {
             } else {
                 b.add(WAITING_TITLE);
             }
+            b.add(LiteralText.EMPTY);
+            b.add(new TranslatableText("text.plasmid.game.waiting_lobby.sidebar.players",
+                    new LiteralText("" + this.gameSpace.getPlayerCount()).formatted(Formatting.AQUA),
+                    new LiteralText("/").formatted(Formatting.GRAY),
+                    new LiteralText("" + this.playerConfig.maxPlayers()).formatted(Formatting.AQUA)));
 
             if (this.sidebarText != null && !this.sidebarText.isEmpty()) {
                 b.add(LiteralText.EMPTY);
