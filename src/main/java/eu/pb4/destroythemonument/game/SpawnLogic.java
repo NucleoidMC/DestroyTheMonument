@@ -12,24 +12,17 @@ import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
-public class SpawnLogic {
-    private final GameSpace gameSpace;
-    private final GameMap map;
-    private final Teams teams;
-    private final Object2ObjectMap<PlayerRef, PlayerData> participants;
-
-    public SpawnLogic(GameSpace gameSpace, GameMap map, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        this.gameSpace = gameSpace;
-        this.map = map;
-        this.participants = participants;
-        this.teams = teams;
-    }
+public record SpawnLogic(GameSpace gameSpace, GameMap map,
+                         Object2ObjectMap<PlayerRef, PlayerData> participants,
+                         Teams teams) {
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
         this.resetPlayer(player, gameMode, true);
     }
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
+        player.setInvisible(false);
+        player.setNoGravity(false);
         player.changeGameMode(gameMode);
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;
@@ -48,7 +41,12 @@ public class SpawnLogic {
             if (player != null && player.team != null) {
                 TeamData data = this.teams.teamData.get(player.team);
 
-                BlockPos pos = data.getRandomSpawnPos();
+                BlockPos pos = player.nextSpawnPos;
+
+                if (pos == null) {
+                    pos = data.getRandomSpawnPos();
+                }
+                player.nextSpawnPos = null;
                 entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, data.spawnYaw, 0);
                 return;
             }

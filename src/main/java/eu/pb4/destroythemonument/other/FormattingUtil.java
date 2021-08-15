@@ -19,7 +19,7 @@ public class FormattingUtil {
     public static final String UMBRELLA_PREFIX = "☂";
     public static final String CLOUD_PREFIX = "☁";
     public static final String MUSIC_PREFIX = "♫";
-    public static final String HEART_PREFIX = "♥";
+    public static final String HEART_PREFIX = "❤";
     public static final String STAR_PREFIX = "★";
     public static final String DOT_PREFIX = "•";
     public static final String TIME_PREFIX = "⌚";

@@ -560,6 +560,7 @@ public abstract class BaseGameLogic {
         }
 
         this.tickDeadPlayers();
+        this.onTick(result, this.tickTime);
 
         switch (result) {
             case CONTINUE_TICK:
@@ -623,6 +624,8 @@ public abstract class BaseGameLogic {
             }
         }
     }
+
+    protected abstract void onTick(TickType type, long tick);
 
     protected abstract void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData);
 

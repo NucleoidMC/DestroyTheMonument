@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class PlayerData {
@@ -24,6 +25,7 @@ public class PlayerData {
     public long lastAttackTime;
     public Block selectedBlock = Blocks.OAK_PLANKS;
     public Sidebar sidebar;
+    public BlockPos nextSpawnPos;
 
     public PlayerData(Kit defaultKit) {
         this.selectedKit = defaultKit;

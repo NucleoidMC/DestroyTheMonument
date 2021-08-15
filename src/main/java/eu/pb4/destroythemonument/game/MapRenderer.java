@@ -173,8 +173,8 @@ public class MapRenderer {
                     continue;
                 }
 
-                int rX = playerX + x - 64 + this.halfXSize;
-                int rZ = playerZ + z - 64 + this.halfZSize;
+                int rX = playerX + x - 64 + this.halfXSize - (int) this.map.mapBounds.center().getX();
+                int rZ = playerZ + z - 64 + this.halfZSize - (int) this.map.mapBounds.center().getZ();
 
                 if (rX >= this.xSize || rX < 0 || rZ >= this.zSize || rZ < 0) {
                     continue;
@@ -200,7 +200,7 @@ public class MapRenderer {
             }
             var type = monument.isAlive() ? MapIcon.Type.byId((byte) (monument.teamData.team.blockDyeColor().getId() + 10)) : MapIcon.Type.RED_X;
 
-            icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, null));
+            icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, monument.isAlive() ? monument.getName() : null));
         }
 
         for (TeamData data : logic.teams.teamData.values()) {

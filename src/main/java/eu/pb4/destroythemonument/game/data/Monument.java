@@ -1,7 +1,6 @@
 package eu.pb4.destroythemonument.game.data;
 
 import eu.pb4.destroythemonument.game.map.GameMap;
-import eu.pb4.destroythemonument.other.DtmUtil;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;

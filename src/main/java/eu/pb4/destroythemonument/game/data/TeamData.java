@@ -8,10 +8,7 @@ import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TeamData {
     public final List<Monument> monuments;
@@ -38,6 +35,7 @@ public class TeamData {
         this.spawn = spawn;
         this.spawnYaw = spawnYaw;
         int id = 0;
+
         for (var region : monuments) {
             var pos = region.getBounds().min();
 
@@ -52,6 +50,9 @@ public class TeamData {
             this.aliveMonuments.add(monument);
             map.monuments.add(monument);
         }
+
+        this.monuments.sort(Comparator.comparing(a -> a.getName().getString()));
+
         this.classChange = classChange;
         this.monumentStartingCount = monuments.size();
     }

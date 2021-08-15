@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game_logic;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
+import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
@@ -30,6 +31,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StandardGameLogic extends BaseGameLogic {
+    protected TeamData currentSidebarTeam = null;
+    protected int sidebarTeamPos = 0;
+    protected List<TeamData> sidebarTeams;
+
     public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, playerTeams, participants, teams);
         List<Text> texts = new ArrayList<>();
@@ -56,8 +61,8 @@ public class StandardGameLogic extends BaseGameLogic {
         super.setupGame(game, map, config);
     }
 
-    protected void maybeEliminate(GameTeam team, TeamData regions) {
-        if (regions.aliveMonuments.size() <= 0) {
+    protected void maybeEliminate(GameTeam team, TeamData teamData) {
+        if (teamData.aliveMonuments.size() <= 0) {
             for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.team == team) {
@@ -161,53 +166,73 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     @Override
-    protected void buildSidebar() {
-        List<GameTeam> teamList = this.config.teams();
+    protected void onTick(TickType type, long tick) {
+        if (type == TickType.CONTINUE_TICK) {
+            if (tick % 20 == 0) {
+                this.buildSidebar();
+            }
 
-        boolean compact = teamList.size() > 4;
+            if (tick % 60 == 0) {
+                this.sidebarTeamPos++;
+                if (this.sidebarTeamPos >= this.sidebarTeams.size()) {
+                    this.sidebarTeamPos = 0;
+                }
+                this.currentSidebarTeam = this.sidebarTeams.get(this.sidebarTeamPos);
+            }
+        }
+    }
+
+    @Override
+    protected void buildSidebar() {
+        int monumentsSize = 0;
+
+        if (this.sidebarTeams == null) {
+            this.sidebarTeams = new ArrayList<>();
+
+            for (var team : this.config.teams()) {
+                this.sidebarTeams.add(this.teams.teamData.get(team));
+            }
+
+            this.currentSidebarTeam = this.sidebarTeams.get(0);
+        }
+
+        for (var data : this.sidebarTeams) {
+            if (data.monuments.size() > monumentsSize) {
+                monumentsSize = data.monuments.size();
+            }
+        }
+
+        boolean miniCompact = (monumentsSize + 2) * this.sidebarTeams.size() > 11;
+        boolean compact = (monumentsSize + 1) * this.sidebarTeams.size() > 11;
+
         this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
 
         this.globalSidebar.set(b -> {
-
             b.add(LiteralText.EMPTY);
-            for (GameTeam team : teamList) {
-                if (compact) {
-                    b.add((x) -> {
-                                int monuments = this.teams.teamData.get(team).aliveMonuments.size();
 
-                                return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0))
-                                        .append(new LiteralText(" » ").setStyle(FormattingUtil.PREFIX_STYLE))
-                                        .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
-                                        .append(new LiteralText("/").formatted(Formatting.GRAY))
-                                        .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount).formatted(Formatting.WHITE));
-                            }
-                    );
-                } else {
-                    b.add((x) -> {
-                        int monuments = this.teams.teamData.get(team).aliveMonuments.size();
-
-                        return DtmUtil.getTeamText(team).setStyle(Style.EMPTY.withColor(team.color()).withBold(true).withStrikethrough(monuments == 0));
-                    });
-
-                    b.add((x) -> {
-                        int monuments = this.teams.teamData.get(team).aliveMonuments.size();
-
-                        if (monuments != 0) {
-                            return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX,
-                                    FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "left", new LiteralText("" + monuments)
-                                            .append(new LiteralText("/").formatted(Formatting.GRAY))
-                                            .append(new LiteralText("" + this.teams.teamData.get(team).monumentStartingCount))));
-                        } else {
-                            return FormattingUtil.formatScoreboard(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("sidebar", "eliminated"));
+            if (compact) {
+                for (var teamData : this.sidebarTeams) {
+                    b.add((x) -> generateSidebarTitleForTeam(teamData));
+                    if (this.currentSidebarTeam == teamData) {
+                        for (var monument : teamData.monuments) {
+                            b.add((x) -> generateSidebarTitleForMonument(monument));
                         }
-                    });
-
-                    b.add(LiteralText.EMPTY);
+                    }
+                }
+            } else {
+                for (var teamData : this.sidebarTeams) {
+                    b.add((x) -> generateSidebarTitleForTeam(teamData));
+                    for (var monument : teamData.monuments) {
+                        b.add((x) -> generateSidebarTitleForMonument(monument));
+                    }
+                    if (!miniCompact) {
+                        b.add(LiteralText.EMPTY);
+                    }
                 }
             }
 
-            if (compact) {
-                b.add(new LiteralText(""));
+            if (compact || miniCompact) {
+                b.add(LiteralText.EMPTY);
             }
 
             b.add((player) -> {
@@ -234,6 +259,26 @@ public class StandardGameLogic extends BaseGameLogic {
                                 new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
             });
         });
+    }
+
+    private Text generateSidebarTitleForTeam(TeamData data) {
+        if (data == null) {
+            return LiteralText.EMPTY;
+        }
+
+        int monuments = data.aliveMonuments.size();
+        return new LiteralText("").append(DtmUtil.getTeamText(data.team).setStyle(Style.EMPTY.withColor(data.team.color()).withBold(true).withStrikethrough(monuments == 0)))
+                .append(new LiteralText(" (").setStyle(FormattingUtil.PREFIX_STYLE))
+                .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
+                .append(new LiteralText("/").formatted(Formatting.GRAY))
+                .append(new LiteralText("" + data.monumentStartingCount).formatted(Formatting.WHITE))
+                .append(new LiteralText(")").setStyle(FormattingUtil.PREFIX_STYLE));
+    }
+
+    private Text generateSidebarTitleForMonument(Monument monument) {
+        return new LiteralText("").append(new LiteralText("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
+                .append(monument.getName())
+                .append(new LiteralText(" " + (monument.isAlive() ? FormattingUtil.HEART_PREFIX : FormattingUtil.X)).setStyle(Style.EMPTY.withColor(monument.isAlive() ? Formatting.GREEN : Formatting.RED)));
     }
 }
 

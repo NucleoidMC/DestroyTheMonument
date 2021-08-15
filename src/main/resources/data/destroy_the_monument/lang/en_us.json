@@ -68,6 +68,42 @@
   "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
   "map.destroy_the_monument.kuber.short": "DTM: Kuber",
 
+  "monument.destroy_the_monument.kupol.red.0": "West Monument",
+  "monument.destroy_the_monument.kupol.red.1": "East Monument",
+  "monument.destroy_the_monument.kupol.red.2": "South Monument",
+  "monument.destroy_the_monument.kupol.blue.0": "North Monument",
+  "monument.destroy_the_monument.kupol.blue.1": "East Monument",
+  "monument.destroy_the_monument.kupol.blue.2": "West Monument",
+
+  "monument.destroy_the_monument.forest4.acacia.0": "East Monument",
+  "monument.destroy_the_monument.forest4.acacia.1": "West Monument",
+  "monument.destroy_the_monument.forest4.jungle.0": "East Monument",
+  "monument.destroy_the_monument.forest4.jungle.1": "West Monument",
+  "monument.destroy_the_monument.forest4.birch.0": "South Monument",
+  "monument.destroy_the_monument.forest4.birch.1": "North Monument",
+  "monument.destroy_the_monument.forest4.oak.0": "South Monument",
+  "monument.destroy_the_monument.forest4.oak.1": "North Monument",
+
+  "monument.destroy_the_monument.cubes.red.0": "Central Monument",
+  "monument.destroy_the_monument.cubes.red.1": "East Monument",
+  "monument.destroy_the_monument.cubes.red.2": "West Monument",
+  "monument.destroy_the_monument.cubes.blue.0": "East Monument",
+  "monument.destroy_the_monument.cubes.blue.1": "Central Monument",
+  "monument.destroy_the_monument.cubes.blue.2": "West Monument",
+
+  "monument.destroy_the_monument.kuber.red.0": "Central Monument",
+  "monument.destroy_the_monument.kuber.red.1": "East Monument",
+  "monument.destroy_the_monument.kuber.red.2": "West Monument",
+  "monument.destroy_the_monument.kuber.blue.0": "East Monument",
+  "monument.destroy_the_monument.kuber.blue.1": "Central Monument",
+  "monument.destroy_the_monument.kuber.blue.2": "West Monument",
+
+  "monument.destroy_the_monument.honey.red.0": "Lower Monument",
+  "monument.destroy_the_monument.honey.red.1": "Upper Monument",
+  "monument.destroy_the_monument.honey.blue.0": "Upper Monument",
+  "monument.destroy_the_monument.honey.blue.1": "Lower Monument",
+
+
   "statistic.bundle.destroy_the_monument": "Destroy The Monument",
   "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed",
 
