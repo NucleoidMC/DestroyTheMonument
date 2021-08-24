@@ -4,13 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.experimental.GameWaitingLobby;
 import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.map.GeneratedGameMap;
+import eu.pb4.destroythemonument.game.map.TemplateGameMap;
 import eu.pb4.destroythemonument.game_logic.DebugGameLogic;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
 import eu.pb4.destroythemonument.game.map.GameMap;
-import eu.pb4.destroythemonument.game.map.MapBuilder;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -66,14 +67,22 @@ public class WaitingLobby {
 
     public static GameOpenProcedure open(GameOpenContext<GameConfig> context) {
         GameConfig config = context.config();
-        MapBuilder generator = new MapBuilder(config.map());
-        GameMap map = generator.create(context.server());
+        GameMap map;
+
+        try {
+            if (config.map().id().getNamespace().equals("generated")) {
+                map = GeneratedGameMap.create(context.server(), config.map());
+            } else {
+                map = TemplateGameMap.create(context.server(), config.map());
+            }
+        } catch (Exception e) {
+            throw new GameOpenException(new LiteralText("Map couldn't load! @Patbox pls fix"), e);
+        }
 
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.asGenerator(context.server()))
                 .setTimeOfDay(config.map().time())
                 .setGameRule(GameRules.DO_DAYLIGHT_CYCLE, false);
-
 
         return context.openWithWorld(worldConfig, (game, world) -> {
             map.world = world;

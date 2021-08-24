@@ -12,6 +12,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -82,10 +84,10 @@ public class StandardGameLogic extends BaseGameLogic {
                 return ActionResult.FAIL;
             } else {
                 for (GameTeam team : this.config.teams()) {
-                    TeamData regions = this.teams.teamData.get(team);
+                    TeamData teamData = this.teams.teamData.get(team);
 
-                    if (regions.isAliveMonument(blockPos)) {
-                        regions.breakMonument(blockPos);
+                    if (teamData.isAliveMonument(blockPos)) {
+                        teamData.breakMonument(blockPos);
 
                         Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
                                 FormattingUtil.GENERAL_STYLE,
@@ -94,8 +96,9 @@ public class StandardGameLogic extends BaseGameLogic {
                                         DtmUtil.getText("general", "team", team.display()).formatted(team.formatting())));
 
                         this.gameSpace.getPlayers().sendMessage(text);
-                        this.maybeEliminate(team, regions);
+                        this.maybeEliminate(team, teamData);
                         this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
+                        this.teams.manager.playersIn(team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
                         playerData.brokenMonuments += 1;
                         this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
                         return ActionResult.SUCCESS;

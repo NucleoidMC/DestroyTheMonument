@@ -1,0 +1,45 @@
+{
+  "type": "destroy_the_monument:destroy_the_monument",
+  "gamemode": "debug",
+  "name": "Destroy The Monument: Debug Gen",
+  "short_name": "DTM: Debug gen",
+
+  "map": {
+    "id": "generated:forest",
+    "time": 12500,
+    "biome": "minecraft:flower_forest"
+  },
+  "players": {
+    "min": 9999,
+    "threshold": 9999,
+    "max": 24
+  },
+  "allowJoiningInGame": true,
+  "gameTime": 24000,
+  "tickRespawnTime": 60,
+  "teams": [
+    {
+      "key": "red",
+      "display": "Red",
+      "color": {
+        "chat": "#ff00ff",
+        "dye": "#ff0000",
+        "block_dye": "green",
+        "firework": "#00ff00",
+        "formatting": "gold"
+      }
+    },
+    {"key": "blue", "display": "Blue", "color": "blue"}
+  ],
+  "kits": [
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
+  ],
+
+  "custom": {
+    "gamegui:icon": "minecraft:red_concrete"
+  }
+}

@@ -21,41 +21,29 @@ import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GameMap {
-    private final MapTemplate template;
+public abstract class GameMap {
     public final MapConfig config;
-    private final Set<BlockBounds> unbreakable;
-    private final Set<BlockPos> taters;
-    private final List<BlockPos> validSpawn;
+    protected final Set<BlockBounds> unbreakable = new HashSet<>();
+    protected final Set<BlockPos> taters  = new HashSet<>();
+    protected final List<BlockPos> validSpawn = new ArrayList<>();
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
     public ServerWorld world;
     public final List<Monument> monuments = new ArrayList<>();
 
 
-    public GameMap(MapTemplate template, MapConfig config) {
-        this.template = template;
+    public GameMap(MapConfig config, BlockBounds mapBounds) {
         this.config = config;
-        this.unbreakable = template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toSet());
-        this.validSpawn = new ArrayList<>();
-        for (BlockPos pos : template.getMetadata().getFirstRegionBounds("general_spawn")) {
-            BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || TagRegistry.block(DtmUtil.id("spawnable")).contains(blockState.getBlock())) {
-                this.validSpawn.add(pos.toImmutable());
-            }
-        }
-        this.mapBounds = template.getBounds();
+        this.mapBounds = mapBounds;
         this.mapDeathBounds = BlockBounds.of(this.mapBounds.min().mutableCopy().add(-5, -5, -5), this.mapBounds.max().mutableCopy().add(5, 5, 5));
-        this.taters = template.getMetadata().getRegionBounds("tater").map((r) -> r.min()).collect(Collectors.toSet());
     }
 
-    public ChunkGenerator asGenerator(MinecraftServer server) {
-        return new TemplateChunkGenerator(server, this.template);
-    }
+    public abstract ChunkGenerator asGenerator(MinecraftServer server);
 
     public boolean isUnbreakable(BlockPos block) {
         for (BlockBounds bound : this.unbreakable) {
@@ -75,26 +63,7 @@ public class GameMap {
         return false;
     }
 
-    public void setTeamRegions(GameTeam team, TeamData data) {
-        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.key() + "_spawn");
-        var monuments = this.template.getMetadata().getRegions(team.key() + "_monument").collect(Collectors.toList());
-        var classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
-
-        for (var monument : monuments) {
-            this.template.setBlockState(monument.getBounds().min(), this.config.monument());
-        }
-
-        List<BlockPos> validSpawnPos = new ArrayList<>();
-
-        for (BlockPos pos : spawn.getBounds()) {
-            BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || TagRegistry.block(DtmUtil.id("spawnable")).contains(blockState.getBlock())) {
-                validSpawnPos.add(pos.toImmutable());
-            }
-        }
-
-        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this);
-    }
+    public abstract void setTeamRegions(GameTeam team, TeamData data);
 
     public BlockPos getRandomSpawnPos() {
         return this.validSpawn.get(DTM.RANDOM.nextInt(this.validSpawn.size()));
