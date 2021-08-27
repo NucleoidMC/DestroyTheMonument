@@ -8,7 +8,7 @@
   "players": {
     "min": 2,
     "threshold": 6,
-    "max": 24
+    "max": 32
   },
   "allowJoiningInGame": true,
   "gameTime": 24000,
