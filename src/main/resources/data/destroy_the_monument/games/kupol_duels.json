@@ -1,8 +1,23 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroy_the_monument.kupol_duels",
-  "short_name": "map.destroy_the_monument.kupol_duels.short",
+  "name": {
+    "translate": "map.destroy_the_monument.kupol_duels"
+  },
+  "short_name": {
+    "translate": "map.destroy_the_monument.kupol_duels.short"
+  },
+  "icon": {
+    "id": "prismarine_shards",
+    "Count": 2
+  },
+  "description": [
+    "<yellow><lang:'description.destroy_the_monument.general.1'>",
+    "<yellow><lang:'description.destroy_the_monument.general.2'>",
+    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "",
+    "<green><lang:'description.destroy_the_monument.general.map':'<white>Sockfriends'>"
+  ],
   "map": {
     "id": "destroy_the_monument:kupol",
     "time": 12500,
@@ -18,8 +33,8 @@
   "gameTime": 24000,
   "tickRespawnTime": 40,
   "teams": [
-    {"key": "red", "display": "Red", "color": "red"},
-    {"key": "blue", "display": "Blue", "color": "blue"}
+    {"key": "red", "name": "Red", "color": "red"},
+    {"key": "blue", "name": "Blue", "color": "blue"}
   ],
   "kits": [
     "destroy_the_monument:warrior",

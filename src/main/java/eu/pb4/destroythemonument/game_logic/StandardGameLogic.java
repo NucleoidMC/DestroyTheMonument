@@ -26,6 +26,7 @@ import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 
@@ -37,8 +38,8 @@ public class StandardGameLogic extends BaseGameLogic {
     protected int sidebarTeamPos = 0;
     protected List<TeamData> sidebarTeams;
 
-    public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        super(gameSpace, map, config, playerTeams, participants, teams);
+    public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+        super(gameSpace, map, config, participants, teams);
         List<Text> texts = new ArrayList<>();
 
         texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
@@ -46,28 +47,27 @@ public class StandardGameLogic extends BaseGameLogic {
         texts.add(DtmUtil.getText("message", "about").formatted(Formatting.WHITE));
         texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
 
-
         for (Text text : texts) {
             this.gameSpace.getPlayers().sendMessage(text);
         }
     }
 
-    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
-            BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, playerTeams, participants, teams);
-            active.setupGame(game, map, config);
+            BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, participants, teams);
+            active.setupGame(game, map, config, playerTeams);
         });
     }
 
-    public void setupGame(GameActivity game, GameMap map, GameConfig config) {
-        super.setupGame(game, map, config);
+    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
+        super.setupGame(game, map, config, playerTeams);
     }
 
-    protected void maybeEliminate(GameTeam team, TeamData teamData) {
+    protected void maybeEliminate(TeamData teamData) {
         if (teamData.aliveMonuments.size() <= 0) {
             for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
-                if (dtmPlayer != null && dtmPlayer.team == team) {
+                if (dtmPlayer != null && dtmPlayer.teamData == teamData) {
                     player.changeGameMode(GameMode.SPECTATOR);
                 }
             }
@@ -79,13 +79,11 @@ public class StandardGameLogic extends BaseGameLogic {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData != null) {
-            if (this.teams.teamData.get(playerData.team).isAliveMonument(blockPos)) {
+            if (playerData.teamData.isAliveMonument(blockPos)) {
                 player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
                 return ActionResult.FAIL;
             } else {
-                for (GameTeam team : this.config.teams()) {
-                    TeamData teamData = this.teams.teamData.get(team);
-
+                for (var teamData : this.teams) {
                     if (teamData.isAliveMonument(blockPos)) {
                         teamData.breakMonument(blockPos);
 
@@ -93,12 +91,12 @@ public class StandardGameLogic extends BaseGameLogic {
                                 FormattingUtil.GENERAL_STYLE,
                                 DtmUtil.getText("message", "monument_broken",
                                         player.getDisplayName(),
-                                        DtmUtil.getText("general", "team", team.display()).formatted(team.formatting())));
+                                        DtmUtil.getTeamText(teamData)));
 
                         this.gameSpace.getPlayers().sendMessage(text);
-                        this.maybeEliminate(team, teamData);
+                        this.maybeEliminate(teamData);
                         this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
-                        this.teams.manager.playersIn(team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
+                        this.teams.getManager().playersIn(teamData.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
                         playerData.brokenMonuments += 1;
                         this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
                         return ActionResult.SUCCESS;
@@ -120,15 +118,15 @@ public class StandardGameLogic extends BaseGameLogic {
     protected boolean checkIfShouldEnd() {
         int aliveTeams = 0;
 
-        for (GameTeam team : this.config.teams()) {
+        for (var teamData : this.teams) {
             int players = 0;
 
             for (PlayerData dtmPlayer : this.participants.values()) {
-                if (dtmPlayer.team == team) {
+                if (dtmPlayer.teamData == teamData) {
                     players += 1;
                 }
             }
-            if (this.teams.teamData.get(team).aliveMonuments.size() > 0 && players > 0) {
+            if (teamData.aliveMonuments.size() > 0 && players > 0) {
                 aliveTeams += 1;
             }
         }
@@ -137,15 +135,15 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     public WinResult checkWinResult() {
-        GameTeam winners = null;
+        GameTeamKey winners = null;
         int monumentsWinner = 0;
 
-        for (GameTeam team : this.config.teams()) {
-            int monuments = this.teams.teamData.get(team).aliveMonuments.size();
+        for (var teamData : this.teams) {
+            int monuments = teamData.aliveMonuments.size();
             int players = 0;
 
             for (PlayerData dtmPlayer : this.participants.values()) {
-                if (dtmPlayer.team == team) {
+                if (dtmPlayer.teamData == teamData) {
                     players += 1;
                 }
             }
@@ -153,13 +151,13 @@ public class StandardGameLogic extends BaseGameLogic {
             if (monuments > 0 && players > 0) {
                 if (winners != null) {
                     if (monuments > monumentsWinner) {
-                        winners = team;
+                        winners = teamData.team;
                         monumentsWinner = monuments;
                     } else if (monuments == monumentsWinner) {
                         return WinResult.no();
                     }
                 } else {
-                    winners = team;
+                    winners = teamData.team;
                     monumentsWinner = monuments;
                 }
             }
@@ -192,8 +190,8 @@ public class StandardGameLogic extends BaseGameLogic {
         if (this.sidebarTeams == null) {
             this.sidebarTeams = new ArrayList<>();
 
-            for (var team : this.config.teams()) {
-                this.sidebarTeams.add(this.teams.teamData.get(team));
+            for (var teamData : this.teams) {
+                this.sidebarTeams.add(teamData);
             }
 
             this.currentSidebarTeam = this.sidebarTeams.get(0);
@@ -270,7 +268,7 @@ public class StandardGameLogic extends BaseGameLogic {
         }
 
         int monuments = data.aliveMonuments.size();
-        return new LiteralText("").append(DtmUtil.getTeamText(data.team).setStyle(Style.EMPTY.withColor(data.team.color()).withBold(true).withStrikethrough(monuments == 0)))
+        return new LiteralText("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
                 .append(new LiteralText(" (").setStyle(FormattingUtil.PREFIX_STYLE))
                 .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
                 .append(new LiteralText("/").formatted(Formatting.GRAY))

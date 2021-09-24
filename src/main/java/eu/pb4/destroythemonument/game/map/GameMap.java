@@ -17,6 +17,7 @@ import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 
@@ -63,7 +64,7 @@ public abstract class GameMap {
         return false;
     }
 
-    public abstract void setTeamRegions(GameTeam team, TeamData data);
+    public abstract void setTeamRegions(GameTeamKey team, TeamData data);
 
     public BlockPos getRandomSpawnPos() {
         return this.validSpawn.get(DTM.RANDOM.nextInt(this.validSpawn.size()));

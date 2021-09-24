@@ -2,7 +2,6 @@ package eu.pb4.destroythemonument.game;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import eu.pb4.destroythemonument.experimental.GameWaitingLobby;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.map.GeneratedGameMap;
 import eu.pb4.destroythemonument.game.map.TemplateGameMap;
@@ -30,7 +29,9 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 import xyz.nucleoid.plasmid.game.*;
+import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
@@ -54,12 +55,12 @@ public class WaitingLobby {
     private final Kit defaultKit;
 
 
-    private WaitingLobby(GameSpace gameSpace, TeamManager manager, GameMap map, GameConfig config, TeamSelectionLobby teamSelection) {
+    private WaitingLobby(GameSpace gameSpace, GameMap map, GameConfig config, TeamSelectionLobby teamSelection) {
         this.gameSpace = gameSpace;
         this.map = map;
         this.config = config;
         this.spawnLogic = new SpawnLogic(gameSpace, map, null, null);
-        this.teams = new Teams(manager, gameSpace, map, config);
+        this.teams = new Teams(map, config);
         this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
 
         this.teamSelection = teamSelection;
@@ -86,30 +87,11 @@ public class WaitingLobby {
 
         return context.openWithWorld(worldConfig, (game, world) -> {
             map.world = world;
-            var baseWaitingLobby = GameWaitingLobby.addTo(game, config.players());
-            baseWaitingLobby.setSidebarLines(List.of(
-                    DtmUtil.getText("sidebar", "about.1").formatted(Formatting.YELLOW),
-                    DtmUtil.getText("sidebar", "about.2").formatted(Formatting.YELLOW),
-                    DtmUtil.getText("sidebar", "about.3").formatted(Formatting.YELLOW),
-                    LiteralText.EMPTY,
-                    DtmUtil.getText("sidebar", "about.map",
-                            new LiteralText(config.map().author()).setStyle(Style.EMPTY.withColor(Formatting.WHITE).withBold(false)))
-                            .setStyle(Style.EMPTY.withColor(Formatting.GREEN).withBold(true))
-            ));
+            GameWaitingLobby.addTo(game, config.players());
 
-            if (config.shortName() != null) {
-                baseWaitingLobby.setSidebarTitle(new TranslatableText(config.shortName()).setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
-            }
+            TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(game, config.teams());
 
-            TeamManager teamManager = TeamManager.addTo(game);
-
-            List<GameTeam> teams = context.config().teams();
-            for (GameTeam team : teams) {
-                teamManager.addTeam(team);
-            }
-            TeamSelectionLobby teamSelection = TeamSelectionLobby.applyTo(game, teams);
-
-            WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), teamManager, map, context.config(), teamSelection);
+            WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), map, context.config(), teamSelection);
 
             game.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
             game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(world, map.getRandomSpawnPosAsVec3d()));
@@ -140,8 +122,8 @@ public class WaitingLobby {
     }
 
     private GameResult requestStart() {
-        Multimap<GameTeam, ServerPlayerEntity> playerTeams = HashMultimap.create();
-        this.teamSelection.allocate(playerTeams::put);
+        Multimap<GameTeamKey, ServerPlayerEntity> playerTeams = HashMultimap.create();
+        this.teamSelection.allocate(this.gameSpace.getPlayers(), playerTeams::put);
         switch (this.config.gamemode()) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);

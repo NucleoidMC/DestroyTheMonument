@@ -16,6 +16,7 @@ import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.MapTemplateSerializer;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ public final class GeneratedGameMap extends GameMap {
         return new DtmChunkGenerator(server, this);
     }
 
-    public void setTeamRegions(GameTeam team, TeamData data) {
+    public void setTeamRegions(GameTeamKey team, TeamData data) {
 
     }
 }

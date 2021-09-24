@@ -127,7 +127,7 @@ public class MapRenderer {
         boolean replaceXZ = false;
 
         if (playerData != null) {
-            TeamData teamData = logic.teams.teamData.get(playerData.team);
+            TeamData teamData = playerData.teamData;
 
             int side = Math.round(teamData.spawnYaw / 90);
             switch (side) {
@@ -198,14 +198,14 @@ public class MapRenderer {
             if (mX >= 128 || mX <= -128 || mZ >= 128 || mZ < -128) {
                 continue;
             }
-            var type = monument.isAlive() ? MapIcon.Type.byId((byte) (monument.teamData.team.blockDyeColor().getId() + 10)) : MapIcon.Type.RED_X;
+            var type = monument.isAlive() ? MapIcon.Type.byId((byte) (monument.teamData.getConfig().blockDyeColor().getId() + 10)) : MapIcon.Type.RED_X;
 
             icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, monument.isAlive() ? monument.getName() : null));
         }
 
-        for (TeamData data : logic.teams.teamData.values()) {
-            if (playerData == null || playerData.team == data.team) {
-                for (ServerPlayerEntity entity : logic.teams.manager.playersIn(data.team)) {
+        for (TeamData data : logic.teams) {
+            if (playerData == null || playerData.teamData == data) {
+                for (ServerPlayerEntity entity : logic.teams.getManager().playersIn(data.team)) {
                     if (entity == player) {
                         continue;
                     }

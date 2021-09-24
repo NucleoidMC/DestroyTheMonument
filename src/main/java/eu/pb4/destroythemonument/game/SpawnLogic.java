@@ -38,16 +38,14 @@ public record SpawnLogic(GameSpace gameSpace, GameMap map,
         ServerWorld world = this.map.world;
         if (this.participants != null) {
             PlayerData player = participants.get(PlayerRef.of(entity));
-            if (player != null && player.team != null) {
-                TeamData data = this.teams.teamData.get(player.team);
-
+            if (player != null && player.teamData != null) {
                 BlockPos pos = player.nextSpawnPos;
 
                 if (pos == null) {
-                    pos = data.getRandomSpawnPos();
+                    pos = player.teamData.getRandomSpawnPos();
                 }
                 player.nextSpawnPos = null;
-                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, data.spawnYaw, 0);
+                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, player.teamData.spawnYaw, 0);
                 return;
             }
         }

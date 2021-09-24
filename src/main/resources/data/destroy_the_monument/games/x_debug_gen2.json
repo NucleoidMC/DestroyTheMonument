@@ -1,13 +1,21 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "debug",
-  "name": "Destroy The Monument: Debug Gen",
-  "short_name": "DTM: Debug gen",
-
+  "name": {
+    "text": "Destroy The Monument: Debug WorldGen2"
+  },
+  "short_name": {
+    "text": "DTM: DebugGen2"
+  },
+  "description": [
+    "<red>This is a debug config, not playable!",
+    "<red>This one won't even start anyway, so",
+    "<red>enjoy the view I guess"
+  ],
   "map": {
-    "id": "generated:wasteland",
+    "id": "generated:forest",
     "time": 12500,
-    "biome": "minecraft:badlands"
+    "biome": "minecraft:flower_forest"
   },
   "players": {
     "min": 9999,
@@ -20,7 +28,7 @@
   "teams": [
     {
       "key": "red",
-      "display": "Red",
+      "name": "Red",
       "color": {
         "chat": "#ff00ff",
         "dye": "#ff0000",
@@ -29,7 +37,7 @@
         "formatting": "gold"
       }
     },
-    {"key": "blue", "display": "Blue", "color": "blue"}
+    {"key": "blue", "name": "Blue", "color": "blue"}
   ],
   "kits": [
     "destroy_the_monument:warrior",

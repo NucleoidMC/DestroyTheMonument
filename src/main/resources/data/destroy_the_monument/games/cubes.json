@@ -1,8 +1,20 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroy_the_monument.cubes",
-  "short_name": "map.destroy_the_monument.cubes.short",
+  "name": {
+    "translate": "map.destroy_the_monument.cubes"
+  },
+  "short_name": {
+    "translate": "map.destroy_the_monument.cubes.short"
+  },
+  "icon": "red_concrete",
+  "description": [
+    "<yellow><lang:'description.destroy_the_monument.general.1'>",
+    "<yellow><lang:'description.destroy_the_monument.general.2'>",
+    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "",
+    "<green><lang:'description.destroy_the_monument.general.map':'<white>Patbox'>"
+  ],
   "map": {
     "id": "destroy_the_monument:cubes",
     "author": "Patbox"
@@ -16,9 +28,17 @@
   "gameTime": 24000,
   "tickRespawnTime": 60,
   "teams": [
-    {"key": "red", "display": "Red", "color": "red"},
-    {"key": "blue", "display": "Blue", "color": "blue"}
-  ],
+    {
+      "key": "red",
+      "name": "Red",
+      "color": "red"
+    },
+    {
+      "key": "blue",
+      "name": "Blue",
+      "color": "blue"
+    }
+],
   "kits": [
     "destroy_the_monument:warrior",
     "destroy_the_monument:archer",

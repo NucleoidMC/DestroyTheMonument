@@ -115,7 +115,7 @@ public class ClassSelectorUI extends SimpleGui {
         player.sendMessage(text, false);
         boolean isIn = false;
         if (game != null) {
-            for (BlockBounds classChange : game.teams.teamData.get(playerData.team).classChange) {
+            for (BlockBounds classChange : playerData.teamData.classChange) {
                 if (classChange.contains(player.getBlockPos())) {
                     isIn = true;
                     break;

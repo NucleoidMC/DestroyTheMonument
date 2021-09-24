@@ -1,36 +1,35 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
-  "gamemode": "standard",
+  "gamemode": "debug",
   "name": {
-    "translate": "map.destroy_the_monument.kuber"
+    "text": "Destroy The Monument: Debug Forest"
   },
   "short_name": {
-    "translate": "map.destroy_the_monument.kuber.short"
+    "text": "DTM: DebugForest"
   },
-  "icon": "chiseled_stone_bricks",
   "description": [
     "<yellow><lang:'description.destroy_the_monument.general.1'>",
     "<yellow><lang:'description.destroy_the_monument.general.2'>",
     "<yellow><lang:'description.destroy_the_monument.general.3'>",
     "",
-    "<yellow><lang:'description.destroy_the_monument.kuber'>",
-    "<green><lang:'description.destroy_the_monument.general.map':'<white>Sockfriends'>"
+    "<red>This is a debug config, not playable!"
   ],
   "map": {
-    "id": "destroy_the_monument:kuber",
-    "author": "Sockfriends"
+    "id": "destroy_the_monument:forest4"
   },
   "players": {
-    "min": 2,
-    "threshold": 6,
-    "max": 24
+    "min": 1,
+    "threshold": 12,
+    "max": 48
   },
   "allowJoiningInGame": true,
   "gameTime": 24000,
   "tickRespawnTime": 60,
   "teams": [
-    {"key": "red", "name": "Red", "color": "red"},
-    {"key": "blue", "name": "Blue", "color": "blue"}
+    {"key": "oak", "name": "Oak", "color": "blue"},
+    {"key": "acacia", "name": "Acacia", "color": "red"},
+    {"key": "jungle", "name": "Jungle", "color": "green"},
+    {"key": "birch", "name": "Birch", "color": "yellow"}
   ],
   "kits": [
     "destroy_the_monument:warrior",
@@ -41,6 +40,6 @@
   ],
 
   "custom": {
-    "gamegui:icon": "minecraft:red_concrete"
+    "gamegui:icon": "minecraft:oak_sapling"
   }
 }

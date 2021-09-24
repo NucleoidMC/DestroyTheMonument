@@ -38,10 +38,12 @@
   "sidebar.destroy_the_monument.stats": "🗡: %s ☠: %s ⛏: %s",
 
 
-  "sidebar.destroy_the_monument.about.1": "Destroy enemy's monuments,",
-  "sidebar.destroy_the_monument.about.2": "while protecting your own!",
-  "sidebar.destroy_the_monument.about.3": "The last team standing wins!",
-  "sidebar.destroy_the_monument.about.map": "Map by: %s",
+  "description.destroy_the_monument.general.1": "Destroy enemy's monuments,",
+  "description.destroy_the_monument.general.2": "while protecting your own!",
+  "description.destroy_the_monument.general.3": "The last team standing wins!",
+  "description.destroy_the_monument.general.map": "Map by: %s",
+
+  "description.destroy_the_monument.kuber": "This map is a remake of Cubes",
 
   "ui.destroy_the_monument.select_class": "Select your class",
   "ui.destroy_the_monument.class_preview": "%s's Inventory",
@@ -105,9 +107,5 @@
 
 
   "statistic.bundle.destroy_the_monument": "Destroy The Monument",
-  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed",
-
-
-
-  "text.plasmid.game.waiting_lobby.sidebar.players": "Players: %s%s%s"
+  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed"
 }

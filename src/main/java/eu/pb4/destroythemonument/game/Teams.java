@@ -6,32 +6,39 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import org.jetbrains.annotations.NotNull;
+import xyz.nucleoid.plasmid.game.GameActivity;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.common.team.TeamManager;
 
+import java.util.Iterator;
+import java.util.Objects;
 
-public class Teams {
+
+public class Teams implements Iterable<TeamData> {
     private final GameMap map;
-    public final TeamManager manager;
-    public Object2ObjectMap<GameTeam, TeamData> teamData = new Object2ObjectOpenHashMap<>();
-    public Object2ObjectMap<String, GameTeam> teams = new Object2ObjectOpenHashMap<>();
+    private TeamManager manager;
+    private Object2ObjectMap<GameTeamKey, GameTeamConfig> teamConfigs = new Object2ObjectOpenHashMap<>();
+    private Object2ObjectMap<GameTeamKey, TeamData> teamData = new Object2ObjectOpenHashMap<>();
 
-    public Teams(TeamManager manager, GameSpace gameSpace, GameMap map, GameConfig config) {
-        this.manager = manager;
+    public Teams(GameMap map, GameConfig config) {
         this.map = map;
 
-        for (GameTeam team : config.teams()) {
-            this.teams.put(team.key(), team);
-            this.createTeam(team);
+        for (var entry : config.teams()) {
+            this.createTeam(entry.key(), entry.config());
         }
     }
 
-    public GameTeam getSmallestTeam() {
-        GameTeam smallest = null;
+    public TeamData getData(GameTeamKey team) {
+        return this.teamData.get(team);
+    }
+
+    public GameTeamKey getSmallestTeam() {
+        GameTeamKey smallest = null;
         int count = 9999;
 
-        for (GameTeam team : this.teams.values()) {
+        for (GameTeamKey team : this.teamData.keySet()) {
             int size = this.manager.playersIn(team).size();
             if (size <= count && this.teamData.get(team).aliveMonuments.size() > 0) {
                 smallest = team;
@@ -42,19 +49,46 @@ public class Teams {
         return smallest;
     }
 
-    private void createTeam(GameTeam team) {
-        this.manager.addTeam(team);
-        this.manager.setCollisionRule(team, AbstractTeam.CollisionRule.PUSH_OWN_TEAM);
-        TeamData teamData = new TeamData(team);
+    private void createTeam(GameTeamKey team, GameTeamConfig teamConfig) {
+        if (this.manager != null) {
+            throw new RuntimeException("Can't add new teams after initialization!");
+        }
+
+        this.teamConfigs.put(team, GameTeamConfig.builder(teamConfig)
+                .setFriendlyFire(false)
+                .setCollision(AbstractTeam.CollisionRule.PUSH_OWN_TEAM).build());
+        TeamData teamData = new TeamData(team, this);
         this.map.setTeamRegions(team, teamData);
         this.teamData.put(team, teamData);
     }
 
-    public void addPlayer(ServerPlayerEntity player, GameTeam team) {
+    public void addPlayer(ServerPlayerEntity player, GameTeamKey team) {
         this.manager.addPlayerTo(player, team);
     }
 
     public void removePlayer(ServerPlayerEntity player) {
         this.manager.removePlayer(player);
+    }
+
+    public void applyTo(GameActivity game) {
+        this.manager = TeamManager.addTo(game);
+
+        for (var entry : this.teamConfigs.entrySet()) {
+            this.manager.addTeam(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public TeamManager getManager() {
+        return Objects.requireNonNull(this.manager);
+    }
+
+    public GameTeamConfig getConfig(GameTeamKey team) {
+        return this.teamConfigs.get(team);
+    }
+
+    @NotNull
+    @Override
+    public Iterator<TeamData> iterator() {
+        return this.teamData.values().iterator();
     }
 }

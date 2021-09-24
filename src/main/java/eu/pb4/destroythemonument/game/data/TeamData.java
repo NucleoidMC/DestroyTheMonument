@@ -1,12 +1,15 @@
 package eu.pb4.destroythemonument.game.data;
 
 import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.game.Teams;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
 import java.util.*;
 
@@ -14,17 +17,23 @@ public class TeamData {
     public final List<Monument> monuments;
     public final List<Monument> aliveMonuments;
     public final List<Monument> brokenMonuments;
-    public final GameTeam team;
+    public final GameTeamKey team;
+    private final Teams teams;
     public float spawnYaw;
     public int monumentStartingCount;
     public Set<BlockBounds> classChange;
     private List<BlockPos> spawn;
 
-    public TeamData(GameTeam team) {
+    public TeamData(GameTeamKey team, Teams teams) {
         this.monuments = new ArrayList<>();
         this.aliveMonuments = new ArrayList<>();
         this.brokenMonuments = new ArrayList<>();
         this.team = team;
+        this.teams = teams;
+    }
+
+    public GameTeamConfig getConfig() {
+        return this.teams.getConfig(this.team);
     }
 
     public BlockPos getRandomSpawnPos() {

@@ -60,6 +60,7 @@ import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
@@ -103,14 +104,14 @@ public abstract class BaseGameLogic {
     protected boolean setSpectator = false;
     public MapRenderer mapRenderer;
 
-    public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;
         this.participants = participants;
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
-        this.statistics = gameSpace.getStatistics(DTM.ID);
+        this.statistics = gameSpace.getStatistics().bundle(DTM.ID);
         this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
         this.mapRenderer = new MapRenderer(this);
         for (Identifier id : this.config.kits()) {
@@ -133,17 +134,10 @@ public abstract class BaseGameLogic {
             }
         }
 
-        for (GameTeam team : playerTeams.keySet()) {
-            for (ServerPlayerEntity player : playerTeams.get(team)) {
-                this.participants.get(PlayerRef.of(player)).team = team;
-                this.teams.addPlayer(player, team);
-            }
-        }
-
         DTM.ACTIVE_GAMES.put(gameSpace, this);
     }
 
-    public void setupGame(GameActivity game, GameMap map, GameConfig config) {
+    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
         game.setRule(GameRuleType.CRAFTING, ActionResult.FAIL);
         game.setRule(GameRuleType.PORTALS, ActionResult.FAIL);
         game.setRule(GameRuleType.PVP, ActionResult.PASS);
@@ -176,8 +170,16 @@ public abstract class BaseGameLogic {
 
         game.listen(PlayerS2CPacketEvent.EVENT, this::onServerPacket);
 
-        this.teams.manager.applyTo(game);
-        TeamChat.addTo(game, this.teams.manager);
+        this.teams.applyTo(game);
+
+        for (var team : playerTeams.keySet()) {
+            for (ServerPlayerEntity player : playerTeams.get(team)) {
+                this.participants.get(PlayerRef.of(player)).teamData = this.teams.getData(team);
+                this.teams.addPlayer(player, team);
+            }
+        }
+
+        TeamChat.addTo(game, this.teams.getManager());
     }
 
     protected ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
@@ -315,9 +317,9 @@ public abstract class BaseGameLogic {
                     this.globalSidebar.removePlayer(player);
                     gui.close();
 
-                    GameTeam team = this.teams.getSmallestTeam();
+                    GameTeamKey team = this.teams.getSmallestTeam();
                     PlayerData playerData = new PlayerData(this.defaultKit);
-                    playerData.team = team;
+                    playerData.teamData = this.teams.getData(team);
                     this.participants.put(PlayerRef.of(player), playerData);
                     this.teams.addPlayer(player, team);
                     this.setPlayerSidebar(player, playerData);
@@ -452,7 +454,7 @@ public abstract class BaseGameLogic {
     protected void spawnParticipant(ServerPlayerEntity player) {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
-        if (this.teams.teamData.get(playerData.team).aliveMonuments.size() > 0) {
+        if (playerData.teamData.aliveMonuments.size() > 0) {
             playerData.activeKit = playerData.selectedKit;
             player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
@@ -468,7 +470,7 @@ public abstract class BaseGameLogic {
     public void setInventory(ServerPlayerEntity player, PlayerData playerData) {
         player.getInventory().clear();
 
-        playerData.activeKit.equipPlayer(player, playerData.team);
+        playerData.activeKit.equipPlayer(player, playerData.teamData);
         this.mapRenderer.updateMap(player, playerData);
 
         playerData.resetTimers();
@@ -542,14 +544,14 @@ public abstract class BaseGameLogic {
         return ActionResult.PASS;
     }
 
-    protected abstract void maybeEliminate(GameTeam team, TeamData regions);
+    protected abstract void maybeEliminate(TeamData regions);
 
     protected void tick() {
         TickType result = this.getTickType();
 
         for (var monument : this.gameMap.monuments) {
             if (monument.isAlive()) {
-                int color = monument.teamData.team.color().getRgb();
+                int color = monument.teamData.getConfig().colors().dyeColor().getRgb();
 
                 float blue = ((float) color % 256) / 256;
                 float green = ((float) (color / 256) % 256) / 256;
@@ -666,11 +668,11 @@ public abstract class BaseGameLogic {
         if (result.isWin()) {
             message = FormattingUtil.format(FormattingUtil.STAR_PREFIX,
                     FormattingUtil.WIN_STYLE,
-                    DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(result.getWinningTeam())));
+                    DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(this.teams.getData(result.getWinningTeam()))));
 
             for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
                 PlayerData playerData = this.participants.get(PlayerRef.of(player));
-                if (playerData.team.equals(result.winningTeam)) {
+                if (playerData.teamData.team.equals(result.winningTeam)) {
                     this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_WON, 1);
                 } else {
                     this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_LOST, 1);
@@ -697,13 +699,13 @@ public abstract class BaseGameLogic {
         GAME_CLOSED,
     }
 
-    public record WinResult(GameTeam winningTeam, boolean win) {
+    public record WinResult(GameTeamKey winningTeam, boolean win) {
 
         public static WinResult no() {
             return new WinResult(null, false);
         }
 
-        public static WinResult win(GameTeam team) {
+        public static WinResult win(GameTeamKey team) {
             return new WinResult(team, true);
         }
 
@@ -711,7 +713,7 @@ public abstract class BaseGameLogic {
             return this.win;
         }
 
-        public GameTeam getWinningTeam() {
+        public GameTeamKey getWinningTeam() {
             return this.winningTeam;
         }
     }

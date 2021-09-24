@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.kit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.items.DtmItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EquipmentSlot;
@@ -61,7 +62,7 @@ public class Kit {
     }
 
 
-    public void equipPlayer(ServerPlayerEntity player, GameTeam team) {
+    public void equipPlayer(ServerPlayerEntity player, TeamData team) {
         player.getInventory().insertStack(ItemStackBuilder.of(this.pickaxe)
                 .addModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(TOOL_DAMAGE, "tool", 0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL), EquipmentSlot.MAINHAND)
                 .setUnbreakable()
@@ -80,10 +81,10 @@ public class Kit {
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
 
         player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
     }

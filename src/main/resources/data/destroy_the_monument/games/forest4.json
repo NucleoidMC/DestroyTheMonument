@@ -1,8 +1,20 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroy_the_monument.forest4",
-  "short_name": "map.destroy_the_monument.forest4.short",
+  "name": {
+    "translate": "map.destroy_the_monument.forest4"
+  },
+  "short_name": {
+    "translate": "map.destroy_the_monument.forest4.short"
+  },
+  "icon": "oak_sapling",
+  "description": [
+    "<yellow><lang:'description.destroy_the_monument.general.1'>",
+    "<yellow><lang:'description.destroy_the_monument.general.2'>",
+    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "",
+    "<green><lang:'description.destroy_the_monument.general.map':'<white>Patbox'>"
+  ],
   "map": {
     "id": "destroy_the_monument:forest4",
     "author": "Patbox"
@@ -16,10 +28,10 @@
   "gameTime": 24000,
   "tickRespawnTime": 60,
   "teams": [
-    {"key": "oak", "display": "Oak", "color": "blue"},
-    {"key": "acacia", "display": "Acacia", "color": "red"},
-    {"key": "jungle", "display": "Jungle", "color": "green"},
-    {"key": "birch", "display": "Birch", "color": "yellow"}
+    {"key": "oak", "name": "Oak", "color": "blue"},
+    {"key": "acacia", "name": "Acacia", "color": "red"},
+    {"key": "jungle", "name": "Jungle", "color": "green"},
+    {"key": "birch", "name": "Birch", "color": "yellow"}
   ],
   "kits": [
     "destroy_the_monument:warrior",

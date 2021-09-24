@@ -38,6 +38,6 @@ public class Monument {
     }
 
     public Text getName() {
-        return new TranslatableText(Util.createTranslationKey("monument", map.config.id()) + "." + this.teamData.team.key() + "." + id);
+        return new TranslatableText(Util.createTranslationKey("monument", map.config.id()) + "." + this.teamData.team.id() + "." + id);
     }
 }

@@ -14,6 +14,7 @@ import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.MapTemplateSerializer;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 import java.io.IOException;
@@ -48,10 +49,10 @@ public final class TemplateGameMap extends GameMap {
         return new TemplateChunkGenerator(server, this.template);
     }
 
-    public void setTeamRegions(GameTeam team, TeamData data) {
-        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.key() + "_spawn");
-        var monuments = this.template.getMetadata().getRegions(team.key() + "_monument").collect(Collectors.toList());
-        var classChange = this.template.getMetadata().getRegionBounds(team.key() + "_class_change").collect(Collectors.toSet());
+    public void setTeamRegions(GameTeamKey team, TeamData data) {
+        TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.id() + "_spawn");
+        var monuments = this.template.getMetadata().getRegions(team.id() + "_monument").collect(Collectors.toList());
+        var classChange = this.template.getMetadata().getRegionBounds(team.id() + "_class_change").collect(Collectors.toSet());
 
         for (var monument : monuments) {
             this.template.setBlockState(monument.getBounds().min(), this.config.monument());

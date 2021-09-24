@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class PlayerData {
-    public GameTeam team = null;
+    public TeamData teamData = null;
     public Kit activeKit;
     public Kit selectedKit;
     public int deaths = 0;

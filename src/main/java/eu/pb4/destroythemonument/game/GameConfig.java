@@ -5,25 +5,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
 import eu.pb4.destroythemonument.game.map.MapConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamList;
 
 import java.util.List;
 
 public record GameConfig(String gamemode, PlayerConfig players,
-                         MapConfig map, List<GameTeam> teams,
+                         MapConfig map, GameTeamList teams,
                          boolean allowJoiningInGame, int gameTime,
-                         List<Identifier> kits, int tickRespawnTime,
-                         String shortName) {
+                         List<Identifier> kits, int tickRespawnTime) {
 
     public static final Codec<GameConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("gamemode").forGetter(GameConfig::gamemode),
             PlayerConfig.CODEC.fieldOf("players").forGetter(GameConfig::players),
             MapConfig.CODEC.fieldOf("map").forGetter(GameConfig::map),
-            GameTeam.CODEC.listOf().fieldOf("teams").forGetter(GameConfig::teams),
+            GameTeamList.CODEC.fieldOf("teams").forGetter(GameConfig::teams),
             Codec.BOOL.optionalFieldOf("allowJoiningInGame", false).forGetter(GameConfig::allowJoiningInGame),
             Codec.INT.optionalFieldOf("gameTime", -1).forGetter(GameConfig::gameTime),
             Codec.list(Identifier.CODEC).fieldOf("kits").forGetter(GameConfig::kits),
-            Codec.INT.optionalFieldOf("tickRespawnTime", 60).forGetter(GameConfig::tickRespawnTime),
-            Codec.STRING.fieldOf("short_name").forGetter(GameConfig::shortName)
+            Codec.INT.optionalFieldOf("tickRespawnTime", 60).forGetter(GameConfig::tickRespawnTime)
             ).apply(instance, GameConfig::new));
 }

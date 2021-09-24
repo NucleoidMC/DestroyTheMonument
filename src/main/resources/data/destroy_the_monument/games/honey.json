@@ -1,8 +1,18 @@
 {
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
-  "translation": "map.destroy_the_monument.honey",
-  "short_name": "map.destroy_the_monument.honey.short",
+  "name": {
+    "translate": "map.destroy_the_monument.honey"
+  },
+  "short_name": {
+    "translate": "map.destroy_the_monument.honey.short"
+  },
+  "icon": "honeycomb",
+  "description": [
+    "<yellow><lang:'description.destroy_the_monument.general.1'>",
+    "<yellow><lang:'description.destroy_the_monument.general.2'>",
+    "<yellow><lang:'description.destroy_the_monument.general.3'>"
+  ],
   "map": {
     "id": "destroy_the_monument:honey"
   },
@@ -15,8 +25,8 @@
   "gameTime": 24000,
   "tickRespawnTime": 60,
   "teams": [
-    {"key": "red", "display": "Red", "color": "red"},
-    {"key": "blue", "display": "Blue", "color": "blue"}
+    {"key": "red", "name": "Red", "color": "red"},
+    {"key": "blue", "name": "Blue", "color": "blue"}
   ],
   "kits": [
     "destroy_the_monument:warrior",

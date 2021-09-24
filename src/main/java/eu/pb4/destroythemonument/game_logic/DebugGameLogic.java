@@ -12,21 +12,22 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class DebugGameLogic extends StandardGameLogic {
 
-    public DebugGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
-        super(gameSpace, map, config, playerTeams, participants, teams);
+    public DebugGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+        super(gameSpace, map, config, participants, teams);
 
         Text text = new LiteralText("+-----------------DEBUG----------------+").formatted(Formatting.AQUA);
         this.gameSpace.getPlayers().sendMessage(text);
     }
 
-    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeam, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
-            BaseGameLogic active = new DebugGameLogic(gameSpace, map, config, playerTeams, participants, teams);
-            active.setupGame(game, map, config);
+            BaseGameLogic active = new DebugGameLogic(gameSpace, map, config, participants, teams);
+            active.setupGame(game, map, config, playerTeams);
         });
     }
 
