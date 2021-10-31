@@ -1,0 +1,53 @@
+{
+  "type": "destroy_the_monument:destroy_the_monument",
+  "gamemode": "standard",
+  "name": {
+    "translate": "map.destroy_the_monument.cubes"
+  },
+  "short_name": {
+    "translate": "map.destroy_the_monument.cubes.short"
+  },
+  "icon": "gold_ore",
+  "description": [
+    "<yellow><lang:'description.destroy_the_monument.general.1'>",
+    "<yellow><lang:'description.destroy_the_monument.general.2'>",
+    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "",
+    "<green><lang:'description.destroy_the_monument.general.map':'<white>MoehreAG'>"
+  ],
+  "map": {
+    "id": "destroy_the_monument:mine",
+    "author": "MoehreAG"
+  },
+  "players": {
+    "min": 2,
+    "threshold": 6,
+    "max": 32
+  },
+  "allowJoiningInGame": true,
+  "gameTime": 24000,
+  "tickRespawnTime": 60,
+  "teams": [
+    {
+      "key": "gnomes",
+      "name": "Gnomes",
+      "color": "lime"
+    },
+    {
+      "key": "goblins",
+      "name": "Goblins",
+      "color": "green"
+    }
+],
+  "kits": [
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
+  ],
+
+  "custom": {
+    "gamegui:icon": "minecraft:gold_ore"
+  }
+}
