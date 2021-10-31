@@ -104,6 +104,11 @@
   "monument.destroy_the_monument.honey.red.1": "Upper Monument",
   "monument.destroy_the_monument.honey.blue.0": "Upper Monument",
   "monument.destroy_the_monument.honey.blue.1": "Lower Monument",
+  
+  "monument.destroy_the_monument.mine.gnomes.0": "East Monument",
+  "monument.destroy_the_monument.mine.gnomes.1": "West Monument",
+  "monument.destroy_the_monument.mine.goblins.0": "East Monument",
+  "monument.destroy_the_monument.mine.goblins.1": "West Monument",
 
 
   "statistic.bundle.destroy_the_monument": "Destroy The Monument",
