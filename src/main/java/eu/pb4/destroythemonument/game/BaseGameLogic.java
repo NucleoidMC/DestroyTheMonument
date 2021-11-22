@@ -135,6 +135,8 @@ public abstract class BaseGameLogic {
         }
 
         DTM.ACTIVE_GAMES.put(gameSpace, this);
+
+        map.onGameStart(this);
     }
 
     public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {

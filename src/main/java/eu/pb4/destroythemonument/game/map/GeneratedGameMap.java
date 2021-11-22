@@ -1,13 +1,11 @@
 package eu.pb4.destroythemonument.game.map;
 
+import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.generator.DtmChunkGenerator;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.minecraft.block.BlockState;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
@@ -39,6 +37,11 @@ public final class GeneratedGameMap extends GameMap {
     }
 
     public void setTeamRegions(GameTeamKey team, TeamData data) {
+
+    }
+
+    @Override
+    public void onGameStart(BaseGameLogic logic) {
 
     }
 }

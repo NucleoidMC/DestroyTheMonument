@@ -1,9 +1,14 @@
 package eu.pb4.destroythemonument.game.map;
 
+import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import net.fabricmc.fabric.api.tag.TagFactory;
 import net.fabricmc.fabric.api.tag.TagRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -31,11 +36,12 @@ public final class TemplateGameMap extends GameMap {
         this.unbreakable.addAll(template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toList()));
         for (BlockPos pos : template.getMetadata().getFirstRegionBounds("general_spawn")) {
             BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || TagRegistry.block(DtmUtil.id("spawnable")).contains(blockState.getBlock())) {
+            if (blockState.isAir() || DTM.SPAWNABLE_TAG.contains(blockState.getBlock())) {
                 this.validSpawn.add(pos.toImmutable());
             }
         }
         this.taters.addAll(template.getMetadata().getRegionBounds("tater").map((r) -> r.min()).collect(Collectors.toList()));
+        this.destroyOnStart.addAll(template.getMetadata().getRegionBounds("destroy_on_start").collect(Collectors.toList()));
     }
 
     public static GameMap create(MinecraftServer server, MapConfig config) throws IOException {
@@ -68,5 +74,13 @@ public final class TemplateGameMap extends GameMap {
         }
 
         data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this);
+    }
+
+    public void onGameStart(BaseGameLogic logic) {
+        for (var bound : this.destroyOnStart) {
+            for (var pos : bound) {
+                this.world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS, 1);
+            }
+        }
     }
 }

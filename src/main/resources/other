@@ -1,9 +1,11 @@
 Regions
 
-[team]_spawn
-[team]_monument
+[team]_spawn {yaw: number}
+[team]_monument {id: string}
 [team]_class_change
 
 unbreakable
 general_spawn
+
+destroy_on_start
 

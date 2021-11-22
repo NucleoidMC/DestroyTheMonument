@@ -1,12 +1,10 @@
 package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +30,7 @@ public abstract class GameMap {
     protected final Set<BlockBounds> unbreakable = new HashSet<>();
     protected final Set<BlockPos> taters  = new HashSet<>();
     protected final List<BlockPos> validSpawn = new ArrayList<>();
+    protected final List<BlockBounds> destroyOnStart = new ArrayList<>();
     public BlockBounds mapBounds;
     public BlockBounds mapDeathBounds;
     public ServerWorld world;
@@ -74,4 +73,6 @@ public abstract class GameMap {
         BlockPos pos = getRandomSpawnPos();
         return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
     }
+
+    public abstract void onGameStart(BaseGameLogic logic);
 }

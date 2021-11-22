@@ -62,6 +62,7 @@
   "map.destroy_the_monument.forest4": "Destroy The Monument: Forest (4 Teams)",
   "map.destroy_the_monument.kupol_duels": "Destroy The Monument: Kupol (Duels)",
   "map.destroy_the_monument.kuber": "Destroy The Monument: Kuber",
+  "map.destroy_the_monument.dimensions": "Destroy The Monument: Dimensions",
 
   "map.destroy_the_monument.cubes.short": "DTM: Cubes",
   "map.destroy_the_monument.honey.short": "DTM: Honey",
@@ -69,6 +70,7 @@
   "map.destroy_the_monument.forest4.short": "DTM: Forest (4 Teams)",
   "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
   "map.destroy_the_monument.kuber.short": "DTM: Kuber",
+  "map.destroy_the_monument.dimensions.short": "DTM: Dimensions",
 
   "monument.destroy_the_monument.kupol.red.0": "West Monument",
   "monument.destroy_the_monument.kupol.red.1": "East Monument",
@@ -110,6 +112,10 @@
   "monument.destroy_the_monument.mine.goblins.0": "East Monument",
   "monument.destroy_the_monument.mine.goblins.1": "West Monument",
 
+  "monument.destroy_the_monument.dimensions.nether.north": "Soul Monument",
+  "monument.destroy_the_monument.dimensions.nether.south": "Warped Monument",
+  "monument.destroy_the_monument.dimensions.overworld.north": "Mushroom Monument",
+  "monument.destroy_the_monument.dimensions.overworld.south": "Frozen Monument",
 
   "statistic.bundle.destroy_the_monument": "Destroy The Monument",
   "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed"
