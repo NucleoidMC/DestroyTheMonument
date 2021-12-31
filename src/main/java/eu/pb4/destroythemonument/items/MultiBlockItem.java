@@ -68,18 +68,18 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
                 ItemStack stack = item.getDefaultStack();
                 stack.setCount(itemStack.getCount());
                 ItemStack out = virtualItem.getVirtualItemStack(stack, player);
-                out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+                out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
                 return out;
             }
         }
 
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
-        if (itemStack.getTag() != null) {
-            out.getOrCreateTag().put(ItemHelper.REAL_TAG, itemStack.getTag());
+        if (itemStack.getNbt() != null) {
+            out.getOrCreateNbt().put(ItemHelper.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateTag().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
         return out;
     }

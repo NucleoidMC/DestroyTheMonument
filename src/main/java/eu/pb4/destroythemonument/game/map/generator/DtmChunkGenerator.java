@@ -1,5 +1,5 @@
 package eu.pb4.destroythemonument.game.map.generator;
-
+/*
 import eu.pb4.destroythemonument.game.map.GameMap;
 import kdotjpg.opensimplex.OpenSimplexNoise;
 import net.minecraft.block.BlockState;
@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-
-public class DtmChunkGenerator extends GameChunkGenerator {
+*/
+public class DtmChunkGenerator {}/*extends GameChunkGenerator {
     private final GameMap map;
     private final OpenSimplexNoise baseNoise1;
     private final OpenSimplexNoise baseNoise2;
@@ -210,4 +210,4 @@ public class DtmChunkGenerator extends GameChunkGenerator {
 
         return GeneratorBlockSamples.VOID;
     }
-}
+}*/

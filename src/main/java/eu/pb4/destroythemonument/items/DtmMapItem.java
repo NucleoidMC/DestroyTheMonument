@@ -20,7 +20,7 @@ public class DtmMapItem extends Item implements VirtualItem {
     @Override
     public ItemStack getVirtualItemStack(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         ItemStack stack = VirtualItem.super.getVirtualItemStack(itemStack, player);
-        stack.getOrCreateTag().putInt("map", 0);
+        stack.getOrCreateNbt().putInt("map", 0);
         return stack;
     }
 }

@@ -248,7 +248,7 @@ public abstract class BaseGameLogic {
 
     protected ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
         if (this.gameMap.isTater(hitResult.getBlockPos())) {
-            player.getServerWorld().spawnParticles(ParticleTypes.HEART,
+            player.getWorld().spawnParticles(ParticleTypes.HEART,
                     hitResult.getBlockPos().getX() + 0.5d, hitResult.getBlockPos().getY() + 0.5d, hitResult.getBlockPos().getZ() + 0.5d,
                     5, 0.5d, 0.5d, 0.5d, 0.1d);
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 99999, 0, true, false)); }

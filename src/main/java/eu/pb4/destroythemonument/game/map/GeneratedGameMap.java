@@ -33,7 +33,7 @@ public final class GeneratedGameMap extends GameMap {
     }
 
     public ChunkGenerator asGenerator(MinecraftServer server) {
-        return new DtmChunkGenerator(server, this);
+        return null;//new DtmChunkGenerator(server, this);
     }
 
     public void setTeamRegions(GameTeamKey team, TeamData data) {
