@@ -1,5 +1,5 @@
 {
-  "game.destroy_the_monument.destroy_the_monument": "Destroy The Monument",
+  "gameType.destroy_the_monument.destroy_the_monument": "Destroy The Monument",
   "class.destroy_the_monument.warrior": "Warrior",
   "class.destroy_the_monument.warrior.description": "Good damage and defense",
   "class.destroy_the_monument.archer": "Archer",
