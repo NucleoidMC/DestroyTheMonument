@@ -3,8 +3,8 @@ package eu.pb4.destroythemonument.items;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.PlayerData;
-import eu.pb4.polymer.item.ItemHelper;
-import eu.pb4.polymer.item.VirtualItem;
+import eu.pb4.polymer.api.item.PolymerItem;
+import eu.pb4.polymer.api.item.PolymerItemUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -15,7 +15,7 @@ import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
-public class MultiBlockItem extends BlockItem implements VirtualItem {
+public class MultiBlockItem extends BlockItem implements PolymerItem {
     public MultiBlockItem(Settings settings) {
         super(Blocks.BIRCH_PLANKS, settings);
     }
@@ -45,12 +45,12 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
     }
 
     @Override
-    public Item getVirtualItem() {
+    public Item getPolymerItem(ItemStack itemStack, ServerPlayerEntity player) {
         return Items.BIRCH_PLANKS;
     }
 
     @Override
-    public ItemStack getVirtualItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, ServerPlayerEntity player) {
         Item item = Items.BIRCH_PLANKS;
         GameSpace gameSpace = GameSpaceManager.get().byPlayer(player);
         if (gameSpace != null) {
@@ -64,11 +64,11 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
                 }
             }
 
-            if (item instanceof VirtualItem virtualItem && item != this) {
+            if (item instanceof PolymerItem virtualItem && item != this) {
                 ItemStack stack = item.getDefaultStack();
                 stack.setCount(itemStack.getCount());
-                ItemStack out = virtualItem.getVirtualItemStack(stack, player);
-                out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+                ItemStack out = virtualItem.getPolymerItemStack(stack, player);
+                out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
                 return out;
             }
         }
@@ -76,10 +76,10 @@ public class MultiBlockItem extends BlockItem implements VirtualItem {
         ItemStack out = new ItemStack(item, itemStack.getCount());
 
         if (itemStack.getNbt() != null) {
-            out.getOrCreateNbt().put(ItemHelper.REAL_TAG, itemStack.getNbt());
+            out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateNbt().putString(ItemHelper.VIRTUAL_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
 
         return out;
     }

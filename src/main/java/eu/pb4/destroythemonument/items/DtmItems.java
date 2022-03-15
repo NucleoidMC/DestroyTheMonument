@@ -2,8 +2,8 @@ package eu.pb4.destroythemonument.items;
 
 import eu.pb4.destroythemonument.blocks.DtmBlocks;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import eu.pb4.polymer.item.BasicVirtualItem;
-import eu.pb4.polymer.item.VirtualBlockItem;
+import eu.pb4.polymer.api.item.PolymerBlockItem;
+import eu.pb4.polymer.api.item.SimplePolymerItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.Rarity;
@@ -12,8 +12,8 @@ import net.minecraft.util.registry.Registry;
 public class DtmItems {
     public static final Item CLASS_SELECTOR = createBasic(Items.PAPER, Rarity.EPIC);
     public static final Item MULTI_BLOCK = new MultiBlockItem(new Item.Settings());
-    public static final Item WEAK_GLASS = new VirtualBlockItem(DtmBlocks.WEAK_GLASS, new Item.Settings(), Items.GLASS);
-    public static final Item LADDER = new VirtualBlockItem(DtmBlocks.LADDER, new Item.Settings(), Items.LADDER);
+    public static final Item WEAK_GLASS = new PolymerBlockItem(DtmBlocks.WEAK_GLASS, new Item.Settings(), Items.GLASS);
+    public static final Item LADDER = new PolymerBlockItem(DtmBlocks.LADDER, new Item.Settings(), Items.LADDER);
     public static final Item MAP = new DtmMapItem(new Item.Settings());
 
     public static void registerItems() {
@@ -25,11 +25,11 @@ public class DtmItems {
     }
 
     private static Item createBasic(Item virtual) {
-        return new BasicVirtualItem(new Item.Settings(), virtual);
+        return new SimplePolymerItem(new Item.Settings(), virtual);
     }
 
     private static Item createBasic(Item virtual, Rarity rarity) {
-        return new BasicVirtualItem(new Item.Settings().rarity(rarity), virtual);
+        return new SimplePolymerItem(new Item.Settings().rarity(rarity), virtual);
     }
 
     private static void register(String name, Item item) {

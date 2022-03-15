@@ -20,7 +20,6 @@ import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -211,7 +210,7 @@ public abstract class BaseGameLogic {
 
     protected void onExplosion(Explosion explosion, boolean b) {
         for (BlockPos blockPos : explosion.getAffectedBlocks()) {
-            if (TagRegistry.block(DtmUtil.id("building_blocks")).contains(this.gameMap.world.getBlockState(blockPos).getBlock())) {
+            if (this.gameMap.world.getBlockState(blockPos).isIn(DTM.BUILDING_BLOCKS)) {
                 this.gameMap.world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
             }
         }
@@ -531,7 +530,7 @@ public abstract class BaseGameLogic {
             return ActionResult.PASS;
         }
 
-        if (TagRegistry.block(DtmUtil.id("building_blocks")).contains(player.world.getBlockState(blockPos).getBlock())) {
+        if (player.world.getBlockState(blockPos).isIn(DTM.BUILDING_BLOCKS)) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
             playerData.brokenPlankBlocks += 1;
             return ActionResult.SUCCESS;

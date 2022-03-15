@@ -3,9 +3,6 @@ package eu.pb4.destroythemonument.game.map;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.TeamData;
-import eu.pb4.destroythemonument.other.DtmUtil;
-import net.fabricmc.fabric.api.tag.TagFactory;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -18,7 +15,6 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.MapTemplateSerializer;
 import xyz.nucleoid.map_templates.TemplateRegion;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
@@ -36,7 +32,7 @@ public final class TemplateGameMap extends GameMap {
         this.unbreakable.addAll(template.getMetadata().getRegionBounds("unbreakable").collect(Collectors.toList()));
         for (BlockPos pos : template.getMetadata().getFirstRegionBounds("general_spawn")) {
             BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || DTM.SPAWNABLE_TAG.contains(blockState.getBlock())) {
+            if (blockState.isAir() || blockState.isIn(DTM.SPAWNABLE_TAG)) {
                 this.validSpawn.add(pos.toImmutable());
             }
         }
@@ -68,7 +64,7 @@ public final class TemplateGameMap extends GameMap {
 
         for (BlockPos pos : spawn.getBounds()) {
             BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || TagRegistry.block(DtmUtil.id("spawnable")).contains(blockState.getBlock())) {
+            if (blockState.isAir() || blockState.isIn(DTM.SPAWNABLE_TAG)) {
                 validSpawnPos.add(pos.toImmutable());
             }
         }
