@@ -14,8 +14,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -83,7 +83,7 @@ public class ClassSelectorUI extends SimpleGui {
                 icon.glow();
             }
             icon.addLoreLine(DtmUtil.getText("class", kit.name + "/description").formatted(Formatting.RED));
-            icon.addLoreLine(new LiteralText(""));
+            icon.addLoreLine(Text.empty());
             icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_select").formatted(Formatting.GRAY)));
             icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
 

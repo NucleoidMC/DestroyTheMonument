@@ -2,7 +2,6 @@ package eu.pb4.destroythemonument.game.data;
 
 import eu.pb4.destroythemonument.game.map.GameMap;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 
@@ -38,6 +37,6 @@ public class Monument {
     }
 
     public Text getName() {
-        return new TranslatableText(Util.createTranslationKey("monument", map.config.id()) + "." + this.teamData.team.id() + "." + id);
+        return Text.translatable(Util.createTranslationKey("monument", map.config.id()) + "." + this.teamData.team.id() + "." + id);
     }
 }

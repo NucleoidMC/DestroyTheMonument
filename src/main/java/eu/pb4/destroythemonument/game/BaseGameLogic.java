@@ -5,10 +5,10 @@ import com.mojang.datafixers.util.Pair;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
-import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
@@ -42,23 +42,18 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
@@ -98,10 +93,10 @@ public abstract class BaseGameLogic {
     protected final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
     public long tickTime = 0;
     public boolean isFinished = false;
+    public MapRenderer mapRenderer;
     protected TimerBar timerBar = null;
     protected long closeTime = -1;
     protected boolean setSpectator = false;
-    public MapRenderer mapRenderer;
 
     public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
@@ -250,7 +245,8 @@ public abstract class BaseGameLogic {
             player.getWorld().spawnParticles(ParticleTypes.HEART,
                     hitResult.getBlockPos().getX() + 0.5d, hitResult.getBlockPos().getY() + 0.5d, hitResult.getBlockPos().getZ() + 0.5d,
                     5, 0.5d, 0.5d, 0.5d, 0.1d);
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 99999, 0, true, false)); }
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 99999, 0, true, false));
+        }
 
         return ActionResult.PASS;
     }
@@ -315,17 +311,17 @@ public abstract class BaseGameLogic {
                         .setName(DtmUtil.getText("ui", "join_selector.play").formatted(Formatting.GOLD))
                         .hideFlags()
                         .setCallback((x, y, z, p) -> {
-                    this.globalSidebar.removePlayer(player);
-                    gui.close();
+                            this.globalSidebar.removePlayer(player);
+                            gui.close();
 
-                    GameTeamKey team = this.teams.getSmallestTeam();
-                    PlayerData playerData = new PlayerData(this.defaultKit);
-                    playerData.teamData = this.teams.getData(team);
-                    this.participants.put(PlayerRef.of(player), playerData);
-                    this.teams.addPlayer(player, team);
-                    this.setPlayerSidebar(player, playerData);
-                    this.spawnParticipant(player);
-                }));
+                            GameTeamKey team = this.teams.getSmallestTeam();
+                            PlayerData playerData = new PlayerData(this.defaultKit);
+                            playerData.teamData = this.teams.getData(team);
+                            this.participants.put(PlayerRef.of(player), playerData);
+                            this.teams.addPlayer(player, team);
+                            this.setPlayerSidebar(player, playerData);
+                            this.spawnParticipant(player);
+                        }));
 
                 gui.setSlot(15, new GuiElementBuilder(Items.ENDER_EYE)
                         .hideFlags()
@@ -335,7 +331,7 @@ public abstract class BaseGameLogic {
                         }));
 
 
-                var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(LiteralText.EMPTY.copy()).asStack();
+                var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty()).asStack();
 
                 for (int x = 0; x < 9; x++) {
                     gui.setSlot(x, empty);
@@ -372,6 +368,10 @@ public abstract class BaseGameLogic {
     protected ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
         PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
 
+        if (dtmPlayer == null || this.deadPlayers.containsKey(PlayerRef.of(player))) {
+            return ActionResult.FAIL;
+        }
+
         if (source.getAttacker() instanceof ServerPlayerEntity) {
             dtmPlayer.lastAttackTime = player.world.getTime();
             dtmPlayer.lastAttacker = (ServerPlayerEntity) source.getAttacker();
@@ -387,7 +387,7 @@ public abstract class BaseGameLogic {
         if (dtmPlayer != null) {
             Text deathMes = source.getDeathMessage(player);
 
-            Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.shallowCopy());
+            Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.copy());
             this.gameSpace.getPlayers().sendMessage(text);
 
             if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
@@ -437,7 +437,7 @@ public abstract class BaseGameLogic {
             if (player != null) {
                 if (ticksLeft <= 0) {
                     this.deadPlayers.removeInt(ref);
-                    player.networkHandler.sendPacket(new TitleS2CPacket(new LiteralText("")));
+                    player.networkHandler.sendPacket(new TitleS2CPacket(Text.empty()));
                     this.spawnParticipant(player);
                 } else {
                     if ((ticksLeft + 1) % 20 == 0) {
@@ -455,7 +455,7 @@ public abstract class BaseGameLogic {
     protected void spawnParticipant(ServerPlayerEntity player) {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
-        if (playerData.teamData.aliveMonuments.size() > 0) {
+        if (playerData != null && playerData.teamData.aliveMonuments.size() > 0) {
             playerData.activeKit = playerData.selectedKit;
             player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);

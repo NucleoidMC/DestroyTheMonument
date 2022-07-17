@@ -7,7 +7,6 @@ import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import xyz.nucleoid.plasmid.game.GameSpace;
@@ -20,7 +19,7 @@ public class DebugGameLogic extends StandardGameLogic {
     public DebugGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, participants, teams);
 
-        Text text = new LiteralText("+-----------------DEBUG----------------+").formatted(Formatting.AQUA);
+        Text text = Text.literal("+-----------------DEBUG----------------+").formatted(Formatting.AQUA);
         this.gameSpace.getPlayers().sendMessage(text);
     }
 

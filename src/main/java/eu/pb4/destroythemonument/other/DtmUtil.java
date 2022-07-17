@@ -9,7 +9,7 @@ import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class DtmUtil {
     public static MutableText getText(String type, String path, Object... values) {
-        return new TranslatableText(Util.createTranslationKey(type, new Identifier(DTM.ID, path)), values);
+        return Text.translatable(Util.createTranslationKey(type, new Identifier(DTM.ID, path)), values);
     }
 
     public static MutableText getTeamText(TeamData team) {

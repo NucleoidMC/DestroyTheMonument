@@ -3,7 +3,6 @@ package eu.pb4.destroythemonument.game;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
@@ -32,7 +31,7 @@ public final class TimerBar {
         long seconds = secondsUntilEnd % 60;
         String time = String.format("%02d:%02d left", minutes, seconds);
 
-        return new LiteralText(time);
+        return Text.literal(time);
     }
 
     public void addPlayer(ServerPlayerEntity player) {

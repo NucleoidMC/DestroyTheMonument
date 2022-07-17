@@ -42,15 +42,14 @@ public class KitsRegistry {
             public void reload(ResourceManager manager) {
                 KITS.clear();
 
-                Collection<Identifier> resources = manager.findResources("kits_dtm", path -> path.endsWith(".json"));
+                var resources = manager.findResources("kits_dtm", path -> path.getPath().endsWith(".json"));
 
-                for (Identifier path : resources) {
+                for (var path : resources.entrySet()) {
                     try {
-                        Resource resource = manager.getResource(path);
-                        try (Reader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+                        try (Reader reader = new BufferedReader(new InputStreamReader(path.getValue().getInputStream()))) {
                             JsonElement json = new JsonParser().parse(reader);
 
-                            Identifier identifier = identifierFromPath(path);
+                            Identifier identifier = identifierFromPath(path.getKey());
 
                             DataResult<Kit> result = Kit.CODEC.decode(JsonOps.INSTANCE, json).map(Pair::getFirst);
 

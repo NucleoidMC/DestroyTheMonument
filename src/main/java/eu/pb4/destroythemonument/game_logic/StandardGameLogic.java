@@ -14,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -42,10 +41,10 @@ public class StandardGameLogic extends BaseGameLogic {
         super(gameSpace, map, config, participants, teams);
         List<Text> texts = new ArrayList<>();
 
-        texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
-        texts.add(new LiteralText("           Destroy The Monument").formatted(Formatting.GOLD, Formatting.BOLD));
+        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
+        texts.add(Text.literal("           Destroy The Monument").formatted(Formatting.GOLD, Formatting.BOLD));
         texts.add(DtmUtil.getText("message", "about").formatted(Formatting.WHITE));
-        texts.add(new LiteralText("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
+        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
 
         for (Text text : texts) {
             this.gameSpace.getPlayers().sendMessage(text);
@@ -209,7 +208,7 @@ public class StandardGameLogic extends BaseGameLogic {
         this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
 
         this.globalSidebar.set(b -> {
-            b.add(LiteralText.EMPTY);
+            b.add(Text.empty());
 
             if (compact) {
                 for (var teamData : this.sidebarTeams) {
@@ -227,13 +226,13 @@ public class StandardGameLogic extends BaseGameLogic {
                         b.add((x) -> generateSidebarTitleForMonument(monument));
                     }
                     if (!miniCompact) {
-                        b.add(LiteralText.EMPTY);
+                        b.add(Text.empty());
                     }
                 }
             }
 
             if (compact || miniCompact) {
-                b.add(LiteralText.EMPTY);
+                b.add(Text.empty());
             }
 
             b.add((player) -> {
@@ -242,13 +241,13 @@ public class StandardGameLogic extends BaseGameLogic {
 
                     if (data != null) {
                         return DtmUtil.getText("sidebar", "stats",
-                                new LiteralText("" + data.kills).formatted(Formatting.WHITE),
-                                new LiteralText("" + data.deaths).formatted(Formatting.WHITE),
-                                new LiteralText("" + data.brokenMonuments).formatted(Formatting.WHITE)
+                                Text.literal("" + data.kills).formatted(Formatting.WHITE),
+                                Text.literal("" + data.deaths).formatted(Formatting.WHITE),
+                                Text.literal("" + data.brokenMonuments).formatted(Formatting.WHITE)
                         ).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xf2a600)));
                     }
                 }
-                return LiteralText.EMPTY;
+                return Text.empty();
             });
 
             b.add((player) -> {
@@ -257,29 +256,29 @@ public class StandardGameLogic extends BaseGameLogic {
 
                 return FormattingUtil.formatScoreboard(FormattingUtil.TIME_PREFIX,
                         DtmUtil.getText("sidebar", "time",
-                                new LiteralText(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
+                                Text.literal(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
             });
         });
     }
 
     private Text generateSidebarTitleForTeam(TeamData data) {
         if (data == null) {
-            return LiteralText.EMPTY;
+            return Text.empty();
         }
 
         int monuments = data.aliveMonuments.size();
-        return new LiteralText("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
-                .append(new LiteralText(" (").setStyle(FormattingUtil.PREFIX_STYLE))
-                .append(new LiteralText("" + monuments).formatted(Formatting.WHITE))
-                .append(new LiteralText("/").formatted(Formatting.GRAY))
-                .append(new LiteralText("" + data.monumentStartingCount).formatted(Formatting.WHITE))
-                .append(new LiteralText(")").setStyle(FormattingUtil.PREFIX_STYLE));
+        return Text.literal("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
+                .append(Text.literal(" (").setStyle(FormattingUtil.PREFIX_STYLE))
+                .append(Text.literal("" + monuments).formatted(Formatting.WHITE))
+                .append(Text.literal("/").formatted(Formatting.GRAY))
+                .append(Text.literal("" + data.monumentStartingCount).formatted(Formatting.WHITE))
+                .append(Text.literal(")").setStyle(FormattingUtil.PREFIX_STYLE));
     }
 
     private Text generateSidebarTitleForMonument(Monument monument) {
-        return new LiteralText("").append(new LiteralText("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
+        return Text.literal("").append(Text.literal("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
                 .append(monument.getName())
-                .append(new LiteralText(" " + (monument.isAlive() ? FormattingUtil.HEART_PREFIX : FormattingUtil.X)).setStyle(Style.EMPTY.withColor(monument.isAlive() ? Formatting.GREEN : Formatting.RED)));
+                .append(Text.literal(" " + (monument.isAlive() ? FormattingUtil.HEART_PREFIX : FormattingUtil.X)).setStyle(Style.EMPTY.withColor(monument.isAlive() ? Formatting.GREEN : Formatting.RED)));
     }
 }
 
