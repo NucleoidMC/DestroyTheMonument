@@ -9,6 +9,7 @@ import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -18,7 +19,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
@@ -36,6 +36,7 @@ public class ClassSelectorUI extends SimpleGui {
         this.game = game;
         this.kits = kits;
         this.setTitle(DtmUtil.getText("ui", "select_class"));
+        this.updateIcons();
     }
 
     private static ScreenHandlerType<?> getType(int size) {
@@ -71,12 +72,11 @@ public class ClassSelectorUI extends SimpleGui {
         new ClassSelectorUI(player, data, null, kitsList).open();
     }
 
-    @Override
-    public void onUpdate(boolean firstUpdate) {
+    public void updateIcons() {
         int pos = 0;
 
         for (Kit kit : this.kits) {
-            GuiElementBuilder icon = new GuiElementBuilder(Registry.ITEM.get(kit.icon));
+            GuiElementBuilder icon = new GuiElementBuilder(Registries.ITEM.get(kit.icon));
             icon.setName(DtmUtil.getText("class", kit.name));
             icon.hideFlags();
             if (kit == this.playerData.selectedKit) {
@@ -89,21 +89,19 @@ public class ClassSelectorUI extends SimpleGui {
 
             icon.setCallback((x, clickType, z) -> {
                 if (clickType.isLeft) {
-                    this.player.playSound(SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, 0.5f, 1);
+                    this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1);
                     changeKit(this.game, this.player, this.playerData, kit);
                 } else if (clickType.isRight) {
                     this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
                     this.close();
                     new ClassPreviewUI(this, kit).open();
                 }
-                this.onUpdate(false);
+                this.updateIcons();
             });
 
             this.setSlot(pos, icon);
             pos++;
         }
-
-        super.onUpdate(firstUpdate);
     }
 
     public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, Kit kit) {

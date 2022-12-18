@@ -6,11 +6,11 @@ import eu.pb4.destroythemonument.game.data.TeamData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.MapTemplateSerializer;
@@ -42,7 +42,7 @@ public final class TemplateGameMap extends GameMap {
 
     public static GameMap create(MinecraftServer server, MapConfig config) throws IOException {
         MapTemplate template = MapTemplateSerializer.loadFromResource(server, config.id());
-        template.setBiome(RegistryKey.of(Registry.BIOME_KEY, config.biome()));
+        template.setBiome(RegistryKey.of(RegistryKeys.BIOME, config.biome()));
         GameMap map = new TemplateGameMap(template, config);
         return map;
     }

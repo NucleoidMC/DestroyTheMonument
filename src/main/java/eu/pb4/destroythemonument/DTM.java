@@ -7,8 +7,9 @@ import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.GameType;
 import net.minecraft.util.Identifier;
@@ -24,8 +25,8 @@ public class DTM implements ModInitializer {
     public static final String ID = "destroy_the_monument";
     public static final Logger LOGGER = LogManager.getLogger(ID);
     public static final Random RANDOM = new Random();
-    public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(Registry.BLOCK_KEY, DtmUtil.id("spawnable"));
-    public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(Registry.BLOCK_KEY, DtmUtil.id("building_blocks"));
+    public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("spawnable"));
+    public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("building_blocks"));
 
     public static final GameType<GameConfig> TYPE = GameType.register(
             new Identifier(ID, ID),

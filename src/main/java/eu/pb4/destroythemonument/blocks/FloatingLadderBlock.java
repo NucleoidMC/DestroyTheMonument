@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.blocks;
 
-import eu.pb4.polymer.api.block.PolymerBlock;
+import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;

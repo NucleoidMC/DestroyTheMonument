@@ -3,14 +3,16 @@ package eu.pb4.destroythemonument.items;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.PlayerData;
-import eu.pb4.polymer.api.item.PolymerItem;
-import eu.pb4.polymer.api.item.PolymerItemUtils;
+import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
 import xyz.nucleoid.plasmid.util.PlayerRef;
@@ -50,7 +52,7 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, ServerPlayerEntity player) {
         Item item = Items.BIRCH_PLANKS;
         GameSpace gameSpace = GameSpaceManager.get().byPlayer(player);
         if (gameSpace != null) {
@@ -67,8 +69,8 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
             if (item instanceof PolymerItem virtualItem && item != this) {
                 ItemStack stack = item.getDefaultStack();
                 stack.setCount(itemStack.getCount());
-                ItemStack out = virtualItem.getPolymerItemStack(stack, player);
-                out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+                ItemStack out = virtualItem.getPolymerItemStack(stack, context, player);
+                out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
                 return out;
             }
         }
@@ -79,7 +81,7 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
             out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
         }
 
-        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registry.ITEM.getId(itemStack.getItem()).toString());
+        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
 
         return out;
     }

@@ -21,10 +21,7 @@ public class ClassPreviewUI extends SimpleGui {
         this.selectorUI = selectorUI;
         this.kit = kit;
         this.setTitle(DtmUtil.getText("ui", "class_preview", DtmUtil.getText("class", kit.name)));
-    }
 
-    @Override
-    public void onUpdate(boolean firstUpdate) {
         int pos = 0;
 
         for (ItemStack itemStack : this.kit.items) {
@@ -57,8 +54,6 @@ public class ClassPreviewUI extends SimpleGui {
                     this.close();
                 })
         );
-
-        super.onUpdate(firstUpdate);
     }
 
     @Override

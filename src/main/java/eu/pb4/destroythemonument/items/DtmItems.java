@@ -2,12 +2,13 @@ package eu.pb4.destroythemonument.items;
 
 import eu.pb4.destroythemonument.blocks.DtmBlocks;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import eu.pb4.polymer.api.item.PolymerBlockItem;
-import eu.pb4.polymer.api.item.SimplePolymerItem;
+import eu.pb4.polymer.core.api.item.PolymerBlockItem;
+import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Rarity;
-import net.minecraft.util.registry.Registry;
 
 public class DtmItems {
     public static final Item CLASS_SELECTOR = createBasic(Items.PAPER, Rarity.EPIC);
@@ -33,6 +34,6 @@ public class DtmItems {
     }
 
     private static void register(String name, Item item) {
-        Registry.register(Registry.ITEM, DtmUtil.id(name), item);
+        Registry.register(Registries.ITEM, DtmUtil.id(name), item);
     }
 }

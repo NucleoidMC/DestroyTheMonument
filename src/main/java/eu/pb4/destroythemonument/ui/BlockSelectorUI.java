@@ -6,9 +6,9 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.registry.Registry;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
 public class BlockSelectorUI extends SimpleGui {
@@ -22,7 +22,7 @@ public class BlockSelectorUI extends SimpleGui {
         this.setTitle(DtmUtil.getText("ui", "select_block"));
 
         int pos = 0;
-        for (var block : Registry.BLOCK.getEntryList(DTM.BUILDING_BLOCKS).get()) {
+        for (var block : Registries.BLOCK.getEntryList(DTM.BUILDING_BLOCKS).get()) {
             GuiElementBuilder icon = new GuiElementBuilder(block.value().asItem(), 1);
             icon.setCallback((x, clickType, z) -> {
                 this.playerData.selectedBlock = block.value();
