@@ -671,12 +671,11 @@ public abstract class BaseGameLogic {
                     FormattingUtil.WIN_STYLE,
                     DtmUtil.getText("message", "game_end/winner", DtmUtil.getTeamText(this.teams.getData(result.getWinningTeam()))));
 
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
-                PlayerData playerData = this.participants.get(PlayerRef.of(player));
-                if (playerData.teamData.team.equals(result.winningTeam)) {
-                    this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_WON, 1);
+            for (var entry : this.participants.entrySet()) {
+                if (entry.getValue().teamData.team.equals(result.winningTeam)) {
+                    this.statistics.forPlayer(entry.getKey()).increment(StatisticKeys.GAMES_WON, 1);
                 } else {
-                    this.statistics.forPlayer(player).increment(StatisticKeys.GAMES_LOST, 1);
+                    this.statistics.forPlayer(entry.getKey()).increment(StatisticKeys.GAMES_LOST, 1);
                 }
             }
         } else {
