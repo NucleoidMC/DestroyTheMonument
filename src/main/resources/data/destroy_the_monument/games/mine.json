@@ -2,7 +2,7 @@
   "type": "destroy_the_monument:destroy_the_monument",
   "gamemode": "standard",
   "name": {
-    "translate": "map.destroy_the_monument.cubes"
+    "translate": "map.destroy_the_monument.mine"
   },
   "short_name": {
     "translate": "map.destroy_the_monument.cubes.short"

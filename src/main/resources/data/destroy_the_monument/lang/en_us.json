@@ -63,6 +63,7 @@
   "map.destroy_the_monument.kupol_duels": "Destroy The Monument: Kupol (Duels)",
   "map.destroy_the_monument.kuber": "Destroy The Monument: Kuber",
   "map.destroy_the_monument.dimensions": "Destroy The Monument: Dimensions",
+  "map.destroy_the_monument.mine": "Destroy The Monument: Mine",
 
   "map.destroy_the_monument.cubes.short": "DTM: Cubes",
   "map.destroy_the_monument.honey.short": "DTM: Honey",
@@ -71,6 +72,7 @@
   "map.destroy_the_monument.kupol_duels.short": "DTM: Kupol (Duels)",
   "map.destroy_the_monument.kuber.short": "DTM: Kuber",
   "map.destroy_the_monument.dimensions.short": "DTM: Dimensions",
+  "map.destroy_the_monument.mine.short": "DTM: Mine",
 
   "monument.destroy_the_monument.kupol.red.0": "West Monument",
   "monument.destroy_the_monument.kupol.red.1": "East Monument",
