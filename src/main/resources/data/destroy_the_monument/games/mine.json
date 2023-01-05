@@ -47,7 +47,10 @@
     "destroy_the_monument:berserker"
   ],
 
-  "custom": {
-    "gamegui:icon": "minecraft:gold_ore"
+  "monument_renames": {
+    "gnomes.0": "monument.destroy_the_monument.generic.east",
+    "gnomes.1": "monument.destroy_the_monument.generic.west",
+    "goblins.0": "monument.destroy_the_monument.generic.east",
+    "goblins.2": "monument.destroy_the_monument.generic.west"
   }
 }

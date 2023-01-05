@@ -47,7 +47,12 @@
     "destroy_the_monument:berserker"
   ],
 
-  "custom": {
-    "gamegui:icon": "minecraft:red_concrete"
+  "monument_renames": {
+    "red.0": "monument.destroy_the_monument.generic.central",
+    "red.1": "monument.destroy_the_monument.generic.east",
+    "red.2": "monument.destroy_the_monument.generic.west",
+    "blue.1": "monument.destroy_the_monument.generic.central",
+    "blue.0": "monument.destroy_the_monument.generic.east",
+    "blue.2": "monument.destroy_the_monument.generic.west"
   }
 }

@@ -26,7 +26,7 @@ public class Teams implements Iterable<TeamData> {
         this.map = map;
 
         for (var entry : config.teams()) {
-            this.createTeam(entry.key(), entry.config());
+            this.createTeam(entry.key(), entry.config(), config);
         }
     }
 
@@ -49,7 +49,7 @@ public class Teams implements Iterable<TeamData> {
         return smallest;
     }
 
-    private void createTeam(GameTeamKey team, GameTeamConfig teamConfig) {
+    private void createTeam(GameTeamKey team, GameTeamConfig teamConfig, GameConfig config) {
         if (this.manager != null) {
             throw new RuntimeException("Can't add new teams after initialization!");
         }
@@ -58,7 +58,7 @@ public class Teams implements Iterable<TeamData> {
                 .setFriendlyFire(false)
                 .setCollision(AbstractTeam.CollisionRule.PUSH_OWN_TEAM).build());
         TeamData teamData = new TeamData(team, this);
-        this.map.setTeamRegions(team, teamData);
+        this.map.setTeamRegions(team, teamData, config);
         this.teamData.put(team, teamData);
     }
 

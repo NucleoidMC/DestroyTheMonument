@@ -84,13 +84,15 @@ public class StandardGameLogic extends BaseGameLogic {
             } else {
                 for (var teamData : this.teams) {
                     if (teamData.isAliveMonument(blockPos)) {
-                        teamData.breakMonument(blockPos);
+                        var monument = teamData.breakMonument(blockPos);
 
                         Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
                                 FormattingUtil.GENERAL_STYLE,
                                 DtmUtil.getText("message", "monument_broken",
                                         player.getDisplayName(),
-                                        DtmUtil.getTeamText(teamData)));
+                                        DtmUtil.getTeamText(teamData),
+                                        monument.getName()
+                                ));
 
                         this.gameSpace.getPlayers().sendMessage(text);
                         this.maybeEliminate(teamData);

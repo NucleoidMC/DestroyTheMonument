@@ -7,7 +7,6 @@ import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import xyz.nucleoid.plasmid.game.GameSpace;

@@ -1,6 +1,7 @@
 package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.generator.DtmChunkGenerator;
 import eu.pb4.destroythemonument.other.DtmUtil;
@@ -36,7 +37,8 @@ public final class GeneratedGameMap extends GameMap {
         return null;//new DtmChunkGenerator(server, this);
     }
 
-    public void setTeamRegions(GameTeamKey team, TeamData data) {
+    @Override
+    public void setTeamRegions(GameTeamKey team, TeamData data, GameConfig config) {
 
     }
 

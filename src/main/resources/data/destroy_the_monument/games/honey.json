@@ -36,7 +36,10 @@
     "destroy_the_monument:berserker"
   ],
 
-  "custom": {
-    "gamegui:icon": "minecraft:honeycomb"
+  "monument_renames": {
+    "red.0": "monument.destroy_the_monument.honey.lower",
+    "red.1": "monument.destroy_the_monument.honey.upper",
+    "blue.0": "monument.destroy_the_monument.honey.lower",
+    "blue.1": "monument.destroy_the_monument.honey.upper"
   }
 }

@@ -41,7 +41,14 @@
     "destroy_the_monument:berserker"
   ],
 
-  "custom": {
-    "gamegui:icon": "minecraft:oak_sapling"
+  "monument_renames": {
+    "acacia.0": "monument.destroy_the_monument.generic.east",
+    "acacia.1": "monument.destroy_the_monument.generic.west",
+    "jungle.0": "monument.destroy_the_monument.generic.east",
+    "jungle.1": "monument.destroy_the_monument.generic.west",
+    "birch.0": "monument.destroy_the_monument.generic.south",
+    "birch.1": "monument.destroy_the_monument.generic.north",
+    "oak.0": "monument.destroy_the_monument.generic.south",
+    "oak.1": "monument.destroy_the_monument.generic.north"
   }
 }

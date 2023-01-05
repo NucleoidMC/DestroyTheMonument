@@ -44,7 +44,12 @@
     "destroy_the_monument:berserker"
   ],
 
-  "custom": {
-    "gamegui:icon": "minecraft:dark_prismarine"
+  "monument_renames": {
+    "red.0": "monument.destroy_the_monument.generic.west",
+    "red.1": "monument.destroy_the_monument.generic.east",
+    "red.2": "monument.destroy_the_monument.generic.south",
+    "blue.0": "monument.destroy_the_monument.generic.north",
+    "blue.1": "monument.destroy_the_monument.generic.east",
+    "blue.2": "monument.destroy_the_monument.generic.west"
   }
 }

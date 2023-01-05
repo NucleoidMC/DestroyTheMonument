@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.game;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
+import eu.pb4.destroythemonument.mixin.ServerPlayerInteractionManagerAccessor;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -28,7 +29,9 @@ public record SpawnLogic(GameSpace gameSpace, GameMap map,
         player.fallDistance = 0.0f;
         player.setHealth(player.getMaxHealth());
         player.getHungerManager().setFoodLevel(20);
+        player.getHungerManager().setSaturationLevel(5.0F);
         player.clearStatusEffects();
+        ((ServerPlayerInteractionManagerAccessor) player.interactionManager).setMining(false);
         if (resetInventory) {
             player.getInventory().clear();
         }

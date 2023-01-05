@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -51,7 +52,7 @@ public final class TemplateGameMap extends GameMap {
         return new TemplateChunkGenerator(server, this.template);
     }
 
-    public void setTeamRegions(GameTeamKey team, TeamData data) {
+    public void setTeamRegions(GameTeamKey team, TeamData data, GameConfig config) {
         TemplateRegion spawn = this.template.getMetadata().getFirstRegion(team.id() + "_spawn");
         var monuments = this.template.getMetadata().getRegions(team.id() + "_monument").collect(Collectors.toList());
         var classChange = this.template.getMetadata().getRegionBounds(team.id() + "_class_change").collect(Collectors.toSet());
@@ -69,7 +70,7 @@ public final class TemplateGameMap extends GameMap {
             }
         }
 
-        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this);
+        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this, config);
     }
 
     public void onGameStart(BaseGameLogic logic) {

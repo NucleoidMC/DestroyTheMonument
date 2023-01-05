@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.other.DtmUtil;
@@ -63,7 +64,7 @@ public abstract class GameMap {
         return false;
     }
 
-    public abstract void setTeamRegions(GameTeamKey team, TeamData data);
+    public abstract void setTeamRegions(GameTeamKey team, TeamData data, GameConfig config);
 
     public BlockPos getRandomSpawnPos() {
         return this.validSpawn.get(DTM.RANDOM.nextInt(this.validSpawn.size()));

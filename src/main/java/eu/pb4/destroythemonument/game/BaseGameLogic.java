@@ -9,6 +9,7 @@ import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.kit.Kit;
 import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.mixin.LivingEntityAccessor;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
@@ -215,14 +216,14 @@ public abstract class BaseGameLogic {
     protected TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
-        ItemStack stack = player.getInventory().getMainHandStack();
+        ItemStack stack = player.getStackInHand(hand);
 
         if (playerData != null && !stack.isEmpty() && stack.getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, this);
             return TypedActionResult.success(player.getStackInHand(hand));
         } else if (!stack.isEmpty() && stack.getItem() == Items.TNT) {
             stack.decrement(1);
-            TntEntity tnt = new TntEntity(player.world, player.getX(), player.getY(), player.getZ(), player);
+            TntEntity tnt = new TntEntity(player.world, player.getX(), player.getEyeY(), player.getZ(), player);
 
             double pitchRad = Math.toRadians(-player.getPitch());
             double yawRad = Math.toRadians(player.getYaw() - 180);
@@ -275,6 +276,9 @@ public abstract class BaseGameLogic {
                 }
                 return ActionResult.FAIL;
             }
+        } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket) {
+            // Move this to plasmid?
+            trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == LivingEntityAccessor.getHEALTH().getId());
         }
 
         return ActionResult.PASS;
@@ -400,7 +404,9 @@ public abstract class BaseGameLogic {
             dtmPlayer.lastAttackTime = 0;
             dtmPlayer.lastAttacker = null;
             dtmPlayer.deaths += 1;
+
             this.statistics.forPlayer(player).increment(StatisticKeys.DEATHS, 1);
+            this.gameMap.world.sendEntityStatus(player, EntityStatuses.ADD_DEATH_PARTICLES);
 
             this.startRespawningPlayerSequence(player);
         } else {
@@ -412,7 +418,7 @@ public abstract class BaseGameLogic {
     protected void startRespawningPlayerSequence(ServerPlayerEntity player) {
         if (this.config.tickRespawnTime() > 0) {
             this.deadPlayers.put(PlayerRef.of(player), this.config.tickRespawnTime());
-            player.teleport(player.getX(), player.getY() + 1000, player.getZ());
+            player.teleport(player.getX(), player.getY() + 2000, player.getZ());
             this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
             player.networkHandler.sendPacket(new GameStateChangeS2CPacket(new GameStateChangeS2CPacket.Reason(3), 3));
             PlayerAbilities abilities = new PlayerAbilities();

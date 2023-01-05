@@ -10,13 +10,15 @@ public class Monument {
     public final TeamData teamData;
     public final BlockPos pos;
     private final GameMap map;
+    private final Text name;
     private boolean alive = true;
 
-    public Monument(String id, TeamData team, BlockPos pos, GameMap map) {
+    public Monument(String id, TeamData team, BlockPos pos, GameMap map, Text name) {
         this.id = id;
         this.teamData = team;
         this.pos = pos;
         this.map = map;
+        this.name = name;
     }
 
 
@@ -37,6 +39,6 @@ public class Monument {
     }
 
     public Text getName() {
-        return Text.translatable(Util.createTranslationKey("monument", map.config.id()) + "." + this.teamData.team.id() + "." + id);
+        return this.name;
     }
 }
