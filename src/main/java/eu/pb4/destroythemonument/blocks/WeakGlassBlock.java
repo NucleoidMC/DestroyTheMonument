@@ -12,9 +12,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 
 public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
-    public static final int DAMAGE_STATES = 4;
-    public static final IntProperty DAMAGE = IntProperty.of("damage", 0, DAMAGE_STATES);
-
     public WeakGlassBlock(Settings settings) {
         super(settings);
     }
@@ -22,7 +19,6 @@ public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(DAMAGE);
     }
 
     @Override
@@ -31,22 +27,8 @@ public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
     }
 
     @Override
-    public BlockState getPolymerBlockState(BlockState state) {
-    return switch (state.get(DAMAGE)) {
-            case 0 -> Blocks.GLASS.getDefaultState();
-            case 1 -> Blocks.WHITE_STAINED_GLASS.getDefaultState();
-            default -> Blocks.BEDROCK.getDefaultState();
-        };
-    }
-
-    @Override
     public void onProjectileHit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile) {
-        int damage = state.get(DAMAGE);
-        if (damage == 1) {
-            world.breakBlock(hit.getBlockPos(), false);
-        } else {
-            world.setBlockState(hit.getBlockPos(), state.with(DAMAGE, Math.min(damage + 1, DAMAGE_STATES)));
-        }
+        world.breakBlock(hit.getBlockPos(), false);
         super.onProjectileHit(world, state, hit, projectile);
     }
 }

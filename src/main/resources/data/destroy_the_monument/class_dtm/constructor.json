@@ -1,6 +1,10 @@
 {
-  "kit_name": "constructor",
+  "class_name": "constructor",
   "icon": "oak_planks",
+  "attributes": {
+    "generic.armor": 11,
+    "generic.movement_speed": 0.11
+  },
   "blocks_to_planks": 1,
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": {
@@ -16,22 +20,10 @@
     }
   },
   "armor": [
-    {
-      "id": "golden_helmet",
-      "Count": 1
-    },
-    {
-      "id": "chainmail_chestplate",
-      "Count": 1
-    },
-    {
-      "id": "leather_leggings",
-      "Count": 1
-    },
-    {
-      "id": "iron_boots",
-      "Count": 1
-    }
+    "golden_helmet",
+    "chainmail_chestplate",
+    "leather_leggings",
+    "iron_boots"
   ],
   "items": [
     {
@@ -41,31 +33,22 @@
   ],
   "restockable_items": [
     {
-      "item": {
-        "id": "cooked_beef",
-        "Count": 1
-      },
+      "item": "cooked_beef",
       "restock_time": 800,
       "max_count": 5,
       "start_count": 3
     },
     {
-      "item": {
-        "id": "destroy_the_monument:multi_block",
-        "Count": 1
-      },
+      "item": "destroy_the_monument:multi_block",
       "restock_time": 60,
       "max_count": 64,
       "start_count": 48
     },
     {
-      "item": {
-        "id": "tnt",
-        "Count": 1
-      },
+      "item": "tnt",
       "restock_time": 600,
       "max_count": 4,
-      "start_offset": 400
+      "start_offset": 100
     }
   ]
 }

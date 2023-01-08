@@ -1,7 +1,12 @@
 {
-  "kit_name": "berserker",
+  "class_name": "berserker",
   "icon": "iron_axe",
   "pickaxe_tool": "diamond_pickaxe",
+  "attributes": {
+    "generic.max_health": 19,
+    "generic.movement_speed": 0.13,
+    "generic.armor": 6
+  },
   "axe_tool": {
     "id": "wooden_axe",
     "Count": 1,
@@ -15,22 +20,10 @@
     }
   },
   "armor": [
-    {
-      "id": "iron_helmet",
-      "Count": 1
-    },
-    {
-      "id": "leather_chestplate",
-      "Count": 1
-    },
-    {
-      "id": "air",
-      "Count": 1
-    },
-    {
-      "id": "leather_boots",
-      "Count": 1
-    }
+    "iron_helmet",
+    "leather_chestplate",
+    "air",
+    "leather_boots"
   ],
   "items": [
     {
@@ -48,19 +41,13 @@
   ],
   "restockable_items": [
     {
-      "item": {
-        "id": "cooked_beef",
-        "Count": 1
-      },
+      "item": "cooked_beef",
       "restock_time": 800,
       "max_count": 5,
       "start_count": 3
     },
     {
-      "item": {
-        "id": "destroy_the_monument:multi_block",
-        "Count": 1
-      },
+      "item": "destroy_the_monument:multi_block",
       "restock_time": 65,
       "max_count": 32,
       "start_count": 24

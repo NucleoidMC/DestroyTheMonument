@@ -1,25 +1,24 @@
 package eu.pb4.destroythemonument.game.data;
 
-import eu.pb4.destroythemonument.kit.Kit;
+import eu.pb4.destroythemonument.playerclass.PlayerClass;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 
 public class PlayerData {
     public TeamData teamData = null;
-    public Kit activeKit;
-    public Kit selectedKit;
+    public PlayerClass activeClass;
+    public PlayerClass selectedClass;
     public int deaths = 0;
     public int kills = 0;
     public int brokenMonuments = 0;
     public int brokenNonPlankBlocks = 0;
     public int brokenPlankBlocks = 0;
 
-    public Object2IntArrayMap<Kit.RestockableItem> restockTimers = new Object2IntArrayMap<>();
+    public Object2IntArrayMap<PlayerClass.RestockableItem> restockTimers = new Object2IntArrayMap<>();
 
     public ServerPlayerEntity lastAttacker;
     public long lastAttackTime;
@@ -27,19 +26,19 @@ public class PlayerData {
     public Sidebar sidebar;
     public BlockPos nextSpawnPos;
 
-    public PlayerData(Kit defaultKit) {
-        this.selectedKit = defaultKit;
-        this.activeKit = defaultKit;
+    public PlayerData(PlayerClass defaultKit) {
+        this.selectedClass = defaultKit;
+        this.activeClass = defaultKit;
     }
 
     public void resetTimers() {
-        for (Kit.RestockableItem key : this.activeKit.restockableItems) {
+        for (PlayerClass.RestockableItem key : this.activeClass.restockableItems()) {
             this.restockTimers.putIfAbsent(key, key.startingOffset);
         }
     }
 
     public void addToTimers(int x) {
-        for (Kit.RestockableItem key : this.activeKit.restockableItems) {
+        for (PlayerClass.RestockableItem key : this.activeClass.restockableItems()) {
             this.restockTimers.put(key, this.restockTimers.getInt(key) + x);
         }
     }

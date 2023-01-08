@@ -7,9 +7,9 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.items.DtmItems;
-import eu.pb4.destroythemonument.kit.Kit;
-import eu.pb4.destroythemonument.kit.KitsRegistry;
-import eu.pb4.destroythemonument.mixin.LivingEntityAccessor;
+import eu.pb4.destroythemonument.other.DtmResetable;
+import eu.pb4.destroythemonument.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -87,9 +86,9 @@ public abstract class BaseGameLogic {
     public final Object2ObjectMap<PlayerRef, PlayerData> participants;
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
     public final Teams teams;
-    public final ArrayList<Kit> kits = new ArrayList<>();
+    public final ArrayList<PlayerClass> kits = new ArrayList<>();
     public final GameStatisticBundle statistics;
-    protected final Kit defaultKit;
+    protected final PlayerClass defaultKit;
     protected final SpawnLogic spawnLogic;
     protected final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
     public long tickTime = 0;
@@ -107,10 +106,10 @@ public abstract class BaseGameLogic {
         this.spawnLogic = new SpawnLogic(gameSpace, map, participants, teams);
         this.teams = teams;
         this.statistics = gameSpace.getStatistics().bundle(DTM.ID);
-        this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
+        this.defaultKit = ClassRegistry.get(this.config.kits().get(0));
         this.mapRenderer = new MapRenderer(this);
         for (Identifier id : this.config.kits()) {
-            Kit kit = KitsRegistry.get(id);
+            PlayerClass kit = ClassRegistry.get(id);
             if (kit != null) {
                 this.kits.add(kit);
             }
@@ -181,8 +180,8 @@ public abstract class BaseGameLogic {
 
     protected ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
         PlayerData data = this.participants.get(PlayerRef.of(player));
-        if (data != null) {
-            data.activeKit.updateMainTool(player, player.world.getBlockState(blockPos));
+        if (data != null && player.world.getBlockState(blockPos).calcBlockBreakingDelta(player, player.world, blockPos) < 0.5) {
+            data.activeClass.updateMainTool(player, player.world.getBlockState(blockPos));
         }
         return ActionResult.PASS;
     }
@@ -278,7 +277,7 @@ public abstract class BaseGameLogic {
             }
         } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket) {
             // Move this to plasmid?
-            trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == LivingEntityAccessor.getHEALTH().getId());
+            trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
         }
 
         return ActionResult.PASS;
@@ -462,11 +461,10 @@ public abstract class BaseGameLogic {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         if (playerData != null && playerData.teamData.aliveMonuments.size() > 0) {
-            playerData.activeKit = playerData.selectedKit;
-            player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
+            playerData.activeClass = playerData.selectedClass;
             this.spawnLogic.resetPlayer(player, GameMode.SURVIVAL);
-
-            this.setInventory(player, playerData);
+            this.setupPlayerClass(player, playerData);
+            player.setHealth(player.getMaxHealth());
         } else {
             this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
         }
@@ -474,10 +472,10 @@ public abstract class BaseGameLogic {
     }
 
 
-    public void setInventory(ServerPlayerEntity player, PlayerData playerData) {
+    public void setupPlayerClass(ServerPlayerEntity player, PlayerData playerData) {
         player.getInventory().clear();
-
-        playerData.activeKit.equipPlayer(player, playerData.teamData);
+        ((DtmResetable) player.getAttributes()).dtm$reset();
+        playerData.activeClass.setupPlayer(player, playerData.teamData);
         this.mapRenderer.updateMap(player, playerData);
 
         playerData.resetTimers();
@@ -535,17 +533,20 @@ public abstract class BaseGameLogic {
         if (playerData == null) {
             return ActionResult.PASS;
         }
+        var state = player.world.getBlockState(blockPos);
 
-        if (player.world.getBlockState(blockPos).isIn(DTM.BUILDING_BLOCKS)) {
+        if (state.isIn(DTM.BUILDING_BLOCKS)) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
             playerData.brokenPlankBlocks += 1;
             return ActionResult.SUCCESS;
         }
 
-        playerData.brokenNonPlankBlocks += 1;
+        if (state.calcBlockBreakingDelta(player, world, blockPos) < 1) {
+            playerData.brokenNonPlankBlocks += 1;
 
-        if (playerData.brokenNonPlankBlocks % playerData.activeKit.blocksToPlanks == 0) {
-            player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
+            if (playerData.brokenNonPlankBlocks % playerData.activeClass.blocksToPlanks() == 0) {
+                player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
+            }
         }
 
         return ActionResult.PASS;
@@ -598,7 +599,7 @@ public abstract class BaseGameLogic {
             PlayerData dtmPlayer = this.participants.get(ref);
             if (dtmPlayer != null) {
                 dtmPlayer.addToTimers(1);
-                dtmPlayer.activeKit.maybeRestockPlayer(player, dtmPlayer);
+                dtmPlayer.activeClass.maybeRestockPlayer(player, dtmPlayer);
             }
 
             if (!this.gameMap.mapDeathBounds.contains(player.getBlockPos()) && !this.deadPlayers.containsKey(ref)) {

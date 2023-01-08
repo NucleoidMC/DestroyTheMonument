@@ -2,14 +2,12 @@ package eu.pb4.destroythemonument.ui;
 
 import eu.pb4.destroythemonument.game.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.PlayerData;
-import eu.pb4.destroythemonument.kit.Kit;
-import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -28,9 +26,9 @@ import java.util.List;
 public class ClassSelectorUI extends SimpleGui {
     private final PlayerData playerData;
     private final BaseGameLogic game;
-    private final List<Kit> kits;
+    private final List<PlayerClass> kits;
 
-    public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game, List<Kit> kits) {
+    public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game, List<PlayerClass> kits) {
         super(getType(kits.size()), player, kits.size() > 53);
         this.playerData = data;
         this.game = game;
@@ -60,10 +58,10 @@ public class ClassSelectorUI extends SimpleGui {
     }
 
     public static void openSelector(ServerPlayerEntity player, PlayerData data, List<Identifier> kits) {
-        ArrayList<Kit> kitsList = new ArrayList<>();
+        ArrayList<PlayerClass> kitsList = new ArrayList<>();
 
         for (Identifier id : kits) {
-            Kit kit = KitsRegistry.get(id);
+            PlayerClass kit = ClassRegistry.get(id);
             if (kit != null) {
                 kitsList.add(kit);
             }
@@ -75,14 +73,14 @@ public class ClassSelectorUI extends SimpleGui {
     public void updateIcons() {
         int pos = 0;
 
-        for (Kit kit : this.kits) {
-            GuiElementBuilder icon = new GuiElementBuilder(Registries.ITEM.get(kit.icon));
-            icon.setName(DtmUtil.getText("class", kit.name));
+        for (PlayerClass kit : this.kits) {
+            GuiElementBuilder icon = GuiElementBuilder.from(kit.icon());
+            icon.setName(DtmUtil.getText("class", kit.name()));
             icon.hideFlags();
-            if (kit == this.playerData.selectedKit) {
+            if (kit == this.playerData.selectedClass) {
                 icon.glow();
             }
-            icon.addLoreLine(DtmUtil.getText("class", kit.name + "/description").formatted(Formatting.RED));
+            icon.addLoreLine(DtmUtil.getText("class", kit.name() + "/description").formatted(Formatting.RED));
             icon.addLoreLine(Text.empty());
             icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_select").formatted(Formatting.GRAY)));
             icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
@@ -104,11 +102,11 @@ public class ClassSelectorUI extends SimpleGui {
         }
     }
 
-    public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, Kit kit) {
-        playerData.selectedKit = kit;
+    public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, PlayerClass kit) {
+        playerData.selectedClass = kit;
 
         MutableText text = FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "selected_class",
-                DtmUtil.getText("class", kit.name).formatted(Formatting.GOLD)));
+                DtmUtil.getText("class", kit.name()).formatted(Formatting.GOLD)));
 
         player.sendMessage(text, false);
         boolean isIn = false;
@@ -121,10 +119,9 @@ public class ClassSelectorUI extends SimpleGui {
             }
 
             if (isIn && !game.deadPlayers.containsKey(PlayerRef.of(player))) {
-                playerData.activeKit = kit;
-                player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(playerData.activeKit.health);
+                playerData.activeClass = kit;
                 playerData.resetTimers();
-                game.setInventory(player, playerData);
+                game.setupPlayerClass(player, playerData);
             } else {
                 player.sendMessage(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "class_respawn")), false);
             }

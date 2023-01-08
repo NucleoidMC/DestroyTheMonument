@@ -48,6 +48,7 @@
   "ui.destroy_the_monument.select_class": "Select your class",
   "ui.destroy_the_monument.class_preview": "%s's Inventory",
   "ui.destroy_the_monument.return_selector": "Return to class selector",
+  "ui.destroy_the_monument.stats": "Class Stats:",
   "ui.destroy_the_monument.click_select": "Use left mouse button to select",
   "ui.destroy_the_monument.click_preview": "Use right mouse button to preview",
   "ui.destroy_the_monument.select_block": "Select block",

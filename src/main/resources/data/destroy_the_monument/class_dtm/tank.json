@@ -1,0 +1,49 @@
+{
+  "class_name": "tank",
+  "icon": "diamond_chestplate",
+  "attributes": {
+    "generic.max_health": 24,
+    "generic.movement_speed": 0.105,
+    "generic.knockback_resistance": 0.12,
+    "generic.armor": 13
+  },
+  "pickaxe_tool": "diamond_pickaxe",
+  "axe_tool": {
+    "id": "wooden_axe",
+    "Count": 1,
+    "tag": {
+      "Enchantments": [
+        {
+          "id": "efficiency",
+          "lvl": 1
+        }
+      ]
+    }
+  },
+  "armor": [
+    "iron_helmet",
+    "diamond_chestplate",
+    "leather_leggings",
+    "netherite_boots"
+  ],
+  "items": [
+    {
+      "id": "iron_sword",
+      "Count": 1
+    }
+  ],
+  "restockable_items": [
+    {
+      "item": "cooked_beef",
+      "restock_time": 800,
+      "max_count": 5,
+      "start_count": 3
+    },
+    {
+      "item": "destroy_the_monument:multi_block",
+      "restock_time": 65,
+      "max_count": 32,
+      "start_count": 24
+    }
+  ]
+}

@@ -8,8 +8,8 @@ import eu.pb4.destroythemonument.game.map.TemplateGameMap;
 import eu.pb4.destroythemonument.game_logic.DebugGameLogic;
 import eu.pb4.destroythemonument.game_logic.StandardGameLogic;
 import eu.pb4.destroythemonument.items.DtmItems;
-import eu.pb4.destroythemonument.kit.Kit;
-import eu.pb4.destroythemonument.kit.KitsRegistry;
+import eu.pb4.destroythemonument.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
@@ -36,8 +36,6 @@ import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
-import java.util.List;
-
 public class WaitingLobby {
     private final GameSpace gameSpace;
     private final GameMap map;
@@ -47,7 +45,7 @@ public class WaitingLobby {
     private final Object2ObjectMap<PlayerRef, PlayerData> participants = new Object2ObjectOpenHashMap<>();
 
     private final TeamSelectionLobby teamSelection;
-    private final Kit defaultKit;
+    private final PlayerClass defaultKit;
 
 
     private WaitingLobby(GameSpace gameSpace, GameMap map, GameConfig config, TeamSelectionLobby teamSelection) {
@@ -56,7 +54,7 @@ public class WaitingLobby {
         this.config = config;
         this.spawnLogic = new SpawnLogic(gameSpace, map, null, null);
         this.teams = new Teams(map, config);
-        this.defaultKit = KitsRegistry.get(this.config.kits().get(0));
+        this.defaultKit = ClassRegistry.get(this.config.kits().get(0));
 
         this.teamSelection = teamSelection;
     }

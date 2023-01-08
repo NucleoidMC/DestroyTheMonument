@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.kit;
+package eu.pb4.destroythemonument.playerclass;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -7,62 +7,51 @@ import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.items.DtmItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PickaxeItem;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.codecs.MoreCodecs;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class Kit {
+public record PlayerClass(
+        String name, ItemStack icon,
+        Map<EntityAttribute, Double> attributes,
+        ItemStack pickaxe, ItemStack axe,
+        List<ItemStack> armorVisual, List<ItemStack> items,
+        List<RestockableItem> restockableItems,
+        int blocksToPlanks
+) {
     public static final UUID TOOL_DAMAGE = UUID.fromString("c7e311fa-857a-4354-bbcb-2e589d9e868d");
     public static final int TOOL_REPAIR_COST = 9943235;
 
-    public static final Codec<Kit> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("kit_name").forGetter(kit -> kit.name),
-            Identifier.CODEC.fieldOf("icon").forGetter(kit -> kit.icon),
-            MoreCodecs.ITEM_STACK.fieldOf("pickaxe_tool").forGetter(kit -> kit.pickaxe),
-            MoreCodecs.ITEM_STACK.fieldOf("axe_tool").forGetter(kit -> kit.axe),
-            Codec.list(MoreCodecs.ITEM_STACK).fieldOf("armor").forGetter(kit -> kit.armor),
-            Codec.list(MoreCodecs.ITEM_STACK).fieldOf("items").forGetter(kit -> kit.items),
-            Codec.list(RestockableItem.CODEC).fieldOf("restockable_items").forGetter(kit -> kit.restockableItems),
-            Codec.INT.optionalFieldOf("blocks_to_planks", 2).forGetter(kit -> kit.blocksToPlanks),
-            Codec.DOUBLE.optionalFieldOf("health", 20.0).forGetter(kit -> kit.health)
-    ).apply(instance, Kit::new));
+    public static final Codec<PlayerClass> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("class_name").forGetter(PlayerClass::name),
+            MoreCodecs.ITEM_STACK.fieldOf("icon").forGetter(PlayerClass::icon),
+            Codec.unboundedMap(Registries.ATTRIBUTE.getCodec(), Codec.DOUBLE).optionalFieldOf("attributes", Map.of()).forGetter(PlayerClass::attributes),
+            MoreCodecs.ITEM_STACK.fieldOf("pickaxe_tool").forGetter(PlayerClass::pickaxe),
+            MoreCodecs.ITEM_STACK.fieldOf("axe_tool").forGetter(PlayerClass::axe),
+            Codec.list(MoreCodecs.ITEM_STACK).fieldOf("armor").forGetter(PlayerClass::armorVisual),
+            Codec.list(MoreCodecs.ITEM_STACK).fieldOf("items").forGetter(PlayerClass::items),
+            Codec.list(RestockableItem.CODEC).fieldOf("restockable_items").forGetter(PlayerClass::restockableItems),
+            Codec.INT.optionalFieldOf("blocks_to_planks", 2).forGetter(PlayerClass::blocksToPlanks)
+    ).apply(instance, PlayerClass::new));
 
-    public final String name;
-    public final Identifier icon;
-    public final List<ItemStack> armor;
-    public final List<ItemStack> items;
-    public final List<RestockableItem> restockableItems;
-    public final int blocksToPlanks;
-    public final double health;
-    public final ItemStack pickaxe;
-    public final ItemStack axe;
+    public void setupPlayer(ServerPlayerEntity player, TeamData team) {
+        for (var x : this.attributes.entrySet()) {
+            player.getAttributes().getCustomInstance(x.getKey()).setBaseValue(x.getValue());
+        }
 
-
-    public Kit(String name, Identifier icon, ItemStack pickaxe, ItemStack axe, List<ItemStack> armor, List<ItemStack> items, List<RestockableItem> restockableItems, int blockToPlanks, double health) {
-        this.name = name;
-        this.icon = icon;
-        this.armor = armor;
-        this.items = items;
-        this.restockableItems = restockableItems;
-        this.blocksToPlanks = blockToPlanks;
-        this.health = health;
-        this.pickaxe = pickaxe;
-        this.axe = axe;
-    }
-
-
-    public void equipPlayer(ServerPlayerEntity player, TeamData team) {
         player.getInventory().insertStack(ItemStackBuilder.of(this.pickaxe)
                 .addModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(TOOL_DAMAGE, "tool", 0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL), EquipmentSlot.MAINHAND)
                 .setUnbreakable()
@@ -81,10 +70,10 @@ public class Kit {
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armor.get(0)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armor.get(1)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armor.get(2)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armor.get(3)).setUnbreakable().setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.HEAD,  ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(0))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(1))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(2))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(3))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
 
         player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
     }
@@ -97,8 +86,10 @@ public class Kit {
                 if (!(stack.getItem() instanceof AxeItem)) {
                     base = this.axe;
                 }
-            } else if (!(stack.getItem() instanceof PickaxeItem)) {
-                base = this.pickaxe;
+            } else if (state.isIn(BlockTags.PICKAXE_MINEABLE)) {
+                if (!(stack.getItem() instanceof PickaxeItem)) {
+                    base = this.pickaxe;
+                }
             }
 
             if (base != null) {

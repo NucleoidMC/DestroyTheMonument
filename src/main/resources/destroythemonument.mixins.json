@@ -4,9 +4,9 @@
   "package": "eu.pb4.destroythemonument.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "LivingEntityAccessor",
+    "AttributeContainerMixin",
     "PacketMixin",
-    "ServerPlayerInteractionManagerAccessor"
+    "ServerPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
