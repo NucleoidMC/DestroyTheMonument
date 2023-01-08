@@ -1,11 +1,10 @@
 package eu.pb4.destroythemonument.ui;
 
-import eu.pb4.destroythemonument.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.sgui.api.elements.AnimatedGuiElement;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

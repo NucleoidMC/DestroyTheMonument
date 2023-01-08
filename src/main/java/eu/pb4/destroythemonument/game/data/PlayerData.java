@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.game.data;
 
-import eu.pb4.destroythemonument.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.block.Block;

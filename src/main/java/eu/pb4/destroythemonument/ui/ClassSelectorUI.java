@@ -1,9 +1,9 @@
 package eu.pb4.destroythemonument.ui;
 
-import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.PlayerData;
-import eu.pb4.destroythemonument.playerclass.PlayerClass;
-import eu.pb4.destroythemonument.playerclass.ClassRegistry;
+import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;

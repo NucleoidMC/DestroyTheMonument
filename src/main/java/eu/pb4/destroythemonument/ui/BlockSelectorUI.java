@@ -1,7 +1,7 @@
 package eu.pb4.destroythemonument.ui;
 
 import eu.pb4.destroythemonument.DTM;
-import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;

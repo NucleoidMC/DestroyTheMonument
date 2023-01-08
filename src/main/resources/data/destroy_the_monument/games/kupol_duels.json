@@ -31,7 +31,7 @@
   },
   "allowJoiningInGame": false,
   "gameTime": 24000,
-  "tickRespawnTime": 40,
+  "tickRespawnTime": 30,
   "teams": [
     {"key": "red", "name": "Red", "color": "red"},
     {"key": "blue", "name": "Blue", "color": "blue"}

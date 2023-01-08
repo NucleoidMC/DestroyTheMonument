@@ -1,30 +1,23 @@
 package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
-import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.TeamData;
-import eu.pb4.destroythemonument.other.DtmUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
-import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.map_templates.TemplateRegion;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
 
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class GameMap {
     public final MapConfig config;

@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.playerclass;
+package eu.pb4.destroythemonument.game.playerclass;
 
 /*
  * Based on https://github.com/NucleoidMC/plasmid/blob/1.16/src/main/java/xyz/nucleoid/plasmid/game/config/GameConfigs.java

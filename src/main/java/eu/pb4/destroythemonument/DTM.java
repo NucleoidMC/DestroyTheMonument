@@ -1,8 +1,8 @@
 package eu.pb4.destroythemonument;
 
 import eu.pb4.destroythemonument.blocks.DtmBlocks;
-import eu.pb4.destroythemonument.game.BaseGameLogic;
-import eu.pb4.destroythemonument.playerclass.ClassRegistry;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
+import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import net.fabricmc.api.ModInitializer;

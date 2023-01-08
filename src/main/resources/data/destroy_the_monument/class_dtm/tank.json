@@ -8,18 +8,7 @@
     "generic.armor": 13
   },
   "pickaxe_tool": "diamond_pickaxe",
-  "axe_tool": {
-    "id": "wooden_axe",
-    "Count": 1,
-    "tag": {
-      "Enchantments": [
-        {
-          "id": "efficiency",
-          "lvl": 1
-        }
-      ]
-    }
-  },
+  "axe_tool": "iron_axe",
   "armor": [
     "iron_helmet",
     "diamond_chestplate",

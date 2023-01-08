@@ -7,6 +7,8 @@
     "minecraft:oak_fence_gate",
     "minecraft:oak_trapdoor",
     "destroy_the_monument:ladder",
-    "destroy_the_monument:weak_glass"
+    "destroy_the_monument:weak_glass",
+    "minecraft:oak_pressure_plate",
+    "minecraft:oak_door"
   ]
 }

@@ -3,22 +3,11 @@
   "icon": "iron_axe",
   "pickaxe_tool": "diamond_pickaxe",
   "attributes": {
-    "generic.max_health": 19,
+    "generic.max_health": 18,
     "generic.movement_speed": 0.13,
-    "generic.armor": 6
+    "generic.armor": 4
   },
-  "axe_tool": {
-    "id": "wooden_axe",
-    "Count": 1,
-    "tag": {
-      "Enchantments": [
-        {
-          "id": "efficiency",
-          "lvl": 1
-        }
-      ]
-    }
-  },
+  "axe_tool": "air",
   "armor": [
     "iron_helmet",
     "leather_chestplate",
@@ -26,18 +15,7 @@
     "leather_boots"
   ],
   "items": [
-    {
-      "id": "stone_axe",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "efficiency",
-            "lvl": 1
-          }
-        ]
-      }
-    }
+    "iron_axe"
   ],
   "restockable_items": [
     {

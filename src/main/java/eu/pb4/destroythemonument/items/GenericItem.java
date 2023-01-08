@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import eu.pb4.polymer.core.impl.PolymerImplUtils;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public class GenericItem extends Item implements PolymerItem {
     public GenericItem(Settings settings) {
@@ -52,5 +54,16 @@ public class GenericItem extends Item implements PolymerItem {
         var out = new ItemStack(this);
         out.getOrCreateNbt().put("DisplayItem", stack.writeNbt(new NbtCompound()));
         return out;
+    }
+
+    public ItemStack create(ItemStack stack, int color) {
+        var out = create(stack);
+        out.getOrCreateNbt().putInt("Color", color);
+        return out;
+    }
+
+    @Override
+    public int getPolymerArmorColor(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
+        return itemStack.hasNbt() && itemStack.getNbt().contains("Color", NbtElement.INT_TYPE) ? PolymerItemUtils.getSafeColor(itemStack.getNbt().getInt("Color")) : -1;
     }
 }

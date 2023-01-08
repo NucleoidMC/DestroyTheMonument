@@ -1,7 +1,7 @@
 package eu.pb4.destroythemonument.game.map;
 
 import eu.pb4.destroythemonument.DTM;
-import eu.pb4.destroythemonument.game.BaseGameLogic;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import net.minecraft.block.Block;

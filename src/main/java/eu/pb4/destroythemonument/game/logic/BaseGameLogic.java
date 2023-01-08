@@ -1,15 +1,16 @@
-package eu.pb4.destroythemonument.game;
+package eu.pb4.destroythemonument.game.logic;
 
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmResetable;
-import eu.pb4.destroythemonument.playerclass.PlayerClass;
-import eu.pb4.destroythemonument.playerclass.ClassRegistry;
+import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
+import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
@@ -21,6 +22,7 @@ import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -38,6 +40,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -189,7 +192,14 @@ public abstract class BaseGameLogic {
     protected ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
         if (this.participants.get(PlayerRef.of(player)) != null && stack != null) {
             if (stack.getItem() == DtmItems.MULTI_BLOCK) {
-                BlockSelectorUI.openSelector((ServerPlayerEntity) player, this);
+                if (player.isSneaking()) {
+                    var playerData = this.participants.get(PlayerRef.of(player));
+                    var list = new ArrayList<Block>();
+                    Registries.BLOCK.getEntryList(DTM.BUILDING_BLOCKS).get().forEach(x -> list.add(x.value()));
+                    playerData.selectedBlock = list.get((list.size() + list.indexOf(playerData.selectedBlock) + 1) % list.size());
+                } else {
+                    BlockSelectorUI.openSelector((ServerPlayerEntity) player, this);
+                }
             } else if (stack.getItem() == DtmItems.CLASS_SELECTOR) {
                 ClassSelectorUI.openSelector((ServerPlayerEntity) player, this);
             }

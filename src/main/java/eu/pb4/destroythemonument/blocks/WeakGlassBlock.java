@@ -6,9 +6,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.GlassBlock;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
@@ -30,5 +33,10 @@ public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
     public void onProjectileHit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile) {
         world.breakBlock(hit.getBlockPos(), false);
         super.onProjectileHit(world, state, hit, projectile);
+    }
+
+    @Override
+    public boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {
+        return false;
     }
 }

@@ -7,18 +7,7 @@
     "generic.armor": 8
   },
   "pickaxe_tool": "diamond_pickaxe",
-  "axe_tool": {
-    "id": "wooden_axe",
-    "Count": 1,
-    "tag": {
-      "Enchantments": [
-        {
-          "id": "efficiency",
-          "lvl": 1
-        }
-      ]
-    }
-  },
+  "axe_tool": "iron_axe",
   "armor": [
     "leather_helmet",
     "chainmail_chestplate",
@@ -54,7 +43,7 @@
       "start_count": 24
     },
     {
-      "item": "arrow",
+      "item": "spectral_arrow",
       "restock_time": 200,
       "max_count": 10,
       "start_count": 5

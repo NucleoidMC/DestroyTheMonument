@@ -2,6 +2,7 @@ package eu.pb4.destroythemonument.game;
 
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import net.minecraft.block.MapColor;
 import net.minecraft.item.map.MapIcon;

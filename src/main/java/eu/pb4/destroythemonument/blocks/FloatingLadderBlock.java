@@ -2,6 +2,8 @@ package eu.pb4.destroythemonument.blocks;
 
 import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.*;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
@@ -23,5 +25,10 @@ public class FloatingLadderBlock extends LadderBlock implements PolymerBlock {
     @Override
     public BlockState getPolymerBlockState(BlockState state) {
         return Blocks.LADDER.getDefaultState().with(HorizontalFacingBlock.FACING, state.get(HorizontalFacingBlock.FACING));
+    }
+
+    @Override
+    public boolean handleMiningOnServer(ItemStack tool, BlockState state, BlockPos pos, ServerPlayerEntity player) {
+        return false;
     }
 }

@@ -7,18 +7,7 @@
   },
   "blocks_to_planks": 1,
   "pickaxe_tool": "diamond_pickaxe",
-  "axe_tool": {
-    "id": "wooden_axe",
-    "Count": 1,
-    "tag": {
-      "Enchantments": [
-        {
-          "id": "efficiency",
-          "lvl": 3
-        }
-      ]
-    }
-  },
+  "axe_tool": "golden_axe",
   "armor": [
     "golden_helmet",
     "chainmail_chestplate",

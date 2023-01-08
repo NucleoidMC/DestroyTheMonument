@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game_logic;
+package eu.pb4.destroythemonument.game.logic;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;

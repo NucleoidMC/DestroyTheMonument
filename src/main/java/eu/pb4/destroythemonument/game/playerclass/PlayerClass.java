@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.playerclass;
+package eu.pb4.destroythemonument.game.playerclass;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,7 +16,6 @@ import net.minecraft.item.PickaxeItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import xyz.nucleoid.codecs.MoreCodecs;
 import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
@@ -70,10 +69,10 @@ public record PlayerClass(
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD,  ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(0))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(1))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(2))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
-        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(DtmItems.GENERIC_ITEM.create(this.armorVisual.get(3))).setDyeColor(team.getConfig().dyeColor().getRgb()).build());
+        player.equipStack(EquipmentSlot.HEAD, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(0), team.getConfig().dyeColor().getRgb()));
+        player.equipStack(EquipmentSlot.CHEST, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(1), team.getConfig().dyeColor().getRgb()));
+        player.equipStack(EquipmentSlot.LEGS, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(2), team.getConfig().dyeColor().getRgb()));
+        player.equipStack(EquipmentSlot.FEET, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(3), team.getConfig().dyeColor().getRgb()));
 
         player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
     }
@@ -92,7 +91,7 @@ public record PlayerClass(
                 }
             }
 
-            if (base != null) {
+            if (base != null && !base.isEmpty()) {
                 player.getInventory().setStack(player.getInventory().selectedSlot, ItemStackBuilder.of(base)
                         .addModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(TOOL_DAMAGE, "tool", 0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL), EquipmentSlot.MAINHAND)
                         .setUnbreakable()

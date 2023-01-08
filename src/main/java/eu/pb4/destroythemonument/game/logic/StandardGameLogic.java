@@ -1,4 +1,4 @@
-package eu.pb4.destroythemonument.game_logic;
+package eu.pb4.destroythemonument.game.logic;
 
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.*;
@@ -24,7 +24,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 

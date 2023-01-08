@@ -25,7 +25,7 @@
   },
   "allowJoiningInGame": true,
   "gameTime": 24000,
-  "tickRespawnTime": 60,
+  "tickRespawnTime": 10,
   "teams": [
     {
       "name": "Red",
