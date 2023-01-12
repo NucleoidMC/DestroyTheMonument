@@ -38,7 +38,7 @@
     },
     {
       "item": "destroy_the_monument:multi_block",
-      "restock_time": 65,
+      "restock_time": 60,
       "max_count": 32,
       "start_count": 24
     },

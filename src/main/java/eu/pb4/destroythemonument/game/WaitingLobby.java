@@ -46,6 +46,7 @@ public class WaitingLobby {
 
     private final TeamSelectionLobby teamSelection;
     private final PlayerClass defaultKit;
+    private final boolean debug;
 
 
     private WaitingLobby(GameSpace gameSpace, GameMap map, GameConfig config, TeamSelectionLobby teamSelection) {
@@ -57,6 +58,7 @@ public class WaitingLobby {
         this.defaultKit = ClassRegistry.get(this.config.kits().get(0));
 
         this.teamSelection = teamSelection;
+        this.debug = config.gamemode().equals("debug");
     }
 
     public static GameOpenProcedure open(GameOpenContext<GameConfig> context) {
@@ -134,6 +136,10 @@ public class WaitingLobby {
     private void addPlayer(ServerPlayerEntity player) {
         this.participants.put(PlayerRef.of(player), new PlayerData(this.defaultKit));
         this.spawnPlayer(player);
+
+        if (this.debug) {
+            this.requestStart();
+        }
     }
 
     private void removePlayer(ServerPlayerEntity player) {

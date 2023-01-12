@@ -2,7 +2,7 @@
   "class_name": "warrior",
   "icon": "diamond_sword",
   "attributes": {
-    "generic.armor": 5,
+    "generic.armor": 6,
     "generic.movement_speed": 0.11
   },
   "pickaxe_tool": "diamond_pickaxe",
@@ -36,7 +36,7 @@
     },
     {
       "item": "destroy_the_monument:multi_block",
-      "restock_time": 65,
+      "restock_time": 60,
       "max_count": 32,
       "start_count": 24
     }

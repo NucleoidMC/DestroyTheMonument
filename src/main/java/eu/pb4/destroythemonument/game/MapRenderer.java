@@ -11,6 +11,7 @@ import net.minecraft.network.packet.s2c.play.MapUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
@@ -23,6 +24,7 @@ public class MapRenderer {
     private final BaseGameLogic logic;
     private final GameMap map;
     private final byte[] mapData;
+    private short[] mapHeight;
     private final int xSize;
     private final int zSize;
     private final int halfXSize;
@@ -37,7 +39,8 @@ public class MapRenderer {
         this.xSize = this.map.mapBounds.max().getX() - this.map.mapBounds.min().getX() + 4;
         this.zSize = this.map.mapBounds.max().getZ() - this.map.mapBounds.min().getZ() + 4;
         this.mapData = new byte[this.xSize * this.zSize];
-        
+        this.mapHeight = new short[this.xSize * this.zSize];
+
         this.halfXSize = this.xSize / 2;
         this.halfZSize = this.zSize / 2;
 
@@ -52,52 +55,29 @@ public class MapRenderer {
 
         var min = this.map.mapBounds.min();
 
-        int chunkX = Integer.MAX_VALUE;
-        int chunkZ = Integer.MAX_VALUE;
-        WorldChunk chunk = null;
-
         for (int x = fromX; x < toX; x++) {
             int iX = x - min.getX();
-            int tmpChunkX = ChunkSectionPos.getSectionCoord(x);
 
             for (int z = fromZ; z < toZ; z++) {
                 int iZ = z - min.getZ();
 
-                int tmpChunkZ = ChunkSectionPos.getSectionCoord(z);
-
-                if (chunkX != tmpChunkX || chunkZ != tmpChunkZ) {
-                    chunkX = tmpChunkX;
-                    chunkZ = tmpChunkZ;
-                    chunk = (WorldChunk) world.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
-
-                    if (chunk != null) {
-                        int count = 0;
-                        for (var section : chunk.getSectionArray()) {
-                            if (section == null || section.isEmpty()) {
-                                count++;
-                            }
-                        }
-                        if (count == chunk.getSectionArray().length) {
-                            chunk = null;
-                        }
-                    }
-                }
 
                 int index = iX + 1 + (iZ + 1) * this.xSize;
 
-                if (chunk != null) {
-                    int y = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE).get(x & 15, z & 15) - 1;
+                int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z) - 1;
 
-                    if (this.map.mapBounds.contains(x, y, z)) {
-                        var blockState = chunk.getBlockState(pos.set(x, y, z));
-                        int color = blockState.getMapColor(world, pos).id;
-                        this.mapData[index] = (byte) (color == 0 ? 0 : color * 4 + (y % 3));
-                    } else {
+                if (this.map.mapBounds.contains(x, y, z)) {
+                    var blockState = world.getBlockState(pos.set(x, y, z));
+                    int color = blockState.getMapColor(world, pos).id;
+                    if (color == 0) {
                         this.mapData[index] = (byte) 0;
+                    } else {
+                        this.mapData[index] = (byte) (color * 4);
                     }
                 } else {
                     this.mapData[index] = (byte) 0;
                 }
+                this.mapHeight[index] = (short) y;
             }
         }
 
@@ -181,8 +161,26 @@ public class MapRenderer {
                     continue;
                 }
 
-                bytes[tX + tZ * 128] = this.mapData[rX + rZ * this.xSize];
+                int height;
+                var index = rX + rZ * this.xSize;
+                var y = this.mapHeight[index];
+                if (rX - rotationSymX >= this.xSize || rX - rotationSymX < 0 || rZ - rotationSymZ >= this.zSize || rZ - rotationSymZ < 0) {
+                    height = 0;
+                } else {
+                    height = this.mapHeight[(rX - rotationSymX) + (rZ - rotationSymZ) * this.xSize];
+                }
 
+                var extra = MapColor.Brightness.LOWEST.id;
+
+                if (y == height) {
+                    extra = MapColor.Brightness.NORMAL.id;
+                } else if (y > height) {
+                    extra = MapColor.Brightness.HIGH.id;
+                } else if (height - y == 1) {
+                    extra = MapColor.Brightness.LOW.id;
+                }
+
+                bytes[tX + tZ * 128] = (byte) (this.mapData[index] + extra);
             }
         }
 
@@ -196,12 +194,17 @@ public class MapRenderer {
                 mZ = tmp;
             }
 
-            if (mX >= 128 || mX <= -128 || mZ >= 128 || mZ < -128) {
-                continue;
-            }
-            var type = monument.isAlive() ? MapIcon.Type.byId((byte) (monument.teamData.getConfig().blockDyeColor().getId() + 10)) : MapIcon.Type.RED_X;
+            var isOff = mX >= 128 || mX <= -128 || mZ >= 128 || mZ <= -128;
 
-            icons.add(new MapIcon( type, (byte) mX, (byte) mZ, (byte) 8, monument.isAlive() ? monument.getName() : null));
+            if (monument.isAlive()) {
+                var type = MapIcon.Type.byId((byte) (monument.teamData.getConfig().blockDyeColor().getId() + 10));
+                var text = isOff ? null : monument.getName();
+                icons.add(new MapIcon(type,
+                        (byte) MathHelper.clamp(mX, -127, 127 ), (byte) MathHelper.clamp(mZ, -127, 127 ), (byte) 8, text));
+
+            } else if (!isOff) {
+                icons.add(new MapIcon(MapIcon.Type.RED_X, (byte) mX, (byte) mZ, (byte) 8,null));
+            }
         }
 
         for (TeamData data : logic.teams) {

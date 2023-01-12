@@ -3,6 +3,8 @@ package eu.pb4.destroythemonument.game.logic;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import eu.pb4.destroythemonument.DTM;
+import eu.pb4.destroythemonument.entities.blocks.DtmEntities;
+import eu.pb4.destroythemonument.entities.blocks.DtmTntEntity;
 import eu.pb4.destroythemonument.game.*;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
@@ -16,6 +18,7 @@ import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sidebars.api.Sidebar;
@@ -53,6 +56,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameCloseReason;
@@ -217,6 +221,16 @@ public abstract class BaseGameLogic {
         for (BlockPos blockPos : explosion.getAffectedBlocks()) {
             if (this.gameMap.world.getBlockState(blockPos).isIn(DTM.BUILDING_BLOCKS)) {
                 this.gameMap.world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
+                var owner = explosion.getEntity() instanceof DtmTntEntity dtmTnt ? dtmTnt.causingEntity : null;
+
+                if (owner != null && owner instanceof ServerPlayerEntity player) {
+                    var data = this.participants.get(PlayerRef.of(player));
+
+                    if (data != null) {
+                        player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
+                        data.brokenPlankBlocks += 1;
+                    }
+                }
             }
         }
         explosion.clearAffectedBlocks();
@@ -230,21 +244,6 @@ public abstract class BaseGameLogic {
         if (playerData != null && !stack.isEmpty() && stack.getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, this);
             return TypedActionResult.success(player.getStackInHand(hand));
-        } else if (!stack.isEmpty() && stack.getItem() == Items.TNT) {
-            stack.decrement(1);
-            TntEntity tnt = new TntEntity(player.world, player.getX(), player.getEyeY(), player.getZ(), player);
-
-            double pitchRad = Math.toRadians(-player.getPitch());
-            double yawRad = Math.toRadians(player.getYaw() - 180);
-
-            double horizontal = Math.cos(pitchRad);
-            tnt.setVelocity(new Vec3d(
-                    Math.sin(yawRad) * horizontal,
-                    Math.sin(pitchRad),
-                    -Math.cos(yawRad) * horizontal
-            ).multiply(0.8));
-
-            player.world.spawnEntity(tnt);
         }
 
         return TypedActionResult.pass(player.getStackInHand(hand));
@@ -285,9 +284,12 @@ public abstract class BaseGameLogic {
                 }
                 return ActionResult.FAIL;
             }
-        } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket) {
-            // Move this to plasmid?
-            trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
+        } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket && PolymerEntityUtils.getEntityContext(packet) instanceof ServerPlayerEntity target) {
+            var data = this.participants.get(PlayerRef.of(player));
+            var data2 = this.participants.get(PlayerRef.of(target));
+            if (data != null && data2 != null && data2.teamData.team != data2.teamData.team) {
+                trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
+            }
         }
 
         return ActionResult.PASS;
@@ -620,7 +622,7 @@ public abstract class BaseGameLogic {
                 }
             }
 
-            if (this.tickTime % 5 == 0 && (player.getMainHandStack().getItem() == DtmItems.MAP || player.getOffHandStack().getItem() == DtmItems.MAP)) {
+            if (this.tickTime % 4 == 0 && (player.getMainHandStack().getItem() == DtmItems.MAP || player.getOffHandStack().getItem() == DtmItems.MAP)) {
                 this.mapRenderer.updateMap(player, dtmPlayer);
             }
         }

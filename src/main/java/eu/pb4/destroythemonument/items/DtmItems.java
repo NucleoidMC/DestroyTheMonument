@@ -29,6 +29,7 @@ public class DtmItems {
     public static final Item LADDER = new PolymerBlockItem(DtmBlocks.LADDER, new Item.Settings(), Items.LADDER);
     public static final Item MAP = new DtmMapItem(new Item.Settings());
     public static final GenericItem GENERIC_ITEM = new GenericItem(new Item.Settings());
+    public static final Item TNT = new DtmTntItem(new Item.Settings());
 
     public static void registerItems() {
         register("class_selector", CLASS_SELECTOR);
@@ -37,6 +38,7 @@ public class DtmItems {
         register("map", MAP);
         register("ladder", LADDER);
         register("generic", GENERIC_ITEM);
+        register("tnt", TNT);
     }
 
     private static void register(String name, Item item) {

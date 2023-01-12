@@ -2,7 +2,7 @@
   "class_name": "constructor",
   "icon": "oak_planks",
   "attributes": {
-    "generic.armor": 11,
+    "generic.armor": 6,
     "generic.movement_speed": 0.11
   },
   "blocks_to_planks": 1,
@@ -29,15 +29,15 @@
     },
     {
       "item": "destroy_the_monument:multi_block",
-      "restock_time": 60,
+      "restock_time": 50,
       "max_count": 64,
       "start_count": 48
     },
     {
-      "item": "tnt",
-      "restock_time": 600,
-      "max_count": 4,
-      "start_offset": 100
+      "item": "destroy_the_monument:tnt",
+      "restock_time": 200,
+      "max_count": 3,
+      "start_offset": 80
     }
   ]
 }

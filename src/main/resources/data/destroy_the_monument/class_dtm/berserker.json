@@ -5,7 +5,7 @@
   "attributes": {
     "generic.max_health": 18,
     "generic.movement_speed": 0.13,
-    "generic.armor": 4
+    "generic.armor": 3
   },
   "axe_tool": "air",
   "armor": [
