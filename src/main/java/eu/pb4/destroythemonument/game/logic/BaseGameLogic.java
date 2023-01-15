@@ -219,16 +219,28 @@ public abstract class BaseGameLogic {
 
     protected void onExplosion(Explosion explosion, boolean b) {
         for (BlockPos blockPos : explosion.getAffectedBlocks()) {
-            if (this.gameMap.world.getBlockState(blockPos).isIn(DTM.BUILDING_BLOCKS)) {
+            if (!this.gameMap.isUnbreakable(blockPos) && !this.gameMap.isActiveMonument(blockPos)) {
+                var state = this.gameMap.world.getBlockState(blockPos);
                 this.gameMap.world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
+
                 var owner = explosion.getEntity() instanceof DtmTntEntity dtmTnt ? dtmTnt.causingEntity : null;
 
                 if (owner != null && owner instanceof ServerPlayerEntity player) {
                     var data = this.participants.get(PlayerRef.of(player));
 
                     if (data != null) {
-                        player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
-                        data.brokenPlankBlocks += 1;
+                        if (state.isIn(DTM.BUILDING_BLOCKS)) {
+                            player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
+                            data.brokenPlankBlocks += 1;
+                        } else {
+                            if (state.calcBlockBreakingDelta(player, player.world, blockPos) < 1) {
+                                data.brokenNonPlankBlocks += 1;
+
+                                if (data.brokenNonPlankBlocks % data.activeClass.blocksToPlanks() == 0) {
+                                    player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
+                                }
+                            }
+                        }
                     }
                 }
             }

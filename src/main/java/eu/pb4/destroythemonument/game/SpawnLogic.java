@@ -23,6 +23,7 @@ public record SpawnLogic(GameSpace gameSpace, GameMap map,
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
         player.setInvisible(false);
         player.setNoGravity(false);
+        player.setFireTicks(0);
         player.changeGameMode(gameMode);
         player.setVelocity(Vec3d.ZERO);
         player.fallDistance = 0.0f;

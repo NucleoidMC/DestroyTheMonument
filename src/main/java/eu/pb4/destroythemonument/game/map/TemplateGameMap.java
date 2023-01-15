@@ -4,6 +4,7 @@ import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
+import eu.pb4.destroythemonument.game.map.generator.TemplateWithLayerGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -49,7 +50,7 @@ public final class TemplateGameMap extends GameMap {
     }
 
     public ChunkGenerator asGenerator(MinecraftServer server) {
-        return new TemplateChunkGenerator(server, this.template);
+        return config.startLayerAt().isPresent() ? new TemplateWithLayerGenerator(server, this.template, config.generatedLayer(), config.startLayerAt().get()) : new TemplateChunkGenerator(server, this.template);
     }
 
     public void setTeamRegions(GameTeamKey team, TeamData data, GameConfig config) {

@@ -10,14 +10,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class GameMap {
     public final MapConfig config;
@@ -25,21 +23,31 @@ public abstract class GameMap {
     protected final Set<BlockPos> taters  = new HashSet<>();
     protected final List<BlockPos> validSpawn = new ArrayList<>();
     protected final List<BlockBounds> destroyOnStart = new ArrayList<>();
-    public BlockBounds mapBounds;
-    public BlockBounds mapDeathBounds;
+    public final BlockBounds mapBounds;
+    public final BlockBounds mapDeathBounds;
     public ServerWorld world;
     public final List<Monument> monuments = new ArrayList<>();
+    private final Map<BlockPos, Monument> monumentsByPos = new HashMap<>();
 
 
     public GameMap(MapConfig config, BlockBounds mapBounds) {
         this.config = config;
         this.mapBounds = mapBounds;
-        this.mapDeathBounds = BlockBounds.of(this.mapBounds.min().mutableCopy().add(-5, -5, -5), this.mapBounds.max().mutableCopy().add(5, 5, 5));
+        var bottom = this.mapBounds.min().mutableCopy().add(-5, -5, -5);
+
+        if (config.deathPlane().isPresent()) {
+            bottom = bottom.withY(config.deathPlane().get());
+        }
+        this.mapDeathBounds = BlockBounds.of(bottom, this.mapBounds.max().mutableCopy().add(5, 5, 5));
     }
 
     public abstract ChunkGenerator asGenerator(MinecraftServer server);
 
     public boolean isUnbreakable(BlockPos block) {
+        if (!this.mapDeathBounds.contains(block) || !this.mapBounds.contains(block)) {
+            return true;
+        }
+
         for (BlockBounds bound : this.unbreakable) {
             if (bound.contains(block)) {
                 return true;
@@ -69,4 +77,21 @@ public abstract class GameMap {
     }
 
     public abstract void onGameStart(BaseGameLogic logic);
+
+    public void addMonument(Monument monument) {
+        this.monuments.add(monument);
+        this.monumentsByPos.put(monument.pos, monument);
+    }
+
+    public boolean isActiveMonument(BlockPos blockPos) {
+        var monument = this.monumentsByPos.get(blockPos);
+        return monument != null && monument.isAlive();
+    }
+
+    @Nullable
+    public Monument getActiveMonument(BlockPos pos) {
+        var m = this.monumentsByPos.get(pos);
+        return m != null && m.isAlive() ? m : null;
+    }
+
 }

@@ -75,25 +75,13 @@ public class TeamData {
             id++;
             this.monuments.add(monument);
             this.aliveMonuments.add(monument);
-            map.monuments.add(monument);
+            map.addMonument(monument);
         }
 
         this.monuments.sort(Comparator.comparing(a -> a.getName().getString()));
 
         this.classChange = classChange;
         this.monumentStartingCount = monuments.size();
-    }
-
-    @Nullable
-    public Monument breakMonument(BlockPos pos) {
-        for (var monument : this.aliveMonuments) {
-            if (monument.pos.equals(pos)) {
-                monument.setAlive(false);
-                return monument;
-            }
-        }
-
-        return null;
     }
 
     public boolean isAliveMonument(BlockPos pos) {

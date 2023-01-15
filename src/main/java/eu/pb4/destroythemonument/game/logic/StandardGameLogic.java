@@ -1,7 +1,9 @@
 package eu.pb4.destroythemonument.game.logic;
 
 import com.google.common.collect.Multimap;
-import eu.pb4.destroythemonument.game.*;
+import eu.pb4.destroythemonument.game.DtmStatistics;
+import eu.pb4.destroythemonument.game.GameConfig;
+import eu.pb4.destroythemonument.game.Teams;
 import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
@@ -26,7 +28,6 @@ import xyz.nucleoid.plasmid.game.GameActivity;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.util.PlayerRef;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,33 +76,31 @@ public class StandardGameLogic extends BaseGameLogic {
     @Override
     protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
+        var monument = this.gameMap.getActiveMonument(blockPos);
 
-        if (playerData != null) {
-            if (playerData.teamData.isAliveMonument(blockPos)) {
+        if (playerData != null && monument != null) {
+            if (monument.teamData == playerData.teamData) {
                 player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
                 return ActionResult.FAIL;
             } else {
-                for (var teamData : this.teams) {
-                    if (teamData.isAliveMonument(blockPos)) {
-                        var monument = teamData.breakMonument(blockPos);
+                monument.setAlive(false);
 
-                        Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
-                                FormattingUtil.GENERAL_STYLE,
-                                DtmUtil.getText("message", "monument_broken",
-                                        player.getDisplayName(),
-                                        DtmUtil.getTeamText(teamData),
-                                        monument.getName()
-                                ));
+                Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
+                        FormattingUtil.GENERAL_STYLE,
+                        DtmUtil.getText("message", "monument_broken",
+                                player.getDisplayName(),
+                                DtmUtil.getTeamText(monument.teamData),
+                                monument.getName()
+                        ));
 
-                        this.gameSpace.getPlayers().sendMessage(text);
-                        this.maybeEliminate(teamData);
-                        this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
-                        this.teams.getManager().playersIn(teamData.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
-                        playerData.brokenMonuments += 1;
-                        this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
-                        return ActionResult.SUCCESS;
-                    }
-                }
+                this.gameSpace.getPlayers().sendMessage(text);
+                this.maybeEliminate(monument.teamData);
+                this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
+                this.teams.getManager().playersIn(monument.teamData.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
+                playerData.brokenMonuments += 1;
+                this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
+                return ActionResult.SUCCESS;
+
             }
         }
 

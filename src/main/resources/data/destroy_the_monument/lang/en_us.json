@@ -58,6 +58,7 @@
   "ui.destroy_the_monument.join_selector.play": "Join the game",
   "ui.destroy_the_monument.join_selector.spectate": "Stay as spectator",
 
+  "map.destroy_the_monument.concrete": "Destroy The Monument: Concrete",
   "map.destroy_the_monument.cubes": "Destroy The Monument: Cubes",
   "map.destroy_the_monument.honey": "Destroy The Monument: Honey",
   "map.destroy_the_monument.kupol": "Destroy The Monument: Kupol",
@@ -67,6 +68,7 @@
   "map.destroy_the_monument.dimensions": "Destroy The Monument: Dimensions",
   "map.destroy_the_monument.mine": "Destroy The Monument: Mine",
 
+  "map.destroy_the_monument.concrete.short": "DTM: Concrete",
   "map.destroy_the_monument.cubes.short": "DTM: Cubes",
   "map.destroy_the_monument.honey.short": "DTM: Honey",
   "map.destroy_the_monument.kupol.short": "DTM: Kupol",

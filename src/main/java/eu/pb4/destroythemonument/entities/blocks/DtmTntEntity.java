@@ -207,7 +207,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
 
     private void explode() {
         this.discard();
-        this.world.createExplosion(this, DamageSource.explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 4.0F, false, World.ExplosionSourceType.TNT);
+        this.world.createExplosion(this, DamageSource.explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2F, false, World.ExplosionSourceType.TNT);
     }
 
     protected float getEyeHeight(EntityPose pose, EntityDimensions dimensions) {
