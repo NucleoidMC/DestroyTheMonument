@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.items;
 
-import eu.pb4.destroythemonument.entities.blocks.DtmTntEntity;
+import eu.pb4.destroythemonument.entities.DtmTntEntity;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;

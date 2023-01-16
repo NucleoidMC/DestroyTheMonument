@@ -35,9 +35,9 @@
     },
     {
       "item": "destroy_the_monument:tnt",
-      "restock_time": 200,
+      "restock_time": 400,
       "max_count": 3,
-      "start_offset": 80
+      "start_offset": 100
     }
   ]
 }

@@ -1,11 +1,8 @@
-package eu.pb4.destroythemonument.entities.blocks;
+package eu.pb4.destroythemonument.entities;
 
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;

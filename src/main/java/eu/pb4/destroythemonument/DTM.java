@@ -1,7 +1,7 @@
 package eu.pb4.destroythemonument;
 
 import eu.pb4.destroythemonument.blocks.DtmBlocks;
-import eu.pb4.destroythemonument.entities.blocks.DtmEntities;
+import eu.pb4.destroythemonument.entities.DtmEntities;
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.items.DtmItems;

@@ -104,7 +104,8 @@ public record PlayerClass(
 
     public void maybeRestockPlayer(ServerPlayerEntity player, PlayerData playerData) {
         for (RestockableItem ri : this.restockableItems) {
-            if (playerData.restockTimers.getInt(ri) >= ri.restockTime && player.getInventory().count(ri.itemStack.getItem()) < ri.maxCount) {
+            var timer = playerData.restockTimers.getInt(ri);
+            if (timer >= ri.restockTime && player.getInventory().count(ri.itemStack.getItem()) < ri.maxCount) {
                 ItemStack stack = ri.itemStack.copy();
                 player.getInventory().insertStack(stack);
                 playerData.restockTimers.put(ri, 0);
