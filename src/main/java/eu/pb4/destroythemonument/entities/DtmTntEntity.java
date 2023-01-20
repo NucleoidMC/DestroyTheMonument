@@ -140,7 +140,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             this.setVelocity(this.getVelocity().add(0.0D, -0.04D, 0.0D));
         }
 
-        if (this.age > 10 && this.hitBlock) {
+        if (this.age > 1 && this.hitBlock) {
             var bb = this.getBoundingBox().stretch(this.getVelocity());
 
             for (var blockPos : BlockPos.iterateOutwards(this.getBlockPos(), 1, 1, 1)) {
@@ -177,7 +177,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             this.updateWaterState();
         }
 
-        if (this.age > 10 && this.hitEntity) {
+        if (this.age > 1 && this.hitEntity) {
             for (var entity : this.world.getOtherEntities(this, this.getBoundingBox())) {
                 this.onEntityHit(entity);
                 return;
@@ -220,7 +220,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     private void explode() {
         this.discard();
 
-        var explosion = new CustomExplosion(this.world, this, DamageSource.explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2f, false, Explosion.DestructionType.DESTROY);
+        var explosion = new CustomExplosion(this.world, this, DamageSource.explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
         explosion.collectBlocksAndDamageEntities();
         explosion.affectWorld(true);
 
