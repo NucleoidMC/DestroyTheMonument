@@ -9,11 +9,11 @@
   },
   "icon": "chiseled_stone_bricks",
   "description": [
-    "<yellow><lang:'description.destroy_the_monument.general.1'>",
-    "<yellow><lang:'description.destroy_the_monument.general.2'>",
-    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "<lang:'description.destroy_the_monument.general.1'>",
+    "<lang:'description.destroy_the_monument.general.2'>",
+    "<lang:'description.destroy_the_monument.general.3'>",
     "",
-    "<yellow><lang:'description.destroy_the_monument.kuber'>",
+    "<lang:'description.destroy_the_monument.kuber'>",
     "<green><lang:'description.destroy_the_monument.general.map':'<white>Sockfriends'>"
   ],
   "map": {

@@ -8,9 +8,9 @@
     "text": "DTM: Debug"
   },
   "description": [
-    "<yellow><lang:'description.destroy_the_monument.general.1'>",
-    "<yellow><lang:'description.destroy_the_monument.general.2'>",
-    "<yellow><lang:'description.destroy_the_monument.general.3'>",
+    "<lang:'description.destroy_the_monument.general.1'>",
+    "<lang:'description.destroy_the_monument.general.2'>",
+    "<lang:'description.destroy_the_monument.general.3'>",
     "",
     "<red>This is a debug config, not playable!"
   ],
