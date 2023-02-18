@@ -44,7 +44,7 @@
       "name": "Blue",
       "color": "blue"
     }
-],
+  ],
   "kits": [
     "destroy_the_monument:warrior",
     "destroy_the_monument:archer",

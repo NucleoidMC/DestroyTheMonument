@@ -50,11 +50,7 @@ public class ClassPreviewUI extends SimpleGui {
         pos = 0;
 
         var b = new GuiElementBuilder(Items.NAME_TAG)
-                .setName(DtmUtil.getText("ui", "stats").setStyle(Style.EMPTY.withBold(true).withFormatting(Formatting.GOLD)))
-
-                .setCallback((x, y, z) -> {
-                    this.close();
-                });
+                .setName(DtmUtil.getText("ui", "stats").setStyle(Style.EMPTY.withBold(true).withFormatting(Formatting.GOLD)));
 
         for (var x : playerClass.attributes().entrySet()) {
             String num;
@@ -77,14 +73,14 @@ public class ClassPreviewUI extends SimpleGui {
         this.setSlot(this.size - 1, new GuiElementBuilder(Items.BARRIER)
                 .setName(DtmUtil.getText("ui", "return_selector").setStyle(Style.EMPTY.withItalic(false)))
                 .setCallback((x, y, z) -> {
-                    this.close();
+                    this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
+                    selectorUI.open();
                 })
         );
     }
 
     @Override
     public void onClose() {
-        this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
         selectorUI.open();
         super.onClose();
     }

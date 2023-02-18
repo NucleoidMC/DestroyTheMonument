@@ -55,7 +55,7 @@ public class Teams implements Iterable<TeamData> {
         }
 
         this.teamConfigs.put(team, GameTeamConfig.builder(teamConfig)
-                .setFriendlyFire(false)
+                .setFriendlyFire(true)
                 .setCollision(AbstractTeam.CollisionRule.PUSH_OWN_TEAM).build());
         TeamData teamData = new TeamData(team, this);
         this.map.setTeamRegions(team, teamData, config);

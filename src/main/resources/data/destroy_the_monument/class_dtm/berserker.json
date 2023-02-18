@@ -3,7 +3,7 @@
   "icon": "iron_axe",
   "pickaxe_tool": "diamond_pickaxe",
   "attributes": {
-    "generic.max_health": 18,
+    "generic.max_health": 20,
     "generic.movement_speed": 0.13,
     "generic.armor": 3
   },

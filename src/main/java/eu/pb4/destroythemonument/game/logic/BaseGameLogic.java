@@ -17,9 +17,8 @@ import eu.pb4.destroythemonument.other.FormattingUtil;
 import eu.pb4.destroythemonument.other.MarkedPacket;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.destroythemonument.ui.PlayOrSpectateUI;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -43,7 +42,6 @@ import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
@@ -92,9 +90,9 @@ public abstract class BaseGameLogic {
     public final Teams teams;
     public final ArrayList<PlayerClass> kits = new ArrayList<>();
     public final GameStatisticBundle statistics;
-    protected final PlayerClass defaultKit;
+    public final PlayerClass defaultKit;
     protected final SpawnLogic spawnLogic;
-    protected final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
+    public final Sidebar globalSidebar = new Sidebar(Sidebar.Priority.MEDIUM);
     public long tickTime = 0;
     public boolean isFinished = false;
     public MapRenderer mapRenderer;
@@ -218,6 +216,9 @@ public abstract class BaseGameLogic {
         for (BlockPos blockPos : explosion.getAffectedBlocks()) {
             if (!this.gameMap.isUnbreakable(blockPos) && !this.gameMap.isActiveMonument(blockPos)) {
                 var state = this.gameMap.world.getBlockState(blockPos);
+                if (state.isAir()) {
+                    continue;
+                }
                 this.gameMap.world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
 
                 var owner = explosion.getEntity() instanceof DtmTntEntity dtmTnt ? dtmTnt.causingEntity : null;
@@ -296,7 +297,7 @@ public abstract class BaseGameLogic {
         } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket && PolymerEntityUtils.getEntityContext(packet) instanceof ServerPlayerEntity target) {
             var data = this.participants.get(PlayerRef.of(player));
             var data2 = this.participants.get(PlayerRef.of(target));
-            if (data != null && data2 != null && data2.teamData.team != data2.teamData.team) {
+            if (data != null && data2 != null && data.teamData.team != data2.teamData.team) {
                 trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
             }
         }
@@ -329,42 +330,8 @@ public abstract class BaseGameLogic {
     protected void addPlayer(ServerPlayerEntity player) {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
             if (this.config.allowJoiningInGame() && this.participants.size() < this.config.players().maxPlayers()) {
-                var gui = new SimpleGui(ScreenHandlerType.GENERIC_9X3, player, false);
-                gui.setTitle(DtmUtil.getText("ui", "join_selector.title"));
-                gui.setSlot(11, new GuiElementBuilder(Items.DIAMOND_SWORD)
-                        .setName(DtmUtil.getText("ui", "join_selector.play").formatted(Formatting.GOLD))
-                        .hideFlags()
-                        .setCallback((x, y, z, p) -> {
-                            this.globalSidebar.removePlayer(player);
-                            gui.close();
-
-                            GameTeamKey team = this.teams.getSmallestTeam();
-                            PlayerData playerData = new PlayerData(this.defaultKit);
-                            playerData.teamData = this.teams.getData(team);
-                            this.participants.put(PlayerRef.of(player), playerData);
-                            this.teams.addPlayer(player, team);
-                            this.setPlayerSidebar(player, playerData);
-                            this.spawnParticipant(player);
-                        }));
-
-                gui.setSlot(15, new GuiElementBuilder(Items.ENDER_EYE)
-                        .hideFlags()
-                        .setName(DtmUtil.getText("ui", "join_selector.spectate").formatted(Formatting.GOLD))
-                        .setCallback((x, y, z, p) -> {
-                            gui.close();
-                        }));
-
-
-                var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty()).asStack();
-
-                for (int x = 0; x < 9; x++) {
-                    gui.setSlot(x, empty);
-                    gui.setSlot(x + 18, empty);
-                }
-                gui.setSlot(9, empty);
-                gui.setSlot(17, empty);
-
-                gui.open();
+                this.globalSidebar.addPlayer(player);
+                PlayOrSpectateUI.open(player, this);
             }
             this.spawnSpectator(player);
         } else {
@@ -374,6 +341,17 @@ public abstract class BaseGameLogic {
         if (this.timerBar != null) {
             this.timerBar.addPlayer(player);
         }
+    }
+
+    public void addNewParticipant(ServerPlayerEntity player) {
+        this.globalSidebar.removePlayer(player);
+        GameTeamKey team = this.teams.getSmallestTeam();
+        PlayerData playerData = new PlayerData(this.defaultKit);
+        playerData.teamData = this.teams.getData(team);
+        this.participants.put(PlayerRef.of(player), playerData);
+        this.teams.addPlayer(player, team);
+        this.setPlayerSidebar(player, playerData);
+        this.spawnParticipant(player);
     }
 
     protected void removePlayer(ServerPlayerEntity player) {
@@ -396,10 +374,19 @@ public abstract class BaseGameLogic {
             return ActionResult.FAIL;
         }
 
-        if (source.getAttacker() instanceof ServerPlayerEntity) {
+        if (source.getAttacker() instanceof ServerPlayerEntity attacker) {
+            var attackerData = this.participants.get(PlayerRef.of(attacker));
+            if (attackerData != null || attacker == player) {
+                return ActionResult.PASS;
+            }
+
+            if (attackerData.teamData == dtmPlayer.teamData) {
+                return ActionResult.FAIL;
+            }
+
             dtmPlayer.lastAttackTime = player.world.getTime();
-            dtmPlayer.lastAttacker = (ServerPlayerEntity) source.getAttacker();
-            this.statistics.forPlayer((ServerPlayerEntity) source.getAttacker()).increment(StatisticKeys.DAMAGE_DEALT, amount);
+            dtmPlayer.lastAttacker = attacker;
+            this.statistics.forPlayer(attacker).increment(StatisticKeys.DAMAGE_DEALT, amount);
             this.statistics.forPlayer(player).increment(StatisticKeys.DAMAGE_TAKEN, amount);
         }
 
@@ -478,7 +465,7 @@ public abstract class BaseGameLogic {
         }
     }
 
-    protected void spawnParticipant(ServerPlayerEntity player) {
+    public void spawnParticipant(ServerPlayerEntity player) {
         player.closeHandledScreen();
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         if (playerData != null && playerData.teamData.aliveMonuments.size() > 0) {
@@ -658,7 +645,7 @@ public abstract class BaseGameLogic {
 
     protected abstract void onTick(TickType type, long tick);
 
-    protected abstract void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData);
+    public abstract void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData);
 
     protected abstract void buildSidebar();
 
@@ -718,7 +705,6 @@ public abstract class BaseGameLogic {
     }
 
     public abstract WinResult checkWinResult();
-
 
     public enum TickType {
         CONTINUE_TICK,

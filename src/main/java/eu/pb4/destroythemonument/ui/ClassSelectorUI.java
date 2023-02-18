@@ -91,7 +91,6 @@ public class ClassSelectorUI extends SimpleGui {
                     changeKit(this.game, this.player, this.playerData, kit);
                 } else if (clickType.isRight) {
                     this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
-                    this.close();
                     new ClassPreviewUI(this, kit).open();
                 }
                 this.updateIcons();

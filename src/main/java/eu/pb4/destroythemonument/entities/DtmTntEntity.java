@@ -1,6 +1,7 @@
 package eu.pb4.destroythemonument.entities;
 
 import com.google.common.collect.Sets;
+import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.block.BlockState;
@@ -300,8 +301,9 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
                                 }
 
                                 Optional<Float> optional = this.behavior.getBlastResistance(this, this.world, blockPos, blockState, fluidState);
+
                                 if (optional.isPresent()) {
-                                    h -= (optional.get() + 0.3F) * 0.3F;
+                                    h -= (blockState.isIn(DTM.BUILDING_BLOCKS) ? 0.8 : Math.max(2.6f, optional.get()));
                                 }
 
                                 if (h > 0.0F && this.behavior.canDestroyBlock(this, this.world, blockPos, blockState, h)) {
@@ -327,7 +329,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             int u = MathHelper.floor(this.z + (double) q + 1.0D);
             List<Entity> list = this.world.getOtherEntities(this.entity, new Box(k, r, t, l, s, u));
             Vec3d vec3d = new Vec3d(this.x, this.y, this.z);
-
+            var damageSource = this.getDamageSource();
             for (int v = 0; v < list.size(); ++v) {
                 Entity entity = list.get(v);
                 if (!entity.isImmuneToExplosion()) {
@@ -343,14 +345,16 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
                             z /= aa;
                             double ab = getExposure(vec3d, entity);
                             double ac = (1.0D - w) * ab;
-                            entity.damage(this.getDamageSource(), (float) ((int) ((ac * ac + ac) / 2.0D * 3.2D * (double) q + 1.0D)));
-                            double ad = ac * 1.6;
+                            var damaged = entity.damage(damageSource, (float) ((int) ((ac * ac + ac) / 2.0D * 3.2D * (double) q + 1.0D) * (damageSource.getAttacker() == entity ? 0.25 : 1)));
+                            if (damaged) {
+                                double ad = ac * 1.4;
 
-                            entity.setVelocity(entity.getVelocity().add(x * ad, y * ad, z * ad));
-                            if (entity instanceof PlayerEntity) {
-                                PlayerEntity playerEntity = (PlayerEntity) entity;
-                                if (!playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
-                                    this.getAffectedPlayers().put(playerEntity, new Vec3d(x * ac, y * ac, z * ac));
+                                entity.setVelocity(entity.getVelocity().add(x * ad, y * ad, z * ad));
+                                if (entity instanceof PlayerEntity) {
+                                    PlayerEntity playerEntity = (PlayerEntity) entity;
+                                    if (!playerEntity.isSpectator() && (!playerEntity.isCreative() || !playerEntity.getAbilities().flying)) {
+                                        this.getAffectedPlayers().put(playerEntity, new Vec3d(x * ac, y * ac, z * ac));
+                                    }
                                 }
                             }
                         }

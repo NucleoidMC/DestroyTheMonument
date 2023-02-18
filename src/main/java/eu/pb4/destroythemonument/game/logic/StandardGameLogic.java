@@ -109,7 +109,7 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     @Override
-    protected void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData) {
+    public void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData) {
         playerData.sidebar = this.globalSidebar;
         this.globalSidebar.addPlayer(player);
     }

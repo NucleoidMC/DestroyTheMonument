@@ -5,7 +5,7 @@
     "generic.max_health": 24,
     "generic.movement_speed": 0.105,
     "generic.knockback_resistance": 0.12,
-    "generic.armor": 13
+    "generic.armor": 14
   },
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": "iron_axe",
@@ -25,14 +25,8 @@
     {
       "item": "cooked_beef",
       "restock_time": 800,
-      "max_count": 5,
-      "start_count": 3
-    },
-    {
-      "item": "cooked_beef",
-      "restock_time": 800,
-      "max_count": 5,
-      "start_count": 3
+      "max_count": 6,
+      "start_count": 4
     },
     {
       "item": "destroy_the_monument:multi_block",

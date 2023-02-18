@@ -4,7 +4,7 @@
   "attributes": {
     "generic.max_health": 18,
     "generic.movement_speed": 0.13,
-    "generic.armor": 8
+    "generic.armor": 9
   },
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": "iron_axe",
