@@ -376,7 +376,7 @@ public abstract class BaseGameLogic {
 
         if (source.getAttacker() instanceof ServerPlayerEntity attacker) {
             var attackerData = this.participants.get(PlayerRef.of(attacker));
-            if (attackerData != null || attacker == player) {
+            if (attackerData == null || attacker == player) {
                 return ActionResult.PASS;
             }
 
