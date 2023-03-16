@@ -1,6 +1,6 @@
 package eu.pb4.destroythemonument.other;
 
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 
 public interface MarkedPacket {
     boolean dtm_isMarked();

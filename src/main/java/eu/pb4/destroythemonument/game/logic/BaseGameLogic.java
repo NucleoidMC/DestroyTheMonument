@@ -37,7 +37,8 @@ import net.minecraft.item.ArrowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
-import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -275,7 +276,33 @@ public abstract class BaseGameLogic {
             return ActionResult.PASS;
         }
 
-        if (packet instanceof EntityEquipmentUpdateS2CPacket equipmentUpdate) {
+        var x = transformPacket(player, packet);
+
+        if (x == null) {
+            return ActionResult.FAIL;
+        } else if (x == packet) {
+            return ActionResult.PASS;
+        } else {
+            player.networkHandler.sendPacket(MarkedPacket.mark(x));
+            return ActionResult.FAIL;
+        }
+    }
+
+
+    protected Packet<ClientPlayPacketListener> transformPacket(ServerPlayerEntity player, Packet<?> packet) {
+        if (packet instanceof BundleS2CPacket bundleS2CPacket) {
+            var list = new ArrayList<Packet<ClientPlayPacketListener>>();
+
+            for (var x : bundleS2CPacket.getPackets()) {
+                var y = transformPacket(player, x);
+
+                if (y != null) {
+                    list.add(y);
+                }
+            }
+
+            return new BundleS2CPacket(list);
+        } else if (packet instanceof EntityEquipmentUpdateS2CPacket equipmentUpdate) {
             var list = new ArrayList<Pair<EquipmentSlot, ItemStack>>();
             boolean cancel = false;
 
@@ -290,9 +317,9 @@ public abstract class BaseGameLogic {
 
             if (cancel) {
                 if (list.size() > 0) {
-                    player.networkHandler.sendPacket(MarkedPacket.mark(new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list)));
+                    return new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list);
                 }
-                return ActionResult.FAIL;
+                return null;
             }
         } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket && PolymerEntityUtils.getEntityContext(packet) instanceof ServerPlayerEntity target) {
             var data = this.participants.get(PlayerRef.of(player));
@@ -301,8 +328,7 @@ public abstract class BaseGameLogic {
                 trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
             }
         }
-
-        return ActionResult.PASS;
+        return (Packet<ClientPlayPacketListener>) packet;
     }
 
     protected void onOpen() {

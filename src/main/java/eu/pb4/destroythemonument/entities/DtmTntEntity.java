@@ -221,7 +221,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     private void explode() {
         this.discard();
 
-        var explosion = new CustomExplosion(this.world, this, DamageSource.explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
+        var explosion = new CustomExplosion(this.world, this, this.world.getDamageSources().explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
         explosion.collectBlocksAndDamageEntities();
         explosion.affectWorld(true);
 
@@ -293,7 +293,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
                             double o = this.z;
 
                             for (float var21 = 0.3F; h > 0.0F; h -= 0.22500001F) {
-                                BlockPos blockPos = new BlockPos(m, n, o);
+                                BlockPos blockPos = BlockPos.ofFloored(m, n, o);
                                 BlockState blockState = this.world.getBlockState(blockPos);
                                 FluidState fluidState = this.world.getFluidState(blockPos);
                                 if (!this.world.isInBuildLimit(blockPos)) {
