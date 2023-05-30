@@ -1,0 +1,50 @@
+{
+  "type": "destroy_the_monument:destroy_the_monument",
+  "gamemode": "capture",
+  "map": {
+    "id": "destroy_the_monument:cubes2",
+    "author": "Patbox",
+    "layer_start": 44,
+    "generated_layer": [
+      "obsidian",
+      "lava"
+    ],
+    "death_plane": 48
+  },
+  "players": {
+    "min": 1,
+    "threshold": 6,
+    "max": 32
+  },
+  "allowJoiningInGame": true,
+  "gameTime": 24000,
+  "tickRespawnTime": 40,
+  "teams": [
+    {
+      "key": "red",
+      "name": "Red",
+      "color": "red"
+    },
+    {
+      "key": "blue",
+      "name": "Blue",
+      "color": "blue"
+    }
+  ],
+  "kits": [
+    "destroy_the_monument:warrior",
+    "destroy_the_monument:archer",
+    "destroy_the_monument:constructor",
+    "destroy_the_monument:tank",
+    "destroy_the_monument:berserker"
+  ],
+
+  "monument_renames": {
+    "red.west": "monument.destroy_the_monument.generic.west",
+    "red.east": "monument.destroy_the_monument.generic.east",
+    "red.center": "monument.destroy_the_monument.generic.central",
+    "blue.west": "monument.destroy_the_monument.generic.west",
+    "blue.east": "monument.destroy_the_monument.generic.east",
+    "blue.center": "monument.destroy_the_monument.generic.central"
+  }
+}

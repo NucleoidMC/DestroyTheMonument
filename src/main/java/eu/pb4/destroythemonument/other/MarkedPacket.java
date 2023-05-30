@@ -12,7 +12,7 @@ public interface MarkedPacket {
         if (packet instanceof MarkedPacket markedPacket) {
             return markedPacket.dtm_isMarked();
         }
-        return false;
+        return true;
     }
 
     static <T extends Packet<?>> T mark(T packet) {

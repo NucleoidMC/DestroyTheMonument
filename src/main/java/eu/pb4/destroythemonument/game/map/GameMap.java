@@ -27,7 +27,9 @@ public abstract class GameMap {
     public final BlockBounds mapDeathBounds;
     public ServerWorld world;
     public final List<Monument> monuments = new ArrayList<>();
+    public final List<BlockBounds> monumentRegionBounds = new ArrayList<>();
     private final Map<BlockPos, Monument> monumentsByPos = new HashMap<>();
+    public List<Monument> teamLessMonuments = new ArrayList<>();
 
 
     public GameMap(MapConfig config, BlockBounds mapBounds) {
@@ -39,6 +41,7 @@ public abstract class GameMap {
             bottom = bottom.withY(config.deathPlane().get());
         }
         this.mapDeathBounds = BlockBounds.of(bottom, this.mapBounds.max().mutableCopy().add(5, 5, 5));
+
     }
 
     public abstract ChunkGenerator asGenerator(MinecraftServer server);
@@ -81,6 +84,10 @@ public abstract class GameMap {
     public void addMonument(Monument monument) {
         this.monuments.add(monument);
         this.monumentsByPos.put(monument.pos, monument);
+
+        if (monument.teamData == null) {
+            this.teamLessMonuments.add(monument);
+        }
     }
 
     public boolean isActiveMonument(BlockPos blockPos) {
@@ -94,4 +101,22 @@ public abstract class GameMap {
         return m != null && m.isAlive() ? m : null;
     }
 
+    @Nullable
+    public BlockBounds getMonumentRegionBounds(BlockPos pos) {
+        for (var x : monumentRegionBounds) {
+            if (x.contains(pos)) {
+                return x;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public BlockBounds getMonumentRegionBounds(Monument monument) {
+        return getMonumentRegionBounds(monument.pos);
+    }
+
+    public void loadCaptureGamemodeData(GameConfig config) {
+
+    }
 }

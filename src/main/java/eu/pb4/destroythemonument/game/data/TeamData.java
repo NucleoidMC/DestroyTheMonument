@@ -50,28 +50,7 @@ public class TeamData {
         int id = 0;
 
         for (var region : monuments) {
-            var pos = region.getBounds().min();
-
-            var name = "" + id;
-            if (region.getData().contains("id", NbtElement.STRING_TYPE)) {
-                name = region.getData().getString("id");
-            }
-
-            Text nameText = null;
-            if (region.getData().contains("lang", NbtElement.STRING_TYPE)) {
-                nameText = Text.translatable(region.getData().getString("lang"));
-            } else if (config.monumentRemaps().isPresent()) {
-                var key = config.monumentRemaps().get().get(this.team.id() + "." + name);
-
-                if (key != null) {
-                    nameText = Text.translatable(key);
-                }
-            }
-
-            if (nameText == null) {
-                nameText = Text.translatable(Util.createTranslationKey("monument", map.config.id()) + "." + this.team.id() + "." + name);
-            }
-            var monument = new Monument(name, this, pos, map, nameText);
+            var monument = Monument.createFrom(config, map, region,  this.team.id() + "." + id, this.team.id() + ".", this);
             id++;
             this.monuments.add(monument);
             this.aliveMonuments.add(monument);
@@ -92,5 +71,20 @@ public class TeamData {
         }
 
         return false;
+    }
+
+    public void removeMonument(Monument monument) {
+        this.monuments.remove(monument);
+        this.aliveMonuments.remove(monument);
+        this.brokenMonuments.remove(monument);
+    }
+
+    public void addMonument(Monument monument) {
+        this.monuments.add(monument);
+        if (monument.isAlive()) {
+            this.aliveMonuments.add(monument);
+        } else {
+            this.brokenMonuments.add(monument);
+        }
     }
 }

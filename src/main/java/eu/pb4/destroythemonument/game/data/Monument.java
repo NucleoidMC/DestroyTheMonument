@@ -1,13 +1,18 @@
 package eu.pb4.destroythemonument.game.data;
 
+import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.map.GameMap;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.map_templates.TemplateRegion;
 
 public class Monument {
     public final String id;
-    public final TeamData teamData;
+    @Nullable
+    public TeamData teamData;
     public final BlockPos pos;
     private final GameMap map;
     private final Text name;
@@ -19,6 +24,31 @@ public class Monument {
         this.pos = pos;
         this.map = map;
         this.name = name;
+    }
+
+    public static Monument createFrom(GameConfig config, GameMap map, TemplateRegion region, String defaultId, String idPrefix, @Nullable TeamData teamData) {
+        var pos = region.getBounds().min();
+
+        var name = defaultId;
+        if (region.getData().contains("id", NbtElement.STRING_TYPE)) {
+            name = idPrefix + region.getData().getString("id");
+        }
+
+        Text nameText = null;
+        if (region.getData().contains("lang", NbtElement.STRING_TYPE)) {
+            nameText = Text.translatable(region.getData().getString("lang"));
+        } else if (config.monumentRemaps().isPresent()) {
+            var key = config.monumentRemaps().get().get(name);
+
+            if (key != null) {
+                nameText = Text.translatable(key);
+            }
+        }
+
+        if (nameText == null) {
+            nameText = Text.translatable(Util.createTranslationKey("monument", config.map().id()) + "." + name);
+        }
+        return new Monument(name, teamData, pos, map, nameText);
     }
 
 

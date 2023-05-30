@@ -3,6 +3,7 @@ package eu.pb4.destroythemonument.game;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import eu.pb4.destroythemonument.game.data.PlayerData;
+import eu.pb4.destroythemonument.game.logic.CaptureGameLogic;
 import eu.pb4.destroythemonument.game.map.GeneratedGameMap;
 import eu.pb4.destroythemonument.game.map.TemplateGameMap;
 import eu.pb4.destroythemonument.game.logic.DebugGameLogic;
@@ -70,6 +71,10 @@ public class WaitingLobby {
                 map = GeneratedGameMap.create(context.server(), config.map());
             } else {
                 map = TemplateGameMap.create(context.server(), config.map());
+
+                if (config.gamemode().equals("capture")) {
+                    map.loadCaptureGamemodeData(config);
+                }
             }
         } catch (Exception e) {
             throw new GameOpenException(Text.literal("Map couldn't load! @Patbox pls fix"), e);
@@ -122,6 +127,9 @@ public class WaitingLobby {
         switch (this.config.gamemode()) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
+                break;
+            case "capture":
+                CaptureGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
                 break;
             case "debug":
                 DebugGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);

@@ -224,7 +224,7 @@ public abstract class BaseGameLogic {
 
                 var owner = explosion.getEntity() instanceof DtmTntEntity dtmTnt ? dtmTnt.causingEntity : null;
 
-                if (owner != null && owner instanceof ServerPlayerEntity player) {
+                if (owner instanceof ServerPlayerEntity player) {
                     var data = this.participants.get(PlayerRef.of(player));
 
                     if (data != null) {
@@ -316,10 +316,7 @@ public abstract class BaseGameLogic {
             }
 
             if (cancel) {
-                if (list.size() > 0) {
-                    return new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list);
-                }
-                return null;
+                return new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list);
             }
         } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket && PolymerEntityUtils.getEntityContext(packet) instanceof ServerPlayerEntity target) {
             var data = this.participants.get(PlayerRef.of(player));

@@ -6,10 +6,14 @@ import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.block.Block;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Util;
 import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.GameType;
 import net.minecraft.util.Identifier;
@@ -19,6 +23,7 @@ import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.WaitingLobby;
 
 import java.util.Random;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 public class DTM implements ModInitializer {
@@ -27,6 +32,10 @@ public class DTM implements ModInitializer {
     public static final Random RANDOM = new Random();
     public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("spawnable"));
     public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("building_blocks"));
+    public static final Set<Block> CONCRETE = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+    public static final Set<Block> STAINED_GLASS = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+    public static final Set<Block> STAINED_GLASS_PANES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+
 
     public static final GameType<GameConfig> TYPE = GameType.register(
             new Identifier(ID, ID),
@@ -42,5 +51,16 @@ public class DTM implements ModInitializer {
         DtmBlocks.register();
         DtmEntities.register();
         ClassRegistry.register();
+        ServerLifecycleEvents.SERVER_STARTING.register((s) -> {
+            Registries.BLOCK.forEach(x -> {
+                if (Registries.BLOCK.getId(x).getPath().endsWith("_concrete")) {
+                    CONCRETE.add(x);
+                } else if (Registries.BLOCK.getId(x).getPath().endsWith("_stained_glass")) {
+                    STAINED_GLASS.add(x);
+                } else if (Registries.BLOCK.getId(x).getPath().endsWith("_stained_glass_panes")) {
+                    STAINED_GLASS_PANES.add(x);
+                }
+            });
+        });
     }
 }

@@ -23,7 +23,10 @@
   "message.destroy_the_monument.class_respawn": "You will change to it after you respawn.",
   "message.destroy_the_monument.about": " Destroy enemy's monuments, while protecting\n your own!\n You can select your class by clicking paper.",
   "message.destroy_the_monument.cant_break_own": "You can't break your own monument!",
+  "message.destroy_the_monument.cant_capture_own": "You can't capture your own monument!",
   "message.destroy_the_monument.monument_broken": "%s broke %s's %s!",
+  "message.destroy_the_monument.monument_captured": "%s captured %s!",
+  "message.destroy_the_monument.monument_captured.takeover": "%s captured %s's %s!",
   "message.destroy_the_monument.respawn_time": "Respawning in... %s",
   "message.destroy_the_monument.game_end.winner": "%s has won the game!",
   "message.destroy_the_monument.game_end.no_winner": "The game ended with a draw!",
@@ -36,6 +39,7 @@
   "sidebar.destroy_the_monument.eliminated": "Eliminated!",
   "sidebar.destroy_the_monument.time": "Time: %s",
   "sidebar.destroy_the_monument.standard_title": "Destroy The Monument",
+  "sidebar.destroy_the_monument.capture_title": "Capture The Monument",
   "sidebar.destroy_the_monument.stats": "🗡: %s ☠: %s ⛏: %s",
 
 
@@ -43,6 +47,10 @@
   "description.destroy_the_monument.general.2": "while protecting your own!",
   "description.destroy_the_monument.general.3": "The last team standing wins!",
   "description.destroy_the_monument.general.map": "Map by: %s",
+
+  "description.destroy_the_monument.capture.1": "Capture enemy's monuments,",
+  "description.destroy_the_monument.capture.2": "while protecting your own!",
+  "description.destroy_the_monument.capture.3": "The team with most monuments wins!",
 
   "description.destroy_the_monument.kuber": "This map is a remake of Cubes",
 
@@ -93,5 +101,7 @@
   "monument.destroy_the_monument.dimensions.overworld.south": "Frozen Monument",
 
   "statistic.bundle.destroy_the_monument": "Destroy The Monument",
-  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed"
+  "statistic.bundle.destroy_the_monument.capture": "Capture The Monument",
+  "statistic.destroy_the_monument.monuments_destroyed": "Monuments destroyed",
+  "statistic.destroy_the_monument.monuments_captured": "Monuments captured"
 }
