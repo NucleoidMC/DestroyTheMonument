@@ -14,7 +14,6 @@ import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
-import eu.pb4.destroythemonument.other.MarkedPacket;
 import eu.pb4.destroythemonument.ui.BlockSelectorUI;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
 import eu.pb4.destroythemonument.ui.PlayOrSpectateUI;
@@ -271,27 +270,32 @@ public abstract class BaseGameLogic {
         return ActionResult.PASS;
     }
 
+    private volatile boolean skipPacket = false;
+
     protected ActionResult onServerPacket(ServerPlayerEntity player, Packet<?> packet) {
-        if (MarkedPacket.is(packet)) {
+        if (skipPacket) {
             return ActionResult.PASS;
         }
 
         var x = transformPacket(player, packet);
 
-        if (x == null) {
-            return ActionResult.FAIL;
-        } else if (x == packet) {
+        if (x == packet) {
             return ActionResult.PASS;
         } else {
-            player.networkHandler.sendPacket(MarkedPacket.mark(x));
+            if (x != null) {
+                skipPacket = true;
+                player.networkHandler.sendPacket(x);
+                skipPacket = false;
+            }
             return ActionResult.FAIL;
         }
     }
 
-
     protected Packet<ClientPlayPacketListener> transformPacket(ServerPlayerEntity player, Packet<?> packet) {
         if (packet instanceof BundleS2CPacket bundleS2CPacket) {
             var list = new ArrayList<Packet<ClientPlayPacketListener>>();
+
+            boolean needChanging = false;
 
             for (var x : bundleS2CPacket.getPackets()) {
                 var y = transformPacket(player, x);
@@ -299,9 +303,13 @@ public abstract class BaseGameLogic {
                 if (y != null) {
                     list.add(y);
                 }
+
+                if (x != y) {
+                    needChanging = true;
+                }
             }
 
-            return new BundleS2CPacket(list);
+            return needChanging ? new BundleS2CPacket(list) : bundleS2CPacket;
         } else if (packet instanceof EntityEquipmentUpdateS2CPacket equipmentUpdate) {
             var list = new ArrayList<Pair<EquipmentSlot, ItemStack>>();
             boolean cancel = false;
