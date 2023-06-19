@@ -49,7 +49,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     }
 
     public static void createThrown(LivingEntity player) {
-        var tnt = new DtmTntEntity(DtmEntities.TNT, player.world);
+        var tnt = new DtmTntEntity(DtmEntities.TNT, player.getWorld());
         tnt.causingEntity = player;
         tnt.hitBlock = true;
         tnt.fuse = 40;
@@ -74,11 +74,11 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         ).multiply(0.8));
         tnt.setPosition(player.getX() + Math.sin(yawRad) * horizontal * 0.3, player.getEyeY() + Math.sin(pitchRad) * 0.3, player.getZ() + -Math.cos(yawRad) * horizontal * 0.3);
 
-        player.world.spawnEntity(tnt);
+        player.getWorld().spawnEntity(tnt);
     }
 
     public static boolean createPlaced(LivingEntity player, BlockPos pos) {
-        var tnt = new DtmTntEntity(DtmEntities.TNT, player.world);
+        var tnt = new DtmTntEntity(DtmEntities.TNT, player.getWorld());
         tnt.setPosition(Vec3d.ofBottomCenter(pos));
         tnt.causingEntity = player;
         tnt.fuse = 20;
@@ -92,7 +92,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             }
         }
 
-        player.world.spawnEntity(tnt);
+        player.getWorld().spawnEntity(tnt);
         return true;
     }
 
@@ -145,10 +145,10 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             var bb = this.getBoundingBox().stretch(this.getVelocity());
 
             for (var blockPos : BlockPos.iterateOutwards(this.getBlockPos(), 1, 1, 1)) {
-                BlockState blockState = this.world.getBlockState(blockPos);
+                BlockState blockState = this.getWorld().getBlockState(blockPos);
 
                 if (!blockState.isAir()) {
-                    var voxelShape = blockState.getCollisionShape(this.world, blockPos);
+                    var voxelShape = blockState.getCollisionShape(this.getWorld(), blockPos);
                     if (!voxelShape.isEmpty()) {
                         for (var box : voxelShape.getBoundingBoxes()) {
                             if (box.offset(blockPos).intersects(bb)) {
@@ -164,7 +164,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
 
         this.move(MovementType.SELF, this.getVelocity());
         this.setVelocity(this.getVelocity().multiply(0.98D));
-        if (this.onGround) {
+        if (this.isOnGround()) {
             this.setVelocity(this.getVelocity().multiply(0.7D, -0.5D, 0.7D));
         }
 
@@ -179,7 +179,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         }
 
         if (this.age > 1 && this.hitEntity) {
-            for (var entity : this.world.getOtherEntities(this, this.getBoundingBox())) {
+            for (var entity : this.getWorld().getOtherEntities(this, this.getBoundingBox())) {
                 this.onEntityHit(entity);
                 return;
             }
@@ -221,7 +221,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     private void explode() {
         this.discard();
 
-        var explosion = new CustomExplosion(this.world, this, this.world.getDamageSources().explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
+        var explosion = new CustomExplosion(this.getWorld(), this, this.getWorld().getDamageSources().explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
         explosion.collectBlocksAndDamageEntities();
         explosion.affectWorld(true);
 
@@ -230,7 +230,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         }
 
 
-        for (var player : this.world.getPlayers()) {
+        for (var player : this.getWorld().getPlayers()) {
             ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
             if (serverPlayerEntity.squaredDistanceTo(this.getX(), this.getBodyY(0.0625D), this.getZ()) < 4096.0D) {
                 serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(this.getX(), this.getBodyY(0.0625D), this.getZ(), 3, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity)));

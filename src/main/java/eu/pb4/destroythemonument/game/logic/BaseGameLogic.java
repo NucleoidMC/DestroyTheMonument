@@ -182,8 +182,8 @@ public abstract class BaseGameLogic {
 
     protected ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
         PlayerData data = this.participants.get(PlayerRef.of(player));
-        if (data != null && player.world.getBlockState(blockPos).calcBlockBreakingDelta(player, player.world, blockPos) < 0.5) {
-            data.activeClass.updateMainTool(player, player.world.getBlockState(blockPos));
+        if (data != null && player.getWorld().getBlockState(blockPos).calcBlockBreakingDelta(player, player.getWorld(), blockPos) < 0.5) {
+            data.activeClass.updateMainTool(player, player.getWorld().getBlockState(blockPos));
         }
         return ActionResult.PASS;
     }
@@ -231,7 +231,7 @@ public abstract class BaseGameLogic {
                             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
                             data.brokenPlankBlocks += 1;
                         } else {
-                            if (state.calcBlockBreakingDelta(player, player.world, blockPos) < 1) {
+                            if (state.calcBlockBreakingDelta(player, player.getWorld(), blockPos) < 1) {
                                 data.brokenNonPlankBlocks += 1;
 
                                 if (data.brokenNonPlankBlocks % data.activeClass.blocksToPlanks() == 0) {
@@ -261,7 +261,7 @@ public abstract class BaseGameLogic {
 
     protected ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
         if (this.gameMap.isTater(hitResult.getBlockPos())) {
-            player.getWorld().spawnParticles(ParticleTypes.HEART,
+            player.getServerWorld().spawnParticles(ParticleTypes.HEART,
                     hitResult.getBlockPos().getX() + 0.5d, hitResult.getBlockPos().getY() + 0.5d, hitResult.getBlockPos().getZ() + 0.5d,
                     5, 0.5d, 0.5d, 0.5d, 0.1d);
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.LUCK, 99999, 0, true, false));
@@ -415,7 +415,7 @@ public abstract class BaseGameLogic {
                 return ActionResult.FAIL;
             }
 
-            dtmPlayer.lastAttackTime = player.world.getTime();
+            dtmPlayer.lastAttackTime = player.getWorld().getTime();
             dtmPlayer.lastAttacker = attacker;
             this.statistics.forPlayer(attacker).increment(StatisticKeys.DAMAGE_DEALT, amount);
             this.statistics.forPlayer(player).increment(StatisticKeys.DAMAGE_TAKEN, amount);
@@ -432,7 +432,7 @@ public abstract class BaseGameLogic {
             Text text = FormattingUtil.format(FormattingUtil.DEATH_PREFIX, FormattingUtil.DEATH_STYLE, deathMes.copy());
             this.gameSpace.getPlayers().sendMessage(text);
 
-            if (player.world.getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
+            if (player.getWorld().getTime() - dtmPlayer.lastAttackTime <= 20 * 10 && dtmPlayer.lastAttacker != null) {
                 PlayerData attacker = this.participants.get(PlayerRef.of(dtmPlayer.lastAttacker));
                 attacker.kills += 1;
                 attacker.addToTimers(60);
@@ -545,8 +545,8 @@ public abstract class BaseGameLogic {
 
         if (itemUsageContext.getStack().getItem() == Items.TNT) {
             itemUsageContext.getStack().decrement(1);
-            TntEntity tnt = new TntEntity(player.world, blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, player);
-            player.world.spawnEntity(tnt);
+            TntEntity tnt = new TntEntity(player.getWorld(), blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, player);
+            player.getWorld().spawnEntity(tnt);
             return ActionResult.FAIL;
         }
 
@@ -557,9 +557,9 @@ public abstract class BaseGameLogic {
         if (this.gameMap.isUnbreakable(blockPos)) {
             return ActionResult.FAIL;
         } else if (this.gameMap.isTater(blockPos)) {
-            Entity entity = new LightningEntity(EntityType.LIGHTNING_BOLT, player.world);
+            Entity entity = new LightningEntity(EntityType.LIGHTNING_BOLT, player.getWorld());
             entity.updatePosition(player.getX(), player.getY(), player.getZ());
-            player.world.spawnEntity(entity);
+            player.getWorld().spawnEntity(entity);
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 6000, 2));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, 6000, 2));
             player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 6000, 2));
@@ -572,7 +572,7 @@ public abstract class BaseGameLogic {
         if (playerData == null) {
             return ActionResult.PASS;
         }
-        var state = player.world.getBlockState(blockPos);
+        var state = player.getWorld().getBlockState(blockPos);
 
         if (state.isIn(DTM.BUILDING_BLOCKS)) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
