@@ -16,6 +16,8 @@ import xyz.nucleoid.plasmid.game.GameSpace;
 import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
 import xyz.nucleoid.plasmid.util.PlayerRef;
 
+import java.util.Map;
+
 public class MultiBlockItem extends BlockItem implements PolymerItem {
     public MultiBlockItem(Settings settings) {
         super(Blocks.BIRCH_PLANKS, settings);
@@ -43,6 +45,11 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
 
         BlockState blockState = this.getBlock().getPlacementState(context);
         return blockState != null && this.canPlace(context, blockState) ? blockState : null;
+    }
+
+    @Override
+    public void appendBlocks(Map<Block, Item> map, Item item) {
+
     }
 
     @Override
