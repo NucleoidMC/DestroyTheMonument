@@ -6,6 +6,7 @@ import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.items.DtmItems;
 import eu.pb4.destroythemonument.other.DtmUtil;
+import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -32,9 +33,21 @@ public class DTM implements ModInitializer {
     public static final Random RANDOM = new Random();
     public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("spawnable"));
     public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("building_blocks"));
-    public static final Set<Block> CONCRETE = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
-    public static final Set<Block> STAINED_GLASS = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
-    public static final Set<Block> STAINED_GLASS_PANES = new ObjectOpenCustomHashSet<>(Util.identityHashStrategy());
+
+    private static final Hash.Strategy<Object> IDENTITY_HASH = new Hash.Strategy<Object>() {
+        @Override
+        public int hashCode(Object o) {
+            return System.identityHashCode(o);
+        }
+
+        @Override
+        public boolean equals(Object o, Object k1) {
+            return o == k1;
+        }
+    };
+    public static final Set<Block> CONCRETE = new ObjectOpenCustomHashSet<>(IDENTITY_HASH);
+    public static final Set<Block> STAINED_GLASS = new ObjectOpenCustomHashSet<>(IDENTITY_HASH);
+    public static final Set<Block> STAINED_GLASS_PANES = new ObjectOpenCustomHashSet<>(IDENTITY_HASH);
 
 
     public static final GameType<GameConfig> TYPE = GameType.register(
