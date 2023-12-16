@@ -13,7 +13,9 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -233,7 +235,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         for (var player : this.getWorld().getPlayers()) {
             ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
             if (serverPlayerEntity.squaredDistanceTo(this.getX(), this.getBodyY(0.0625D), this.getZ()) < 4096.0D) {
-                serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(this.getX(), this.getBodyY(0.0625D), this.getZ(), 3, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity)));
+                serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(this.getX(), this.getBodyY(0.0625D), this.getZ(), 3, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity), explosion.getDestructionType(), explosion.getEmitterParticle(), explosion.getParticle(), explosion.getSoundEvent()));
             }
         }
     }
@@ -256,9 +258,10 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         private final double y;
         private final float power;
         private final ExplosionBehavior behavior;
+        private final DamageSource damageSource;
 
         public CustomExplosion(World world, @Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, DestructionType destructionType) {
-            super(world, entity, damageSource, behavior, x, y, z, power, createFire, destructionType);
+            super(world, entity, damageSource, behavior, x, y, z, power, createFire, destructionType, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.ENTITY_GENERIC_EXPLODE);
             this.world = world;
             this.entity = entity;
             this.x = x;
@@ -266,6 +269,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             this.z = z;
             this.power = power;
             this.behavior = behavior;
+            this.damageSource = damageSource;
         }
 
         @Override
@@ -329,10 +333,9 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             int u = MathHelper.floor(this.z + (double) q + 1.0D);
             List<Entity> list = this.world.getOtherEntities(this.entity, new Box(k, r, t, l, s, u));
             Vec3d vec3d = new Vec3d(this.x, this.y, this.z);
-            var damageSource = this.getDamageSource();
             for (int v = 0; v < list.size(); ++v) {
                 Entity entity = list.get(v);
-                if (!entity.isImmuneToExplosion()) {
+                if (!entity.isImmuneToExplosion(this)) {
                     double w = Math.sqrt(entity.squaredDistanceTo(vec3d)) / (double) q;
                     if (w <= 1.0D) {
                         double x = entity.getX() - this.x;

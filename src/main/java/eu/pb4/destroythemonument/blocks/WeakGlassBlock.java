@@ -4,7 +4,7 @@ import eu.pb4.polymer.core.api.block.PolymerBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.GlassBlock;
+import net.minecraft.block.TransparentBlock;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -14,7 +14,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class WeakGlassBlock extends GlassBlock implements PolymerBlock {
+public class WeakGlassBlock extends TransparentBlock implements PolymerBlock {
     public WeakGlassBlock(Settings settings) {
         super(settings);
     }
