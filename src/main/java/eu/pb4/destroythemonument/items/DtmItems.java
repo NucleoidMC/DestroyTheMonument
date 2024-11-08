@@ -6,6 +6,8 @@ import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ToolComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -13,10 +15,12 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Rarity;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class DtmItems {
@@ -35,6 +39,18 @@ public class DtmItems {
     public static final Item LADDER = register("ladder", (settings) -> new PolymerBlockItem(DtmBlocks.LADDER, settings.useBlockPrefixedTranslationKey(), Items.LADDER));
     public static final Item MAP = register("map", DtmMapItem::new);
     public static final Item TNT = register("tnt", DtmTntItem::new);
+    public static final Item MINING_TOOL = register("mining_tool", settings -> {
+        var lookup = Registries.createEntryLookup(Registries.BLOCK);
+        return new SimplePolymerItem(
+                settings.component(DataComponentTypes.TOOL, new ToolComponent(List.of(
+                                ToolComponent.Rule.ofNeverDropping(lookup.getOrThrow(BlockTags.INCORRECT_FOR_DIAMOND_TOOL)),
+                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.PICKAXE_MINEABLE), 7.5F),
+                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.AXE_MINEABLE), 6.0F),
+                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 2.5F),
+                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.HOE_MINEABLE), 2.5F)
+                        ), 1.0F, 1)
+                ), Items.IRON_PICKAXE);
+    });
 
     public static void registerItems() {
 

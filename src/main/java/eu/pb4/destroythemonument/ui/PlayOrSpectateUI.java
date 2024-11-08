@@ -19,15 +19,15 @@ public class PlayOrSpectateUI extends SimpleGui {
         this.setTitle(DtmUtil.getText("ui", "join_selector.title"));
         this.setSlot(11, new GuiElementBuilder(Items.DIAMOND_SWORD)
                 .setName(DtmUtil.getText("ui", "join_selector.play").formatted(Formatting.GOLD))
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setCallback((x, y, z, p) -> {
                     this.allowClosing = true;
                     this.close();
-                    game.addNewParticipant(player);
+                    //game.addNewParticipant(player);
                 }));
 
         this.setSlot(15, new GuiElementBuilder(Items.ENDER_EYE)
-                .hideFlags()
+                .hideDefaultTooltip()
                 .setName(DtmUtil.getText("ui", "join_selector.spectate").formatted(Formatting.GOLD))
                 .setCallback((x, y, z, p) -> {
                     this.allowClosing = true;

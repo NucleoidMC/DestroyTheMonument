@@ -13,6 +13,7 @@ import eu.pb4.destroythemonument.other.FormattingUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.scoreboard.number.BlankNumberFormat;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -20,12 +21,10 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.explosion.Explosion;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
@@ -68,7 +67,7 @@ public class StandardGameLogic extends BaseGameLogic {
 
     protected void maybeEliminate(TeamData teamData) {
         if (teamData.aliveMonuments.size() <= 0) {
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers().players()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.teamData == teamData) {
                     player.changeGameMode(GameMode.SPECTATOR);
@@ -210,7 +209,7 @@ public class StandardGameLogic extends BaseGameLogic {
         boolean compact = (monumentsSize + 1) * this.sidebarTeams.size() > 11;
 
         this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
-
+        this.globalSidebar.setDefaultNumberFormat(BlankNumberFormat.INSTANCE);
         this.globalSidebar.set(b -> {
             b.add(Text.empty());
 

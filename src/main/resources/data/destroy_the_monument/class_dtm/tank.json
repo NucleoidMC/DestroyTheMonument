@@ -16,6 +16,7 @@
     "netherite_boots"
   ],
   "items": [
+    "destroy_the_monument:mining_tool",
     {
       "id": "iron_sword",
       "Count": 1

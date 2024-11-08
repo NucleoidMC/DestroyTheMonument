@@ -6,8 +6,6 @@
     "movement_speed": 0.13,
     "armor": 9
   },
-  "pickaxe_tool": "diamond_pickaxe",
-  "axe_tool": "iron_axe",
   "armor": [
     "leather_helmet",
     "chainmail_chestplate",
@@ -15,6 +13,7 @@
     "golden_boots"
   ],
   "items": [
+    "destroy_the_monument:mining_tool",
     {
       "id": "golden_sword",
       "count": 1,

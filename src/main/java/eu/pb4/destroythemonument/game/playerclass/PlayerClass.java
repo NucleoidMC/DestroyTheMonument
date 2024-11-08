@@ -33,7 +33,6 @@ import java.util.UUID;
 public record PlayerClass(
         String name, ItemStack icon,
         Map<RegistryEntry<EntityAttribute>, Double> attributes,
-        ItemStack pickaxe, ItemStack axe,
         List<ItemStack> armorVisual, List<ItemStack> items,
         List<RestockableItem> restockableItems,
         int blocksToPlanks
@@ -44,8 +43,6 @@ public record PlayerClass(
             Codec.STRING.fieldOf("class_name").forGetter(PlayerClass::name),
             MoreCodecs.ITEM_STACK.fieldOf("icon").forGetter(PlayerClass::icon),
             Codec.unboundedMap(Registries.ATTRIBUTE.getEntryCodec(), Codec.DOUBLE).optionalFieldOf("attributes", Map.of()).forGetter(PlayerClass::attributes),
-            MoreCodecs.ITEM_STACK.fieldOf("pickaxe_tool").forGetter(PlayerClass::pickaxe),
-            MoreCodecs.ITEM_STACK.fieldOf("axe_tool").forGetter(PlayerClass::axe),
             Codec.list(MoreCodecs.ITEM_STACK).fieldOf("armor").forGetter(PlayerClass::armorVisual),
             Codec.list(MoreCodecs.ITEM_STACK).fieldOf("items").forGetter(PlayerClass::items),
             Codec.list(RestockableItem.CODEC).fieldOf("restockable_items").forGetter(PlayerClass::restockableItems),
@@ -56,12 +53,6 @@ public record PlayerClass(
         for (var x : this.attributes.entrySet()) {
             player.getAttributes().getCustomInstance(x.getKey()).setBaseValue(x.getValue());
         }
-
-        player.getInventory().insertStack(ItemStackBuilder.of(this.pickaxe)
-                .addModifier(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID, 0, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), AttributeModifierSlot.MAINHAND)
-                .setUnbreakable()
-                .setRepairCost(TOOL_REPAIR_COST)
-                .build());
 
         for (ItemStack itemStack : this.items) {
             player.getInventory().insertStack(ItemStackBuilder.of(itemStack).setUnbreakable().build());
@@ -89,31 +80,6 @@ public record PlayerClass(
                 .set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).build());
 
         player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
-    }
-
-    public void updateMainTool(ServerPlayerEntity player, BlockState state) {
-        ItemStack stack = player.getMainHandStack();
-        if (stack.getOrDefault(DataComponentTypes.REPAIR_COST, 0) == TOOL_REPAIR_COST) {
-            ItemStack base = null;
-            if (state.isIn(BlockTags.AXE_MINEABLE)) {
-                if (!(stack.getItem() instanceof AxeItem)) {
-                    base = this.axe;
-                }
-            } else if (state.isIn(BlockTags.PICKAXE_MINEABLE)) {
-                if (!(stack.getItem() instanceof PickaxeItem)) {
-                    base = this.pickaxe;
-                }
-            }
-
-            if (base != null && !base.isEmpty()) {
-                player.getInventory().setStack(player.getInventory().selectedSlot, ItemStackBuilder.of(base)
-                        .addModifier(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID, 0, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL ), AttributeModifierSlot.MAINHAND)
-                        .setUnbreakable()
-                        .setRepairCost(TOOL_REPAIR_COST)
-                        .build());
-            }
-
-        }
     }
 
     public void maybeRestockPlayer(ServerPlayerEntity player, PlayerData playerData) {

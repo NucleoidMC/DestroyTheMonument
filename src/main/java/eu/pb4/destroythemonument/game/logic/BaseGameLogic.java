@@ -57,11 +57,13 @@ import org.joml.Vector3f;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameCloseReason;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpaceState;
+import xyz.nucleoid.plasmid.api.game.common.PlayerLimiter;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.api.game.common.team.TeamChat;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.game.player.*;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
 import xyz.nucleoid.plasmid.api.game.stats.StatisticKeys;
@@ -139,6 +141,7 @@ public abstract class BaseGameLogic {
     }
 
     public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
+        PlayerLimiter.addTo(game, config.players().playerConfig());
         game.setRule(GameRuleType.CRAFTING, EventResult.DENY);
         game.setRule(GameRuleType.PORTALS, EventResult.DENY);
         game.setRule(GameRuleType.PVP, EventResult.PASS);
@@ -151,11 +154,13 @@ public abstract class BaseGameLogic {
         game.listen(GameActivityEvents.CREATE, this::onOpen);
         game.listen(GameActivityEvents.DESTROY, this::onClose);
 
-        game.listen(GamePlayerEvents.ACCEPT, offer -> offer.teleport(map.world, map.getRandomSpawnPosAsVec3d()));
+        game.listen(GamePlayerEvents.ACCEPT, this::handleAccept);
         game.listen(GamePlayerEvents.ADD, this::addPlayer);
+        game.listen(GamePlayerEvents.OFFER, this::handleOffer);
         game.listen(GamePlayerEvents.LEAVE, this::removePlayer);
 
         game.listen(GameActivityEvents.TICK, this::tick);
+        game.listen(GameActivityEvents.STATE_UPDATE, this::updateState);
         game.listen(BlockBreakEvent.EVENT, this::onPlayerBreakBlock);
         game.listen(BlockPlaceEvent.BEFORE, this::onPlayerPlaceBlock);
         game.listen(BlockPunchEvent.EVENT, this::onBlockPunch);
@@ -184,10 +189,6 @@ public abstract class BaseGameLogic {
     }
 
     protected EventResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
-        PlayerData data = this.participants.get(PlayerRef.of(player));
-        if (data != null && player.getWorld().getBlockState(blockPos).calcBlockBreakingDelta(player, player.getWorld(), blockPos) < 0.5) {
-            data.activeClass.updateMainTool(player, player.getWorld().getBlockState(blockPos));
-        }
         return EventResult.PASS;
     }
 
@@ -362,31 +363,44 @@ public abstract class BaseGameLogic {
         }
     }
 
+
+    protected GameSpaceState.Builder updateState(GameSpaceState.Builder builder) {
+        return builder.canPlay(this.config.allowJoiningInGame() && builder.canPlay());
+    }
+
+    protected JoinOfferResult handleOffer(JoinOffer joinOffer) {
+        if (joinOffer.intent() == JoinIntent.PLAY && !this.config.allowJoiningInGame()) {
+            return joinOffer.reject(Text.translatable("text.destroy_the_monument.cant_join_while_active"));
+        }
+
+        return joinOffer.pass();
+    }
+
+    protected JoinAcceptorResult handleAccept(JoinAcceptor offer) {
+        return offer.teleport(this.gameMap.world, this.gameMap.getRandomSpawnPosAsVec3d());
+    }
+
     protected void addPlayer(ServerPlayerEntity player) {
-        if (!this.participants.containsKey(PlayerRef.of(player))) {
-            if (this.config.allowJoiningInGame() && this.participants.size() < this.config.players().playerConfig().maxPlayers().orElse(99999)) {
-                this.globalSidebar.addPlayer(player);
-                PlayOrSpectateUI.open(player, this);
-            }
+        if (this.gameSpace.getPlayers().spectators().contains(player)) {
+            this.globalSidebar.addPlayer(player);
             this.spawnSpectator(player);
         } else {
+            this.globalSidebar.removePlayer(player);
+            var playerData = this.participants.computeIfAbsent(PlayerRef.of(player), (ref) -> {
+                var data = new PlayerData(this.defaultKit);
+                GameTeamKey team = this.teams.getSmallestTeam();
+                data.teamData = this.teams.getData(team);
+                this.teams.addPlayer(player, team);
+                return data;
+            });
+
+            this.setPlayerSidebar(player, playerData);
             this.spawnParticipant(player);
         }
 
         if (this.timerBar != null) {
             this.timerBar.addPlayer(player);
         }
-    }
-
-    public void addNewParticipant(ServerPlayerEntity player) {
-        this.globalSidebar.removePlayer(player);
-        GameTeamKey team = this.teams.getSmallestTeam();
-        PlayerData playerData = new PlayerData(this.defaultKit);
-        playerData.teamData = this.teams.getData(team);
-        this.participants.put(PlayerRef.of(player), playerData);
-        this.teams.addPlayer(player, team);
-        this.setPlayerSidebar(player, playerData);
-        this.spawnParticipant(player);
     }
 
     protected void removePlayer(ServerPlayerEntity player) {

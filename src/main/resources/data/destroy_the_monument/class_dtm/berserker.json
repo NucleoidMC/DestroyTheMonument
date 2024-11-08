@@ -7,7 +7,6 @@
     "movement_speed": 0.13,
     "armor": 3
   },
-  "axe_tool": "air",
   "armor": [
     "iron_helmet",
     "leather_chestplate",
@@ -15,6 +14,7 @@
     "leather_boots"
   ],
   "items": [
+    "destroy_the_monument:mining_tool",
     "iron_axe"
   ],
   "restockable_items": [

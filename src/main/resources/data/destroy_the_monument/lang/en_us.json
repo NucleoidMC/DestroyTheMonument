@@ -15,6 +15,7 @@
   "item.destroy_the_monument.multi_block": "Multi Block",
   "item.destroy_the_monument.map": "Map",
   "item.destroy_the_monument.tnt": "TNT",
+  "item.destroy_the_monument.mining_tool": "Pickaxe",
 
   "block.destroy_the_monument.weak_glass": "Weak Glass Block",
   "block.destroy_the_monument.ladder": "Ladder",
@@ -65,6 +66,8 @@
   "ui.destroy_the_monument.join_selector.title": "Play or spectate",
   "ui.destroy_the_monument.join_selector.play": "Join the game",
   "ui.destroy_the_monument.join_selector.spectate": "Stay as spectator",
+
+  "text.destroy_the_monument.cant_join_while_active": "You can't join this game while it's active!",
 
   "map.destroy_the_monument.concrete": "Destroy The Monument: Concrete",
   "map.destroy_the_monument.cubes": "Destroy The Monument: Cubes",

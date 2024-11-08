@@ -5,8 +5,6 @@
     "armor": 8,
     "movement_speed": 0.11
   },
-  "pickaxe_tool": "diamond_pickaxe",
-  "axe_tool": "iron_axe",
   "armor": [
     "leather_helmet",
     "iron_chestplate",
@@ -14,6 +12,7 @@
     "iron_boots"
   ],
   "items": [
+    "destroy_the_monument:mining_tool",
     {
       "id": "diamond_sword",
       "count": 1,

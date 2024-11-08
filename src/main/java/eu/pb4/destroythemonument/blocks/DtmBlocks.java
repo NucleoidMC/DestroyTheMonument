@@ -15,9 +15,7 @@ public class DtmBlocks {
     public static final Block WEAK_GLASS = register("weak_glass", AbstractBlock.Settings.copy(Blocks.GLASS).strength(0.2f, 0).dropsNothing(), WeakGlassBlock::new);
     public static final Block LADDER = register("ladder", AbstractBlock.Settings.copy(Blocks.LADDER), FloatingLadderBlock::new);
 
-    public static void register() {
-
-    }
+    public static void register() {}
 
     private static <T extends Block> T register(String name, AbstractBlock.Settings settings, Function<AbstractBlock.Settings, T> func) {
         var id =  DtmUtil.id(name);

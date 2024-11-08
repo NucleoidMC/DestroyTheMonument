@@ -15,6 +15,7 @@
     "iron_boots"
   ],
   "items": [
+    "destroy_the_monument:mining_tool",
     {
       "id": "stone_sword",
       "count": 1
