@@ -55,16 +55,16 @@ public class ClassPreviewUI extends SimpleGui {
         for (var x : playerClass.attributes().entrySet()) {
             String num;
 
-            if (x.getKey() == EntityAttributes.GENERIC_MOVEMENT_SPEED) {
+            if (x.getKey() == EntityAttributes.MOVEMENT_SPEED) {
                 num = df.format(x.getValue() * 20) + " m/s";
-            } else if (x.getKey() == EntityAttributes.GENERIC_ARMOR || x.getKey() == EntityAttributes.GENERIC_MAX_HEALTH) {
+            } else if (x.getKey() == EntityAttributes.ARMOR || x.getKey() == EntityAttributes.MAX_HEALTH) {
                 num = String.valueOf(x.getValue().intValue());
             } else {
                 num = (int) (x.getValue() * 100) + "%";
             }
 
             b.addLoreLine(Text.empty()
-                    .append(Text.translatable(x.getKey().getTranslationKey())
+                    .append(Text.translatable(x.getKey().value().getTranslationKey())
                             .append(Text.literal(": ").formatted(Formatting.GRAY))
                             .append(Text.literal(num))));
         }
@@ -73,7 +73,7 @@ public class ClassPreviewUI extends SimpleGui {
         this.setSlot(this.size - 1, new GuiElementBuilder(Items.BARRIER)
                 .setName(DtmUtil.getText("ui", "return_selector").setStyle(Style.EMPTY.withItalic(false)))
                 .setCallback((x, y, z) -> {
-                    this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
+                    this.player.playSoundToPlayer(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
                     selectorUI.open();
                 })
         );

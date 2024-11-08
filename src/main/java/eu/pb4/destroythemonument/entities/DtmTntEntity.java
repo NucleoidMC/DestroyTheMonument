@@ -1,39 +1,30 @@
 package eu.pb4.destroythemonument.entities;
 
-import com.google.common.collect.Sets;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import net.minecraft.world.explosion.EntityExplosionBehavior;
 import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.packettweaker.PacketContext;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 
 public class DtmTntEntity extends Entity implements PolymerEntity {
@@ -119,6 +110,11 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         return MoveEffect.NONE;
     }
 
+    @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        return false;
+    }
+
     public boolean canHit() {
         return !this.isRemoved();
     }
@@ -134,7 +130,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     }
 
     @Override
-    protected void initDataTracker() {
+    protected void initDataTracker(DataTracker.Builder builder) {
 
     }
 
@@ -222,22 +218,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
 
     private void explode() {
         this.discard();
-
-        var explosion = new CustomExplosion(this.getWorld(), this, this.getWorld().getDamageSources().explosion(this, this.causingEntity), new EntityExplosionBehavior(this), this.getX(), this.getBodyY(0.0625D), this.getZ(), 2.8f, false, Explosion.DestructionType.DESTROY);
-        explosion.collectBlocksAndDamageEntities();
-        explosion.affectWorld(true);
-
-        if (!explosion.shouldDestroy()) {
-            explosion.clearAffectedBlocks();
-        }
-
-
-        for (var player : this.getWorld().getPlayers()) {
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity)player;
-            if (serverPlayerEntity.squaredDistanceTo(this.getX(), this.getBodyY(0.0625D), this.getZ()) < 4096.0D) {
-                serverPlayerEntity.networkHandler.sendPacket(new ExplosionS2CPacket(this.getX(), this.getBodyY(0.0625D), this.getZ(), 3, explosion.getAffectedBlocks(), explosion.getAffectedPlayers().get(serverPlayerEntity), explosion.getDestructionType(), explosion.getEmitterParticle(), explosion.getParticle(), explosion.getSoundEvent()));
-            }
-        }
+        this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this.causingEntity), new CustomExplosionBehaviour(this), this.getBoundingBox().getCenter(), 2.8f, false, World.ExplosionSourceType.TNT);
     }
 
     protected float getEyeHeight(EntityPose pose, EntityDimensions dimensions) {
@@ -245,12 +226,51 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayerEntity player) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         return EntityType.TNT;
     }
 
 
-    public static class CustomExplosion extends Explosion {
+    public static class CustomExplosionBehaviour extends EntityExplosionBehavior {
+        private final DtmTntEntity entity;
+
+        public CustomExplosionBehaviour(DtmTntEntity entity) {
+            super(entity);
+            this.entity = entity;
+        }
+
+        @Override
+        public Optional<Float> getBlastResistance(Explosion explosion, BlockView world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+            var out = super.getBlastResistance(explosion, world, pos, blockState, fluidState);
+            return out.map(x -> blockState.isIn(DTM.BUILDING_BLOCKS) ? 0.8f : Math.max(2.8f, x));
+        }
+
+        @Override
+        public float getKnockbackModifier(Entity entity) {
+            return 1.4f;
+        }
+
+        @Override
+        public float calculateDamage(Explosion explosion, Entity entity, float amount) {
+            double x = entity.getX() - explosion.getPosition().x;
+            double y = (entity instanceof DtmTntEntity ? entity.getY() : entity.getEyeY()) - explosion.getPosition().y;
+            double z = entity.getZ() - explosion.getPosition().z;
+            double distance = Math.sqrt(x * x + y * y + z * z);
+
+            float doublePower = explosion.getPower() * 2.0F;
+            double w = Math.sqrt(entity.squaredDistanceTo(explosion.getPosition())) / (double) doublePower;
+
+            if (distance != 0.0D) {
+                double ac = (1.0D - w) * amount;
+                return (float) ((int) ((ac * ac + ac) / 2.0D * 3.2D * (double) doublePower + 1.0D) * (this.entity.causingEntity == entity ? 0.25 : 1));
+            }
+
+            return 0;
+        }
+    }
+
+
+    /*public static class CustomExplosion extends Explosion {
         private final World world;
         private final Entity entity;
         private final double z;
@@ -365,5 +385,5 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
                 }
             }
         }
-    }
+    }*/
 }

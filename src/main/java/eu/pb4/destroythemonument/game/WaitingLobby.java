@@ -22,17 +22,17 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
-import xyz.nucleoid.plasmid.game.*;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.TeamSelectionLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.*;
+import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
@@ -94,7 +94,7 @@ public class WaitingLobby {
             WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), map, context.config(), teamSelection);
 
             game.listen(GameActivityEvents.REQUEST_START, waiting::requestStart);
-            game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(world, map.getRandomSpawnPosAsVec3d()));
+            game.listen(GamePlayerEvents.ACCEPT, offer -> offer.teleport(world, map.getRandomSpawnPosAsVec3d()));
             game.listen(GamePlayerEvents.JOIN, waiting::addPlayer);
             game.listen(GamePlayerEvents.LEAVE, waiting::removePlayer);
             game.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
@@ -103,27 +103,27 @@ public class WaitingLobby {
         });
     }
 
-    private ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource damageSource, float v) {
+    private EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource damageSource, float v) {
         if (player.getY() < this.map.mapBounds.min().getY()) {
             this.spawnLogic.spawnPlayer(player);
         }
 
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
-    private TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
+    private ActionResult onUseItem(ServerPlayerEntity player, Hand hand) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData != null && player.getInventory().getMainHandStack().getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, playerData, this.config.kits());
         }
 
-        return TypedActionResult.pass(player.getStackInHand(hand));
+        return ActionResult.PASS;
     }
 
     private GameResult requestStart() {
         Multimap<GameTeamKey, ServerPlayerEntity> playerTeams = HashMultimap.create();
-        this.teamSelection.allocate(this.gameSpace.getPlayers(), playerTeams::put);
+        this.teamSelection.allocate(this.gameSpace.getPlayers().players(), playerTeams::put);
         switch (this.config.gamemode()) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);
@@ -154,10 +154,10 @@ public class WaitingLobby {
         this.participants.remove(PlayerRef.of(player));
     }
 
-    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         player.setHealth(20.0f);
         this.spawnPlayer(player);
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
     private void spawnPlayer(ServerPlayerEntity player) {

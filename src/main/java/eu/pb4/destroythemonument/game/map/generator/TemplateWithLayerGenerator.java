@@ -8,7 +8,7 @@ import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,8 +25,8 @@ public class TemplateWithLayerGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
-        return super.populateNoise(executor, blender, noiseConfig, structureAccessor, chunk).handleAsync(this::addLayers, executor);
+    public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+        return super.populateNoise(blender, noiseConfig, structureAccessor, chunk).handle(this::addLayers);
     }
 
     private Chunk addLayers(Chunk chunk, Throwable throwable) {

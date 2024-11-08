@@ -31,8 +31,8 @@ import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import xyz.nucleoid.map_templates.BlockBounds;
-import xyz.nucleoid.plasmid.game.world.generator.GameChunkGenerator;
-import xyz.nucleoid.plasmid.game.world.generator.GeneratorBlockSamples;
+import xyz.nucleoid.plasmid.api.game.world.generator.GameChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.world.generator.GeneratorBlockSamples;
 
 import java.util.Collections;
 import java.util.Optional;

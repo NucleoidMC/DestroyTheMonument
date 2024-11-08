@@ -1,12 +1,16 @@
 package eu.pb4.destroythemonument.items;
 
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.MapIdComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class DtmMapItem extends Item implements PolymerItem {
     public DtmMapItem(Settings settings) {
@@ -14,14 +18,17 @@ public class DtmMapItem extends Item implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack stack, @Nullable ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack stack, PacketContext context) {
         return Items.FILLED_MAP;
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
-        ItemStack stack = PolymerItem.super.getPolymerItemStack(itemStack, context, player);
-        stack.getOrCreateNbt().putInt("map", 0);
-        return stack;
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+        return null;
+    }
+
+    @Override
+    public void modifyBasePolymerItemStack(ItemStack out, ItemStack stack, PacketContext context) {
+        out.set(DataComponentTypes.MAP_ID, new MapIdComponent(0));
     }
 }

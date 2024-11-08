@@ -31,11 +31,10 @@
       "name": "Red",
       "key": "red",
       "color": {
-        "chat": "#ff00ff",
         "dye": "#ff0000",
         "block_dye": "green",
         "firework": "#00ff00",
-        "formatting": "gold"
+        "chat": "gold"
       }
     },
     {

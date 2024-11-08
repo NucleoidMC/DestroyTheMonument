@@ -15,8 +15,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Util;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.GameType;
+import xyz.nucleoid.plasmid.api.game.GameAttachment;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,12 +28,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import static eu.pb4.destroythemonument.other.DtmUtil.id;
+
 public class DTM implements ModInitializer {
     public static final String ID = "destroy_the_monument";
     public static final Logger LOGGER = LogManager.getLogger(ID);
     public static final Random RANDOM = new Random();
-    public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("spawnable"));
-    public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, DtmUtil.id("building_blocks"));
+    public static final TagKey<Block> SPAWNABLE_TAG = TagKey.of(RegistryKeys.BLOCK, id("spawnable"));
+    public static final TagKey<Block> BUILDING_BLOCKS = TagKey.of(RegistryKeys.BLOCK, id("building_blocks"));
 
     private static final Hash.Strategy<Object> IDENTITY_HASH = new Hash.Strategy<Object>() {
         @Override
@@ -51,12 +54,12 @@ public class DTM implements ModInitializer {
 
 
     public static final GameType<GameConfig> TYPE = GameType.register(
-            new Identifier(ID, ID),
+            Identifier.of(ID, ID),
             GameConfig.CODEC,
             WaitingLobby::open
     );
 
-    public static final WeakHashMap<GameSpace, BaseGameLogic> ACTIVE_GAMES = new WeakHashMap<>();
+    public static final GameAttachment<BaseGameLogic> GAME_LOGIC = GameAttachment.create(id("game_logic"));
 
     @Override
     public void onInitialize() {

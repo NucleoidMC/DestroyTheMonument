@@ -9,8 +9,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+
+import java.util.Set;
 
 public record SpawnLogic(GameSpace gameSpace, GameMap map,
                          Object2ObjectMap<PlayerRef, PlayerData> participants,
@@ -49,13 +51,13 @@ public record SpawnLogic(GameSpace gameSpace, GameMap map,
                     pos = player.teamData.getRandomSpawnPos();
                 }
                 player.nextSpawnPos = null;
-                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, player.teamData.spawnYaw, 0);
+                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), player.teamData.spawnYaw, 0, false);
                 return;
             }
         }
 
         BlockPos pos = this.map.getRandomSpawnPos();
 
-        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.getYaw(), entity.getPitch());
+        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), entity.getYaw(), entity.getPitch(), false);
     }
 }

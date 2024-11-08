@@ -8,13 +8,15 @@ import eu.pb4.polymer.core.api.item.PolymerItemUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.*;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.packettweaker.PacketContext;
+import xyz.nucleoid.plasmid.api.game.GameAttachment;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.Map;
 
@@ -24,16 +26,11 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public String getTranslationKey() {
-        return this.getOrCreateTranslationKey();
-    }
-
-    @Override
     protected BlockState getPlacementState(ItemPlacementContext context) {
         if (context.getPlayer() != null) {
             GameSpace gameSpace = GameSpaceManager.get().byPlayer(context.getPlayer());
             if (gameSpace != null) {
-                BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
+                BaseGameLogic logic = gameSpace.getAttachment(DTM.GAME_LOGIC);
 
                 if (logic != null) {
                     Block block = logic.participants.get(PlayerRef.of(context.getPlayer())).selectedBlock;
@@ -53,16 +50,21 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
     }
 
     @Override
-    public Item getPolymerItem(ItemStack itemStack, ServerPlayerEntity player) {
+    public Item getPolymerItem(ItemStack itemStack, PacketContext context) {
         return Items.BIRCH_PLANKS;
     }
 
     @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, ServerPlayerEntity player) {
+    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipType type, PacketContext context) {
+        var player = context.getPlayer();
+        if (player == null) {
+            return PolymerItem.super.getPolymerItemStack(itemStack, type, context);
+        }
+
         Item item = Items.BIRCH_PLANKS;
         GameSpace gameSpace = GameSpaceManager.get().byPlayer(player);
         if (gameSpace != null) {
-            BaseGameLogic logic = DTM.ACTIVE_GAMES.get(gameSpace);
+            BaseGameLogic logic = gameSpace.getAttachment(DTM.GAME_LOGIC);
 
             if (logic != null) {
                 PlayerData data = logic.participants.get(PlayerRef.of(player));
@@ -75,20 +77,13 @@ public class MultiBlockItem extends BlockItem implements PolymerItem {
             if (item instanceof PolymerItem virtualItem && item != this) {
                 ItemStack stack = item.getDefaultStack();
                 stack.setCount(itemStack.getCount());
-                ItemStack out = virtualItem.getPolymerItemStack(stack, context, player);
-                out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
+                ItemStack out = virtualItem.getPolymerItemStack(stack, type, context);
+                //out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
                 return out;
             }
+
+            return new ItemStack(item, itemStack.getCount());
         }
-
-        ItemStack out = new ItemStack(item, itemStack.getCount());
-
-        if (itemStack.getNbt() != null) {
-            out.getOrCreateNbt().put(PolymerItemUtils.REAL_TAG, itemStack.getNbt());
-        }
-
-        out.getOrCreateNbt().putString(PolymerItemUtils.POLYMER_ITEM_ID, Registries.ITEM.getId(itemStack.getItem()).toString());
-
-        return out;
+        return PolymerItem.super.getPolymerItemStack(itemStack, type, context);
     }
 }

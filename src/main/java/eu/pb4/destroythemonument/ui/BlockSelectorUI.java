@@ -10,7 +10,7 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 public class BlockSelectorUI extends SimpleGui {
     private final PlayerData playerData;
@@ -21,7 +21,7 @@ public class BlockSelectorUI extends SimpleGui {
         this.setTitle(DtmUtil.getText("ui", "select_block"));
 
         int pos = 0;
-        for (var block : Registries.BLOCK.getEntryList(DTM.BUILDING_BLOCKS).get()) {
+        for (var block : Registries.BLOCK.getOrThrow(DTM.BUILDING_BLOCKS)) {
             GuiElementBuilder icon = new GuiElementBuilder(block.value().asItem(), 1);
             icon.setCallback((x, clickType, z) -> {
                 this.playerData.selectedBlock = block.value();

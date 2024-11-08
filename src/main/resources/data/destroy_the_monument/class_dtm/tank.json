@@ -2,10 +2,10 @@
   "class_name": "tank",
   "icon": "diamond_chestplate",
   "attributes": {
-    "generic.max_health": 24,
-    "generic.movement_speed": 0.105,
-    "generic.knockback_resistance": 0.12,
-    "generic.armor": 14
+    "max_health": 24,
+    "movement_speed": 0.105,
+    "knockback_resistance": 0.12,
+    "armor": 14
   },
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": "iron_axe",

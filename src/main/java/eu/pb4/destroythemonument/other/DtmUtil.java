@@ -8,12 +8,11 @@ import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.manager.GameSpaceManager;
+import xyz.nucleoid.plasmid.api.game.GameSpaceManager;
 
 public class DtmUtil {
     public static MutableText getText(String type, String path, Object... values) {
-        return Text.translatable(Util.createTranslationKey(type, new Identifier(DTM.ID, path)), values);
+        return Text.translatable(Util.createTranslationKey(type, Identifier.of(DTM.ID, path)), values);
     }
 
     public static MutableText getTeamText(TeamData team) {
@@ -21,7 +20,7 @@ public class DtmUtil {
     }
 
     public static Identifier id(String path) {
-        return new Identifier(DTM.ID, path);
+        return Identifier.of(DTM.ID, path);
     }
 
     @Nullable
@@ -29,7 +28,7 @@ public class DtmUtil {
         var game = GameSpaceManager.get().byWorld(player.getWorld());
 
         if (game != null) {
-            return DTM.ACTIVE_GAMES.get(game);
+            return game.getAttachment(DTM.GAME_LOGIC);
         }
 
         return null;

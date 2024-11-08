@@ -2,8 +2,8 @@
   "class_name": "warrior",
   "icon": "diamond_sword",
   "attributes": {
-    "generic.armor": 8,
-    "generic.movement_speed": 0.11
+    "armor": 8,
+    "movement_speed": 0.11
   },
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": "iron_axe",
@@ -16,14 +16,11 @@
   "items": [
     {
       "id": "diamond_sword",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "sharpness",
-            "lvl": 1
-          }
-        ]
+      "count": 1,
+      "components": {
+        "enchantments": {
+          "sharpness": 1
+        }
       }
     }
   ],

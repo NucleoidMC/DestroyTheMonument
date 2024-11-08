@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import xyz.nucleoid.map_templates.BlockBounds;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class ClassSelectorUI extends SimpleGui {
         for (PlayerClass kit : this.kits) {
             GuiElementBuilder icon = GuiElementBuilder.from(kit.icon());
             icon.setName(DtmUtil.getText("class", kit.name()));
-            icon.hideFlags();
+            icon.hideDefaultTooltip();
             if (kit == this.playerData.selectedClass) {
                 icon.glow();
             }
@@ -87,10 +87,10 @@ public class ClassSelectorUI extends SimpleGui {
 
             icon.setCallback((x, clickType, z) -> {
                 if (clickType.isLeft) {
-                    this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1);
+                    this.player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1);
                     changeKit(this.game, this.player, this.playerData, kit);
                 } else if (clickType.isRight) {
-                    this.player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
+                    this.player.playSoundToPlayer(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
                     new ClassPreviewUI(this, kit).open();
                 }
                 this.updateIcons();

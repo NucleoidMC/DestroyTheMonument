@@ -49,22 +49,24 @@ import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
 import org.joml.Vector3f;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.TeamChat;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerSet;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
-import xyz.nucleoid.plasmid.game.stats.GameStatisticBundle;
-import xyz.nucleoid.plasmid.game.stats.StatisticKeys;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamChat;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
+import xyz.nucleoid.plasmid.api.game.stats.StatisticKeys;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPlaceEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPunchEvent;
@@ -78,6 +80,8 @@ import xyz.nucleoid.stimuli.event.projectile.ArrowFireEvent;
 import xyz.nucleoid.stimuli.event.world.ExplosionDetonatedEvent;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 public abstract class BaseGameLogic {
@@ -130,25 +134,24 @@ public abstract class BaseGameLogic {
             }
         }
 
-        DTM.ACTIVE_GAMES.put(gameSpace, this);
-
+        gameSpace.setAttachment(DTM.GAME_LOGIC, this);
         map.onGameStart(this);
     }
 
     public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
-        game.setRule(GameRuleType.CRAFTING, ActionResult.FAIL);
-        game.setRule(GameRuleType.PORTALS, ActionResult.FAIL);
-        game.setRule(GameRuleType.PVP, ActionResult.PASS);
-        game.setRule(GameRuleType.HUNGER, ActionResult.PASS);
-        game.setRule(GameRuleType.FALL_DAMAGE, ActionResult.PASS);
-        game.setRule(GameRuleType.INTERACTION, ActionResult.PASS);
-        game.setRule(GameRuleType.BLOCK_DROPS, ActionResult.FAIL);
-        game.setRule(GameRuleType.MODIFY_ARMOR, ActionResult.FAIL);
+        game.setRule(GameRuleType.CRAFTING, EventResult.DENY);
+        game.setRule(GameRuleType.PORTALS, EventResult.DENY);
+        game.setRule(GameRuleType.PVP, EventResult.PASS);
+        game.setRule(GameRuleType.HUNGER, EventResult.PASS);
+        game.setRule(GameRuleType.FALL_DAMAGE, EventResult.PASS);
+        game.setRule(GameRuleType.INTERACTION, EventResult.PASS);
+        game.setRule(GameRuleType.BLOCK_DROPS, EventResult.DENY);
+        game.setRule(GameRuleType.MODIFY_ARMOR, EventResult.DENY);
 
         game.listen(GameActivityEvents.CREATE, this::onOpen);
         game.listen(GameActivityEvents.DESTROY, this::onClose);
 
-        game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(map.world, map.getRandomSpawnPosAsVec3d()));
+        game.listen(GamePlayerEvents.ACCEPT, offer -> offer.teleport(map.world, map.getRandomSpawnPosAsVec3d()));
         game.listen(GamePlayerEvents.ADD, this::addPlayer);
         game.listen(GamePlayerEvents.LEAVE, this::removePlayer);
 
@@ -180,21 +183,21 @@ public abstract class BaseGameLogic {
         TeamChat.addTo(game, this.teams.getManager());
     }
 
-    protected ActionResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
+    protected EventResult onBlockPunch(ServerPlayerEntity player, Direction direction, BlockPos blockPos) {
         PlayerData data = this.participants.get(PlayerRef.of(player));
         if (data != null && player.getWorld().getBlockState(blockPos).calcBlockBreakingDelta(player, player.getWorld(), blockPos) < 0.5) {
             data.activeClass.updateMainTool(player, player.getWorld().getBlockState(blockPos));
         }
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
-    protected ActionResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
+    protected EventResult onPlayerDropItem(PlayerEntity player, int i, ItemStack stack) {
         if (this.participants.get(PlayerRef.of(player)) != null && stack != null) {
             if (stack.getItem() == DtmItems.MULTI_BLOCK) {
                 if (player.isSneaking()) {
                     var playerData = this.participants.get(PlayerRef.of(player));
                     var list = new ArrayList<Block>();
-                    Registries.BLOCK.getEntryList(DTM.BUILDING_BLOCKS).get().forEach(x -> list.add(x.value()));
+                    Registries.BLOCK.getOrThrow(DTM.BUILDING_BLOCKS).forEach(x -> list.add(x.value()));
                     playerData.selectedBlock = list.get((list.size() + list.indexOf(playerData.selectedBlock) + 1) % list.size());
                 } else {
                     BlockSelectorUI.openSelector((ServerPlayerEntity) player, this);
@@ -204,16 +207,16 @@ public abstract class BaseGameLogic {
             }
         }
 
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
-    protected ActionResult onArrowShoot(ServerPlayerEntity player, ItemStack itemStack, ArrowItem arrowItem, int i, PersistentProjectileEntity projectile) {
+    protected EventResult onArrowShoot(ServerPlayerEntity player, ItemStack itemStack, ArrowItem arrowItem, int i, PersistentProjectileEntity projectile) {
         projectile.pickupType = PersistentProjectileEntity.PickupPermission.DISALLOWED;
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
-    protected void onExplosion(Explosion explosion, boolean b) {
-        for (BlockPos blockPos : explosion.getAffectedBlocks()) {
+    protected EventResult onExplosion(Explosion explosion, List<BlockPos> destroyedBlocks) {
+        for (BlockPos blockPos : destroyedBlocks) {
             if (!this.gameMap.isUnbreakable(blockPos) && !this.gameMap.isActiveMonument(blockPos)) {
                 var state = this.gameMap.world.getBlockState(blockPos);
                 if (state.isAir()) {
@@ -243,20 +246,21 @@ public abstract class BaseGameLogic {
                 }
             }
         }
-        explosion.clearAffectedBlocks();
+        destroyedBlocks.clear();
+        return EventResult.PASS;
     }
 
-    protected TypedActionResult<ItemStack> onUseItem(ServerPlayerEntity player, Hand hand) {
+    protected ActionResult onUseItem(ServerPlayerEntity player, Hand hand) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         ItemStack stack = player.getStackInHand(hand);
 
         if (playerData != null && !stack.isEmpty() && stack.getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, this);
-            return TypedActionResult.success(player.getStackInHand(hand));
+            return ActionResult.SUCCESS_SERVER;
         }
 
-        return TypedActionResult.pass(player.getStackInHand(hand));
+        return ActionResult.PASS;
     }
 
     protected ActionResult onUseBlock(ServerPlayerEntity player, Hand hand, BlockHitResult hitResult) {
@@ -272,28 +276,28 @@ public abstract class BaseGameLogic {
 
     private volatile boolean skipPacket = false;
 
-    protected ActionResult onServerPacket(ServerPlayerEntity player, Packet<?> packet) {
+    protected EventResult onServerPacket(ServerPlayerEntity player, Packet<?> packet) {
         if (skipPacket) {
-            return ActionResult.PASS;
+            return EventResult.PASS;
         }
 
         var x = transformPacket(player, packet);
 
         if (x == packet) {
-            return ActionResult.PASS;
+            return EventResult.PASS;
         } else {
             if (x != null) {
                 skipPacket = true;
                 player.networkHandler.sendPacket(x);
                 skipPacket = false;
             }
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
     }
 
     protected Packet<ClientPlayPacketListener> transformPacket(ServerPlayerEntity player, Packet<?> packet) {
         if (packet instanceof BundleS2CPacket bundleS2CPacket) {
-            var list = new ArrayList<Packet<ClientPlayPacketListener>>();
+            var list = new ArrayList<Packet<? super ClientPlayPacketListener>>();
 
             boolean needChanging = false;
 
@@ -324,7 +328,7 @@ public abstract class BaseGameLogic {
             }
 
             if (cancel) {
-                return new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getId(), list);
+                return new EntityEquipmentUpdateS2CPacket(equipmentUpdate.getEntityId(), list);
             }
         } else if (packet instanceof EntityTrackerUpdateS2CPacket trackerUpdateS2CPacket && PolymerEntityUtils.getEntityContext(packet) instanceof ServerPlayerEntity target) {
             var data = this.participants.get(PlayerRef.of(player));
@@ -360,7 +364,7 @@ public abstract class BaseGameLogic {
 
     protected void addPlayer(ServerPlayerEntity player) {
         if (!this.participants.containsKey(PlayerRef.of(player))) {
-            if (this.config.allowJoiningInGame() && this.participants.size() < this.config.players().maxPlayers()) {
+            if (this.config.allowJoiningInGame() && this.participants.size() < this.config.players().playerConfig().maxPlayers().orElse(99999)) {
                 this.globalSidebar.addPlayer(player);
                 PlayOrSpectateUI.open(player, this);
             }
@@ -398,21 +402,21 @@ public abstract class BaseGameLogic {
         }
     }
 
-    protected ActionResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+    protected EventResult onPlayerDamage(ServerPlayerEntity player, DamageSource source, float amount) {
         PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
 
         if (dtmPlayer == null || this.deadPlayers.containsKey(PlayerRef.of(player))) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (source.getAttacker() instanceof ServerPlayerEntity attacker) {
             var attackerData = this.participants.get(PlayerRef.of(attacker));
             if (attackerData == null || attacker == player) {
-                return ActionResult.PASS;
+                return EventResult.ALLOW;
             }
 
             if (attackerData.teamData == dtmPlayer.teamData) {
-                return ActionResult.FAIL;
+                return EventResult.DENY;
             }
 
             dtmPlayer.lastAttackTime = player.getWorld().getTime();
@@ -421,10 +425,10 @@ public abstract class BaseGameLogic {
             this.statistics.forPlayer(player).increment(StatisticKeys.DAMAGE_TAKEN, amount);
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
-    protected ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    protected EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
         if (dtmPlayer != null) {
             Text deathMes = source.getDeathMessage(player);
@@ -450,13 +454,13 @@ public abstract class BaseGameLogic {
         } else {
             this.spawnLogic.spawnPlayer(player);
         }
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
     protected void startRespawningPlayerSequence(ServerPlayerEntity player) {
         if (this.config.tickRespawnTime() > 0) {
             this.deadPlayers.put(PlayerRef.of(player), this.config.tickRespawnTime());
-            player.teleport(player.getX(), player.getY() + 2000, player.getZ());
+            player.teleport(this.gameMap.world, player.getX(), player.getY() + 2000, player.getZ(), Set.of(), 0, 0, false);
             this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE);
             player.networkHandler.sendPacket(new GameStateChangeS2CPacket(new GameStateChangeS2CPacket.Reason(3), 3));
             PlayerAbilities abilities = new PlayerAbilities();
@@ -528,7 +532,7 @@ public abstract class BaseGameLogic {
         this.spawnLogic.spawnPlayer(player);
     }
 
-    protected ActionResult onPlayerPlaceBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, BlockState state, ItemUsageContext itemUsageContext) {
+    protected EventResult onPlayerPlaceBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos, BlockState state, ItemUsageContext itemUsageContext) {
         if (this.gameMap.isUnbreakable(blockPos) || !this.gameMap.mapBounds.contains(blockPos) || itemUsageContext.getStack().getItem() == Items.BEACON) {
             // Fixes desync
             int slot;
@@ -540,22 +544,22 @@ public abstract class BaseGameLogic {
 
             player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, 0, slot, itemUsageContext.getStack()));
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (itemUsageContext.getStack().getItem() == Items.TNT) {
             itemUsageContext.getStack().decrement(1);
             TntEntity tnt = new TntEntity(player.getWorld(), blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5, player);
             player.getWorld().spawnEntity(tnt);
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
-    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
+    protected EventResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
         if (this.gameMap.isUnbreakable(blockPos)) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         } else if (this.gameMap.isTater(blockPos)) {
             Entity entity = new LightningEntity(EntityType.LIGHTNING_BOLT, player.getWorld());
             entity.updatePosition(player.getX(), player.getY(), player.getZ());
@@ -570,14 +574,14 @@ public abstract class BaseGameLogic {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
         if (playerData == null) {
-            return ActionResult.PASS;
+            return EventResult.PASS;
         }
         var state = player.getWorld().getBlockState(blockPos);
 
         if (state.isIn(DTM.BUILDING_BLOCKS)) {
             player.giveItemStack(new ItemStack(DtmItems.MULTI_BLOCK));
             playerData.brokenPlankBlocks += 1;
-            return ActionResult.SUCCESS;
+            return EventResult.ALLOW;
         }
 
         if (state.calcBlockBreakingDelta(player, world, blockPos) < 1) {
@@ -588,7 +592,7 @@ public abstract class BaseGameLogic {
             }
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     protected abstract void maybeEliminate(TeamData regions);
@@ -604,7 +608,7 @@ public abstract class BaseGameLogic {
                 float green = ((float) (color / 256) % 256) / 256;
                 float red = ((float) color / 65536) / 256;
 
-                this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(new Vector3f(red, green, blue), 0.8f), false, monument.pos.getX() + 0.5d, monument.pos.getY() + 0.5d, monument.pos.getZ() + 0.5d, 0.2f, 0.2f, 0.2f, 0.01f, 5));
+                this.gameSpace.getPlayers().sendPacket(new ParticleS2CPacket(new DustParticleEffect(ColorHelper.fromFloats(0, red, green, blue), 0.8f), false, monument.pos.getX() + 0.5d, monument.pos.getY() + 0.5d, monument.pos.getZ() + 0.5d, 0.2f, 0.2f, 0.2f, 0.01f, 5));
             }
         }
 
@@ -645,7 +649,7 @@ public abstract class BaseGameLogic {
                 if (player.isSpectator()) {
                     this.spawnLogic.spawnPlayer(player);
                 } else {
-                    player.kill();
+                    player.kill(this.gameMap.world);
                 }
             }
 

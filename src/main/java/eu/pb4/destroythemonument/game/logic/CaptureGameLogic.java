@@ -28,11 +28,12 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.util.ColoredBlocks;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.util.ColoredBlocks;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,14 +80,14 @@ public class CaptureGameLogic extends BaseGameLogic {
     }
 
     @Override
-    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
+    protected EventResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         var monument = this.gameMap.getActiveMonument(blockPos);
 
         if (playerData != null && monument != null) {
             if (monument.teamData == playerData.teamData) {
                 player.sendMessage(DtmUtil.getText("message", "cant_capture_own").formatted(Formatting.RED), true);
-                return ActionResult.FAIL;
+                return EventResult.DENY;
             } else {
                 var oldTeam = monument.teamData;
                 if (oldTeam != null) {
@@ -150,7 +151,7 @@ public class CaptureGameLogic extends BaseGameLogic {
                 playerData.brokenMonuments += 1;
                 playerData.addToTimers(20 * 20);
                 //this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
-                return ActionResult.FAIL;
+                return EventResult.DENY;
 
             }
         }

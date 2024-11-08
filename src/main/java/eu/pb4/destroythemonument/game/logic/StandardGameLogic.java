@@ -26,14 +26,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.explosion.Explosion;
-import net.minecraft.world.explosion.ExplosionBehavior;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StandardGameLogic extends BaseGameLogic {
     protected TeamData currentSidebarTeam = null;
@@ -77,14 +78,14 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     @Override
-    protected ActionResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
+    protected EventResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         var monument = this.gameMap.getActiveMonument(blockPos);
 
         if (playerData != null && monument != null) {
             if (monument.teamData == playerData.teamData) {
                 player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
-                return ActionResult.FAIL;
+                return EventResult.DENY;
             } else {
                 monument.setAlive(false);
 
@@ -98,13 +99,12 @@ public class StandardGameLogic extends BaseGameLogic {
 
                 this.gameSpace.getPlayers().sendMessage(text);
                 this.maybeEliminate(monument.teamData);
-                this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0), Explosion.DestructionType.DESTROY, ParticleTypes.EXPLOSION, ParticleTypes.EXPLOSION_EMITTER, SoundEvents.ENTITY_GENERIC_EXPLODE));
+                this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket( Vec3d.ofCenter(blockPos), Optional.empty(), ParticleTypes.EXPLOSION_EMITTER, SoundEvents.ENTITY_GENERIC_EXPLODE));
                 this.teams.getManager().playersIn(monument.teamData.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
                 playerData.brokenMonuments += 1;
                 playerData.addToTimers(20 * 20);
                 this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
-                return ActionResult.SUCCESS;
-
+                return EventResult.ALLOW;
             }
         }
 

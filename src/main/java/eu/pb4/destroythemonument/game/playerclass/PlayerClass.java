@@ -6,18 +6,25 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.items.DtmItems;
 import net.minecraft.block.BlockState;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import xyz.nucleoid.codecs.MoreCodecs;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -25,19 +32,18 @@ import java.util.UUID;
 
 public record PlayerClass(
         String name, ItemStack icon,
-        Map<EntityAttribute, Double> attributes,
+        Map<RegistryEntry<EntityAttribute>, Double> attributes,
         ItemStack pickaxe, ItemStack axe,
         List<ItemStack> armorVisual, List<ItemStack> items,
         List<RestockableItem> restockableItems,
         int blocksToPlanks
 ) {
-    public static final UUID TOOL_DAMAGE = UUID.fromString("c7e311fa-857a-4354-bbcb-2e589d9e868d");
     public static final int TOOL_REPAIR_COST = 9943235;
 
     public static final Codec<PlayerClass> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("class_name").forGetter(PlayerClass::name),
             MoreCodecs.ITEM_STACK.fieldOf("icon").forGetter(PlayerClass::icon),
-            Codec.unboundedMap(Registries.ATTRIBUTE.getCodec(), Codec.DOUBLE).optionalFieldOf("attributes", Map.of()).forGetter(PlayerClass::attributes),
+            Codec.unboundedMap(Registries.ATTRIBUTE.getEntryCodec(), Codec.DOUBLE).optionalFieldOf("attributes", Map.of()).forGetter(PlayerClass::attributes),
             MoreCodecs.ITEM_STACK.fieldOf("pickaxe_tool").forGetter(PlayerClass::pickaxe),
             MoreCodecs.ITEM_STACK.fieldOf("axe_tool").forGetter(PlayerClass::axe),
             Codec.list(MoreCodecs.ITEM_STACK).fieldOf("armor").forGetter(PlayerClass::armorVisual),
@@ -52,7 +58,7 @@ public record PlayerClass(
         }
 
         player.getInventory().insertStack(ItemStackBuilder.of(this.pickaxe)
-                .addModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(TOOL_DAMAGE, "tool", 0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL), EquipmentSlot.MAINHAND)
+                .addModifier(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID, 0, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), AttributeModifierSlot.MAINHAND)
                 .setUnbreakable()
                 .setRepairCost(TOOL_REPAIR_COST)
                 .build());
@@ -69,17 +75,25 @@ public record PlayerClass(
             }
         }
 
-        player.equipStack(EquipmentSlot.HEAD, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(0), team.getConfig().dyeColor().getRgb()));
-        player.equipStack(EquipmentSlot.CHEST, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(1), team.getConfig().dyeColor().getRgb()));
-        player.equipStack(EquipmentSlot.LEGS, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(2), team.getConfig().dyeColor().getRgb()));
-        player.equipStack(EquipmentSlot.FEET, DtmItems.GENERIC_ITEM.create(this.armorVisual.get(3), team.getConfig().dyeColor().getRgb()));
+        player.equipStack(EquipmentSlot.HEAD, ItemStackBuilder.of(this.armorVisual.get(0))
+                        .setDyeColor(team.getConfig().dyeColor().getRgb())
+                        .set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).build());
+        player.equipStack(EquipmentSlot.CHEST, ItemStackBuilder.of(this.armorVisual.get(1))
+                .setDyeColor(team.getConfig().dyeColor().getRgb())
+                .set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).build());
+        player.equipStack(EquipmentSlot.LEGS, ItemStackBuilder.of(this.armorVisual.get(2))
+                .setDyeColor(team.getConfig().dyeColor().getRgb())
+                .set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).build());
+        player.equipStack(EquipmentSlot.FEET, ItemStackBuilder.of(this.armorVisual.get(3))
+                .setDyeColor(team.getConfig().dyeColor().getRgb())
+                .set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.DEFAULT).build());
 
         player.equipStack(EquipmentSlot.OFFHAND, new ItemStack(DtmItems.MAP));
     }
 
     public void updateMainTool(ServerPlayerEntity player, BlockState state) {
         ItemStack stack = player.getMainHandStack();
-        if (stack.getRepairCost() == TOOL_REPAIR_COST) {
+        if (stack.getOrDefault(DataComponentTypes.REPAIR_COST, 0) == TOOL_REPAIR_COST) {
             ItemStack base = null;
             if (state.isIn(BlockTags.AXE_MINEABLE)) {
                 if (!(stack.getItem() instanceof AxeItem)) {
@@ -93,7 +107,7 @@ public record PlayerClass(
 
             if (base != null && !base.isEmpty()) {
                 player.getInventory().setStack(player.getInventory().selectedSlot, ItemStackBuilder.of(base)
-                        .addModifier(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(TOOL_DAMAGE, "tool", 0, EntityAttributeModifier.Operation.MULTIPLY_TOTAL), EquipmentSlot.MAINHAND)
+                        .addModifier(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID, 0, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL ), AttributeModifierSlot.MAINHAND)
                         .setUnbreakable()
                         .setRepairCost(TOOL_REPAIR_COST)
                         .build());

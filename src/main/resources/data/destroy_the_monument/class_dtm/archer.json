@@ -2,9 +2,9 @@
   "class_name": "archer",
   "icon": "bow",
   "attributes": {
-    "generic.max_health": 18,
-    "generic.movement_speed": 0.13,
-    "generic.armor": 9
+    "max_health": 18,
+    "movement_speed": 0.13,
+    "armor": 9
   },
   "pickaxe_tool": "diamond_pickaxe",
   "axe_tool": "iron_axe",
@@ -17,14 +17,11 @@
   "items": [
     {
       "id": "golden_sword",
-      "Count": 1,
-      "tag": {
-        "Enchantments": [
-          {
-            "id": "sharpness",
-            "lvl": 1
-          }
-        ]
+      "count": 1,
+      "components": {
+        "enchantments": {
+          "sharpness": 1
+        }
       }
     },
     "bow"

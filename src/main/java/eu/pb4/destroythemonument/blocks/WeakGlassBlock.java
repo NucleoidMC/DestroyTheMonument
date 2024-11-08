@@ -13,6 +13,7 @@ import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 public class WeakGlassBlock extends TransparentBlock implements PolymerBlock {
     public WeakGlassBlock(Settings settings) {
@@ -25,8 +26,8 @@ public class WeakGlassBlock extends TransparentBlock implements PolymerBlock {
     }
 
     @Override
-    public Block getPolymerBlock(BlockState state) {
-        return Blocks.GLASS;
+    public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
+        return Blocks.GLASS.getDefaultState();
     }
 
     @Override

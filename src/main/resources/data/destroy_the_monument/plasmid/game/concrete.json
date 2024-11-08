@@ -9,9 +9,9 @@
   },
   "icon": "gray_concrete",
   "description": [
-    "<lang:'description.destroy_the_monument.general.1'>",
-    "<lang:'description.destroy_the_monument.general.2'>",
-    "<lang:'description.destroy_the_monument.general.3'>",
+    "<lang 'description.destroy_the_monument.general.1'>",
+    "<lang 'description.destroy_the_monument.general.2'>",
+    "<lang 'description.destroy_the_monument.general.3'>",
     "",
     "<green><lang:'description.destroy_the_monument.general.map':'<white>Patbox'>"
   ],

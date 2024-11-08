@@ -5,10 +5,15 @@ import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import net.minecraft.block.MapColor;
-import net.minecraft.item.map.MapIcon;
+import net.minecraft.component.type.MapIdComponent;
+import net.minecraft.item.map.MapDecoration;
+import net.minecraft.item.map.MapDecorationType;
+import net.minecraft.item.map.MapDecorationTypes;
 import net.minecraft.item.map.MapState;
 import net.minecraft.network.packet.s2c.play.MapUpdateS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
@@ -19,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MapRenderer {
     private final BaseGameLogic logic;
@@ -95,7 +101,7 @@ public class MapRenderer {
     }
 
     public void updateMap(ServerPlayerEntity player, @Nullable PlayerData playerData) {
-        List<MapIcon> icons = new ArrayList<>();
+        List<MapDecoration> icons = new ArrayList<>();
         var bytes = new byte[128 * 128];
 
         int rotationAddX = 0;
@@ -197,13 +203,13 @@ public class MapRenderer {
             var isOff = mX >= 128 || mX <= -128 || mZ >= 128 || mZ <= -128;
 
             if (monument.isAlive()) {
-                var type = MapIcon.Type.byId((byte) (monument.teamData.getConfig().blockDyeColor().getId() + 10));
+                var type = getDecorationType(monument.teamData.getConfig().blockDyeColor());
                 var text = isOff ? null : monument.getName();
-                icons.add(new MapIcon(type,
-                        (byte) MathHelper.clamp(mX, -127, 127 ), (byte) MathHelper.clamp(mZ, -127, 127 ), (byte) 8, text));
+                icons.add(new MapDecoration(type,
+                        (byte) MathHelper.clamp(mX, -127, 127 ), (byte) MathHelper.clamp(mZ, -127, 127 ), (byte) 8, Optional.ofNullable(text)));
 
             } else if (!isOff) {
-                icons.add(new MapIcon(MapIcon.Type.RED_X, (byte) mX, (byte) mZ, (byte) 8,null));
+                icons.add(new MapDecoration(MapDecorationTypes.RED_X, (byte) mX, (byte) mZ, (byte) 8,Optional.empty()));
             }
         }
 
@@ -227,13 +233,13 @@ public class MapRenderer {
                         continue;
                     }
 
-                    icons.add(new MapIcon(MapIcon.Type.BLUE_MARKER, (byte) mX, (byte) mZ, (byte) Math.round((entity.getYaw() + rotationEntity) / 360 * 16), entity.getDisplayName()));
+                    icons.add(new MapDecoration(MapDecorationTypes.BLUE_MARKER, (byte) mX, (byte) mZ, (byte) Math.round((entity.getYaw() + rotationEntity) / 360 * 16), Optional.ofNullable(entity.getDisplayName())));
                 }
             }
 
-            icons.add(new MapIcon(MapIcon.Type.PLAYER, (byte) 0, (byte) 0, (byte) Math.round((player.getYaw() + rotationEntity) / 360 * 16), null));
+            icons.add(new MapDecoration(MapDecorationTypes.PLAYER, (byte) 0, (byte) 0, (byte) Math.round((player.getYaw() + rotationEntity) / 360 * 16), Optional.empty()));
         }
-        player.networkHandler.sendPacket(new MapUpdateS2CPacket(0, (byte) 0, false, icons, new MapState.UpdateData(0, 0, 128, 128, bytes)));
+        player.networkHandler.sendPacket(new MapUpdateS2CPacket(new MapIdComponent(0), (byte) 0, false, icons, new MapState.UpdateData(0, 0, 128, 128, bytes)));
     }
 
     public void tick() {
@@ -253,5 +259,26 @@ public class MapRenderer {
             this.currentPosX = this.map.mapBounds.min().getX();
             this.currentPosZ = this.map.mapBounds.min().getZ();
         }
+    }
+
+    private static RegistryEntry<MapDecorationType> getDecorationType(DyeColor color) {
+        return switch (color) {
+            case WHITE -> MapDecorationTypes.BANNER_WHITE;
+            case ORANGE -> MapDecorationTypes.BANNER_ORANGE;
+            case MAGENTA -> MapDecorationTypes.BANNER_MAGENTA;
+            case LIGHT_BLUE -> MapDecorationTypes.BANNER_LIGHT_BLUE;
+            case YELLOW -> MapDecorationTypes.BANNER_YELLOW;
+            case LIME -> MapDecorationTypes.BANNER_LIME;
+            case PINK -> MapDecorationTypes.BANNER_PINK;
+            case GRAY -> MapDecorationTypes.BANNER_GRAY;
+            case LIGHT_GRAY -> MapDecorationTypes.BANNER_LIGHT_GRAY;
+            case CYAN -> MapDecorationTypes.BANNER_CYAN;
+            case PURPLE -> MapDecorationTypes.BANNER_PURPLE;
+            case BLUE -> MapDecorationTypes.BANNER_BLUE;
+            case BROWN -> MapDecorationTypes.BANNER_BROWN;
+            case GREEN -> MapDecorationTypes.BANNER_GREEN;
+            case RED -> MapDecorationTypes.BANNER_RED;
+            case BLACK -> MapDecorationTypes.BANNER_BLACK;
+        };
     }
 }
