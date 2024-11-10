@@ -123,7 +123,7 @@ public class WaitingLobby {
 
     private GameResult requestStart() {
         Multimap<GameTeamKey, ServerPlayerEntity> playerTeams = HashMultimap.create();
-        this.teamSelection.allocate(this.gameSpace.getPlayers().players(), playerTeams::put);
+        this.teamSelection.allocate(this.gameSpace.getPlayers().participants(), playerTeams::put);
         switch (this.config.gamemode()) {
             case "standard":
                 StandardGameLogic.open(this.gameSpace, this.map, this.config, playerTeams, this.participants, this.teams);

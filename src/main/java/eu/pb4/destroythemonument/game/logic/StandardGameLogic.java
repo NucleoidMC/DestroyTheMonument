@@ -67,7 +67,7 @@ public class StandardGameLogic extends BaseGameLogic {
 
     protected void maybeEliminate(TeamData teamData) {
         if (teamData.aliveMonuments.size() <= 0) {
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers().players()) {
+            for (ServerPlayerEntity player : this.gameSpace.getPlayers().participants()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.teamData == teamData) {
                     player.changeGameMode(GameMode.SPECTATOR);
