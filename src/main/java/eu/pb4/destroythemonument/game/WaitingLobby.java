@@ -14,10 +14,14 @@ import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.ui.ClassSelectorUI;
+import eu.pb4.sgui.api.ClickType;
+import eu.pb4.sgui.api.elements.GuiElement;
+import eu.pb4.sgui.api.elements.GuiElementInterface;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -29,8 +33,12 @@ import xyz.nucleoid.plasmid.api.game.*;
 import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.api.game.common.team.TeamSelectionLobby;
+import xyz.nucleoid.plasmid.api.game.common.ui.WaitingLobbyUiElement;
+import xyz.nucleoid.plasmid.api.game.common.ui.WaitingLobbyUiLayout;
 import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
 import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.event.GameWaitingLobbyEvents;
+import xyz.nucleoid.plasmid.api.util.PlayerMap;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.item.ItemUseEvent;
@@ -43,7 +51,7 @@ public class WaitingLobby {
     private final GameConfig config;
     private final SpawnLogic spawnLogic;
     private final Teams teams;
-    private final Object2ObjectMap<PlayerRef, PlayerData> participants = new Object2ObjectOpenHashMap<>();
+    private final PlayerMap<PlayerData> participants = PlayerMap.of(new Object2ObjectOpenHashMap<>());
 
     private final TeamSelectionLobby teamSelection;
     private final PlayerClass defaultKit;
@@ -88,7 +96,6 @@ public class WaitingLobby {
         return context.openWithWorld(worldConfig, (game, world) -> {
             map.world = world;
             GameWaitingLobby.addTo(game, config.players());
-
             TeamSelectionLobby teamSelection = TeamSelectionLobby.addTo(game, config.teams());
 
             WaitingLobby waiting = new WaitingLobby(game.getGameSpace(), map, context.config(), teamSelection);
@@ -100,6 +107,8 @@ public class WaitingLobby {
             game.listen(PlayerDeathEvent.EVENT, waiting::onPlayerDeath);
             game.listen(PlayerDamageEvent.EVENT, waiting::onPlayerDamage);
             game.listen(ItemUseEvent.EVENT, waiting::onUseItem);
+
+            game.listen(GameWaitingLobbyEvents.BUILD_UI_LAYOUT, waiting::buildUiLayout);
         });
     }
 
@@ -119,6 +128,17 @@ public class WaitingLobby {
         }
 
         return ActionResult.PASS;
+    }
+
+
+    private void buildUiLayout(WaitingLobbyUiLayout layout, ServerPlayerEntity player) {
+        if (this.gameSpace.getPlayers().participants().contains(player)) {
+            layout.addTrailing(() -> new GuiElement(DtmItems.CLASS_SELECTOR.getDefaultStack(), (index, type, action) -> {
+                if (type.isRight) {
+                    ClassSelectorUI.openSelector(player, this.participants.get(player), this.config.kits());
+                }
+            }));
+        }
     }
 
     private GameResult requestStart() {
@@ -163,6 +183,6 @@ public class WaitingLobby {
     private void spawnPlayer(ServerPlayerEntity player) {
         this.spawnLogic.resetPlayer(player, GameMode.ADVENTURE, false);
         this.spawnLogic.spawnPlayer(player);
-        player.getInventory().setStack(8, new ItemStack(DtmItems.CLASS_SELECTOR));
+        //player.getInventory().setStack(8, new ItemStack(DtmItems.CLASS_SELECTOR));
     }
 }

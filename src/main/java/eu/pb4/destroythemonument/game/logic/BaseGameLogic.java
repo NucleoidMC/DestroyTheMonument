@@ -67,6 +67,7 @@ import xyz.nucleoid.plasmid.api.game.player.*;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 import xyz.nucleoid.plasmid.api.game.stats.GameStatisticBundle;
 import xyz.nucleoid.plasmid.api.game.stats.StatisticKeys;
+import xyz.nucleoid.plasmid.api.util.PlayerMap;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
@@ -91,7 +92,7 @@ public abstract class BaseGameLogic {
 
     public final GameSpace gameSpace;
     public final GameMap gameMap;
-    public final Object2ObjectMap<PlayerRef, PlayerData> participants;
+    public final PlayerMap<PlayerData> participants;
     public final Object2IntMap<PlayerRef> deadPlayers = new Object2IntArrayMap<>();
     public final Teams teams;
     public final ArrayList<PlayerClass> kits = new ArrayList<>();
@@ -106,7 +107,7 @@ public abstract class BaseGameLogic {
     protected long closeTime = -1;
     protected boolean setSpectator = false;
 
-    public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public BaseGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, PlayerMap<PlayerData> participants, Teams teams) {
         this.gameSpace = gameSpace;
         this.config = config;
         this.gameMap = map;

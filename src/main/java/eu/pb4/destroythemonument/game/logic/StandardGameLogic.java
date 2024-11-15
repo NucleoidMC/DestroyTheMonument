@@ -28,6 +28,7 @@ import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.util.PlayerMap;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 import xyz.nucleoid.stimuli.event.EventResult;
 
@@ -40,7 +41,7 @@ public class StandardGameLogic extends BaseGameLogic {
     protected int sidebarTeamPos = 0;
     protected List<TeamData> sidebarTeams;
 
-    public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, PlayerMap<PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, participants, teams);
         List<Text> texts = new ArrayList<>();
 
@@ -54,7 +55,7 @@ public class StandardGameLogic extends BaseGameLogic {
         }
     }
 
-    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, Object2ObjectMap<PlayerRef, PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, PlayerMap<PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, participants, teams);
             active.setupGame(game, map, config, playerTeams);

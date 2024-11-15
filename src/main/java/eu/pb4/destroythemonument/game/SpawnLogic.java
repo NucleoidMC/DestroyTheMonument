@@ -10,12 +10,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.util.PlayerMap;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.Set;
 
 public record SpawnLogic(GameSpace gameSpace, GameMap map,
-                         Object2ObjectMap<PlayerRef, PlayerData> participants,
+                         PlayerMap<PlayerData> participants,
                          Teams teams) {
 
     public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {

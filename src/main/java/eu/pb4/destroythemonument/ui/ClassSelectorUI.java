@@ -6,7 +6,9 @@ import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
+import eu.pb4.sgui.api.GuiHelpers;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
+import eu.pb4.sgui.api.gui.GuiInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,6 +19,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
@@ -27,12 +30,15 @@ public class ClassSelectorUI extends SimpleGui {
     private final PlayerData playerData;
     private final BaseGameLogic game;
     private final List<PlayerClass> kits;
+    @Nullable
+    private final GuiInterface previousUi;
 
     public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game, List<PlayerClass> kits) {
         super(getType(kits.size()), player, kits.size() > 53);
         this.playerData = data;
         this.game = game;
         this.kits = kits;
+        this.previousUi = GuiHelpers.getCurrentGui(player);
         this.setTitle(DtmUtil.getText("ui", "select_class"));
         this.updateIcons();
     }
@@ -50,6 +56,14 @@ public class ClassSelectorUI extends SimpleGui {
             return ScreenHandlerType.GENERIC_9X5;
         } else {
             return ScreenHandlerType.GENERIC_9X6;
+        }
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        if (this.previousUi != null) {
+            this.previousUi.open();
         }
     }
 
