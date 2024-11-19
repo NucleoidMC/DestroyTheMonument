@@ -9,6 +9,7 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.items.DtmItems;
+import eu.pb4.destroythemonument.mixin.LivingEntityAccessor;
 import eu.pb4.destroythemonument.other.DtmResetable;
 import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
@@ -27,6 +28,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerAbilities;
@@ -297,6 +299,7 @@ public abstract class BaseGameLogic {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected Packet<ClientPlayPacketListener> transformPacket(ServerPlayerEntity player, Packet<?> packet) {
         if (packet instanceof BundleS2CPacket bundleS2CPacket) {
             var list = new ArrayList<Packet<? super ClientPlayPacketListener>>();
@@ -336,7 +339,18 @@ public abstract class BaseGameLogic {
             var data = this.participants.get(PlayerRef.of(player));
             var data2 = this.participants.get(PlayerRef.of(target));
             if (data != null && data2 != null && data.teamData.team != data2.teamData.team) {
-                trackerUpdateS2CPacket.trackedValues().removeIf(x -> x.id() == 9);
+                var list = new ArrayList<DataTracker.SerializedEntry<?>>(trackerUpdateS2CPacket.trackedValues().size());
+
+                var modified = false;
+                for (var entry : trackerUpdateS2CPacket.trackedValues()) {
+                    if (entry.id() == LivingEntityAccessor.getHEALTH().id()) {
+                        modified = true;
+                    } else {
+                        list.add(entry);
+                    }
+                }
+                //noinspection ConstantValue
+                return modified ? PolymerEntityUtils.setEntityContext(new EntityTrackerUpdateS2CPacket(trackerUpdateS2CPacket.id(), list), target) : (Packet<ClientPlayPacketListener>)  packet;
             }
         }
         return (Packet<ClientPlayPacketListener>) packet;
