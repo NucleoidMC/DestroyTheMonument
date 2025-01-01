@@ -88,6 +88,8 @@ public class WaitingLobby {
             throw new GameOpenException(Text.literal("Map couldn't load! @Patbox pls fix"), e);
         }
 
+        map.validate();
+
         RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
                 .setGenerator(map.asGenerator(context.server()))
                 .setTimeOfDay(config.map().time())

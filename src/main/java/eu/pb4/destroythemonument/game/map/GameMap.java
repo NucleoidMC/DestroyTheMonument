@@ -7,11 +7,13 @@ import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
+import xyz.nucleoid.plasmid.api.game.GameOpenException;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 
 
@@ -42,6 +44,12 @@ public abstract class GameMap {
         }
         this.mapDeathBounds = BlockBounds.of(bottom, this.mapBounds.max().mutableCopy().add(5, 5, 5));
 
+    }
+
+    public void validate() {
+        if (this.validSpawn.isEmpty()) {
+            throw new GameOpenException(Text.literal("No valid waiting spawns"));
+        }
     }
 
     public abstract ChunkGenerator asGenerator(MinecraftServer server);

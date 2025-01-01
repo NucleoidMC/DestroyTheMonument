@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.TemplateRegion;
+import xyz.nucleoid.plasmid.api.game.GameOpenException;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
@@ -47,6 +48,11 @@ public class TeamData {
     public void setTeamRegions(List<BlockPos> spawn, float spawnYaw, List<TemplateRegion> monuments, Set<BlockBounds> classChange, GameMap map, GameConfig config) {
         this.spawn = spawn;
         this.spawnYaw = spawnYaw;
+
+        if (this.spawn.isEmpty()) {
+            throw new GameOpenException(Text.literal("No valid spawns for " + this.team.id()));
+        }
+
         int id = 0;
 
         for (var region : monuments) {
