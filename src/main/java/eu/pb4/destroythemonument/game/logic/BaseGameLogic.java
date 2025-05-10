@@ -566,7 +566,7 @@ public abstract class BaseGameLogic {
             // Fixes desync
             int slot;
             if (itemUsageContext.getHand() == Hand.MAIN_HAND) {
-                slot = player.getInventory().selectedSlot;
+                slot = player.getInventory().getSelectedSlot();
             } else {
                 slot = 40; // offhand
             }

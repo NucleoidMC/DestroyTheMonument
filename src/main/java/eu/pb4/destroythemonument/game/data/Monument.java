@@ -30,13 +30,13 @@ public class Monument {
         var pos = region.getBounds().min();
 
         var name = defaultId;
-        if (region.getData().contains("id", NbtElement.STRING_TYPE)) {
-            name = idPrefix + region.getData().getString("id");
+        if (region.getData().contains("id")) {
+            name = idPrefix + region.getData().getString("id", "");
         }
 
         Text nameText = null;
-        if (region.getData().contains("lang", NbtElement.STRING_TYPE)) {
-            nameText = Text.translatable(region.getData().getString("lang"));
+        if (region.getData().contains("lang")) {
+            nameText = Text.translatable(region.getData().getString("lang", ""));
         } else if (config.monumentRemaps().isPresent()) {
             var key = config.monumentRemaps().get().get(name);
 

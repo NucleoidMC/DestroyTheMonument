@@ -50,7 +50,7 @@ public class TemplateWithLayerGenerator extends TemplateChunkGenerator {
                     var current = chunk.getBlockState(pos);
 
                     if (current.isAir()) {
-                        chunk.setBlockState(pos, state, false);
+                        chunk.setBlockState(pos, state);
                     }
                 }
             }

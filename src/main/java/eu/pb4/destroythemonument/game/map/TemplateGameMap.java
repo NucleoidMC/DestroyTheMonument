@@ -76,7 +76,7 @@ public final class TemplateGameMap extends GameMap {
             }
         }
 
-        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw")), monuments, classChange, this, config);
+        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw", 0)), monuments, classChange, this, config);
     }
 
     public void onGameStart(BaseGameLogic logic) {

@@ -48,7 +48,7 @@ public class DtmItems {
                                 ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.AXE_MINEABLE), 6.0F),
                                 ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 2.5F),
                                 ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.HOE_MINEABLE), 2.5F)
-                        ), 1.0F, 1)
+                        ), 1.0F, 1, true)
                 ), Items.IRON_PICKAXE);
     });
 

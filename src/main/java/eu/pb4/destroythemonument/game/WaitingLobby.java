@@ -125,7 +125,7 @@ public class WaitingLobby {
     private ActionResult onUseItem(ServerPlayerEntity player, Hand hand) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
 
-        if (playerData != null && player.getInventory().getMainHandStack().getItem() == DtmItems.CLASS_SELECTOR) {
+        if (playerData != null && player.getMainHandStack().getItem() == DtmItems.CLASS_SELECTOR) {
             ClassSelectorUI.openSelector(player, playerData, this.config.kits());
         }
 
