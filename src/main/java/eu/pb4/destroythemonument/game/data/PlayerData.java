@@ -3,10 +3,10 @@ package eu.pb4.destroythemonument.game.data;
 import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.sidebars.api.Sidebar;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class PlayerData {
     public TeamData teamData = null;
@@ -20,7 +20,7 @@ public class PlayerData {
 
     public Object2IntArrayMap<PlayerClass.RestockableItem> restockTimers = new Object2IntArrayMap<>();
 
-    public ServerPlayerEntity lastAttacker;
+    public ServerPlayer lastAttacker;
     public long lastAttackTime;
     public Block selectedBlock = Blocks.OAK_PLANKS;
     public Sidebar sidebar;
@@ -33,7 +33,7 @@ public class PlayerData {
 
     public void resetTimers() {
         for (PlayerClass.RestockableItem key : this.activeClass.restockableItems()) {
-            this.restockTimers.putIfAbsent(key, key.startingOffset);
+            this.restockTimers.putIfAbsent(key, key.startingOffset());
         }
     }
 

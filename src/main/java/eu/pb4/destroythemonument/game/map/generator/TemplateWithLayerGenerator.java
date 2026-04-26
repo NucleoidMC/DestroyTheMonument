@@ -1,14 +1,14 @@
 package eu.pb4.destroythemonument.game.map.generator;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,20 +25,20 @@ public class TemplateWithLayerGenerator extends TemplateChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
-        return super.populateNoise(blender, noiseConfig, structureAccessor, chunk).handle(this::addLayers);
+    public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
+        return super.fillFromNoise(blender, noiseConfig, structureAccessor, chunk).handle(this::addLayers);
     }
 
-    private Chunk addLayers(Chunk chunk, Throwable throwable) {
+    private ChunkAccess addLayers(ChunkAccess chunk, Throwable throwable) {
         int y = this.height;
 
-        var mutablePos = new BlockPos.Mutable();
+        var mutablePos = new BlockPos.MutableBlockPos();
 
         var chunkPos = chunk.getPos();
-        int minWorldX = chunkPos.getStartX();
-        int minWorldZ = chunkPos.getStartZ();
+        int minWorldX = chunkPos.getMinBlockX();
+        int minWorldZ = chunkPos.getMinBlockZ();
 
-        var pos = new BlockPos.Mutable();
+        var pos = new BlockPos.MutableBlockPos();
 
         for (var state : this.layer) {
             pos.setY(y++);

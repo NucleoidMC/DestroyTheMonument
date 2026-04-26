@@ -2,24 +2,24 @@ package eu.pb4.destroythemonument.entities;
 
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 
 public class DtmEntities {
-    public static final EntityType<DtmTntEntity> TNT = register("tnt", EntityType.Builder.create(DtmTntEntity::new, SpawnGroup.MISC).dimensions(1, 1).makeFireImmune());
+    public static final EntityType<DtmTntEntity> TNT = register("tnt", EntityType.Builder.of(DtmTntEntity::new, MobCategory.MISC).sized(1, 1).fireImmune());
 
     public static void register() {
     }
 
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> func) {
         var id = DtmUtil.id(name);
-        var block = func.build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, id));
-        Registry.register(Registries.ENTITY_TYPE, id, block);
+        var block = func.build(ResourceKey.create(Registries.ENTITY_TYPE, id));
+        Registry.register(BuiltInRegistries.ENTITY_TYPE, id, block);
         PolymerEntityUtils.registerType(block);
         return block;
     }

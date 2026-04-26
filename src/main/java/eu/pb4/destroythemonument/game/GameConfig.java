@@ -3,7 +3,6 @@ package eu.pb4.destroythemonument.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
 import eu.pb4.destroythemonument.game.map.MapConfig;
 import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
@@ -11,6 +10,7 @@ import xyz.nucleoid.plasmid.api.game.common.team.GameTeamList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.resources.Identifier;
 
 public record GameConfig(String gamemode, WaitingLobbyConfig players,
                          MapConfig map, GameTeamList teams,

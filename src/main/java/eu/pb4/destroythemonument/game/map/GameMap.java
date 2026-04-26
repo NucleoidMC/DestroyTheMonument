@@ -5,12 +5,12 @@ import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.Monument;
 import eu.pb4.destroythemonument.game.data.TeamData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.api.game.GameOpenException;
@@ -27,7 +27,7 @@ public abstract class GameMap {
     protected final List<BlockBounds> destroyOnStart = new ArrayList<>();
     public final BlockBounds mapBounds;
     public final BlockBounds mapDeathBounds;
-    public ServerWorld world;
+    public ServerLevel world;
     public final List<Monument> monuments = new ArrayList<>();
     public final List<BlockBounds> monumentRegionBounds = new ArrayList<>();
     private final Map<BlockPos, Monument> monumentsByPos = new HashMap<>();
@@ -37,18 +37,18 @@ public abstract class GameMap {
     public GameMap(MapConfig config, BlockBounds mapBounds) {
         this.config = config;
         this.mapBounds = mapBounds;
-        var bottom = this.mapBounds.min().mutableCopy().add(-5, -5, -5);
+        var bottom = this.mapBounds.min().mutable().offset(-5, -5, -5);
 
         if (config.deathPlane().isPresent()) {
-            bottom = bottom.withY(config.deathPlane().get());
+            bottom = bottom.atY(config.deathPlane().get());
         }
-        this.mapDeathBounds = BlockBounds.of(bottom, this.mapBounds.max().mutableCopy().add(5, 5, 5));
+        this.mapDeathBounds = BlockBounds.of(bottom, this.mapBounds.max().mutable().offset(5, 5, 5));
 
     }
 
     public void validate() {
         if (this.validSpawn.isEmpty()) {
-            throw new GameOpenException(Text.literal("No valid waiting spawns"));
+            throw new GameOpenException(Component.literal("No valid waiting spawns"));
         }
     }
 
@@ -82,9 +82,9 @@ public abstract class GameMap {
         return this.validSpawn.get(DTM.RANDOM.nextInt(this.validSpawn.size()));
     }
 
-    public Vec3d getRandomSpawnPosAsVec3d() {
+    public Vec3 getRandomSpawnPosAsVec3d() {
         BlockPos pos = getRandomSpawnPos();
-        return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+        return new Vec3(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public abstract void onGameStart(BaseGameLogic logic);

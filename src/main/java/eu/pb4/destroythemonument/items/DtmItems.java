@@ -4,50 +4,46 @@ import eu.pb4.destroythemonument.blocks.DtmBlocks;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ToolComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Rarity;
-
 import java.util.List;
 import java.util.function.Function;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Tool;
 
 public class DtmItems {
     public static final Item CLASS_SELECTOR = register("class_selector", (settings) -> new SimplePolymerItem(settings, Items.PAPER) {
-        final Text NAME = Text.empty().append("[")
-                .append(Text.translatable("item.destroy_the_monument.class_selector").formatted(Formatting.GOLD, Formatting.BOLD))
-                .append("]").formatted(Formatting.GRAY);
+        final Component NAME = Component.empty().append("[")
+                .append(Component.translatable("item.destroy_the_monument.class_selector").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                .append("]").withStyle(ChatFormatting.GRAY);
 
         @Override
-        public Text getName(ItemStack stack) {
+        public Component getName(ItemStack stack) {
             return NAME;
         }
     });
     public static final Item MULTI_BLOCK = register("multi_block", MultiBlockItem::new);
-    public static final Item WEAK_GLASS = register("weak_glass", (settings) -> new PolymerBlockItem(DtmBlocks.WEAK_GLASS, settings.useBlockPrefixedTranslationKey(), Items.GLASS));
-    public static final Item LADDER = register("ladder", (settings) -> new PolymerBlockItem(DtmBlocks.LADDER, settings.useBlockPrefixedTranslationKey(), Items.LADDER));
+    public static final Item WEAK_GLASS = register("weak_glass", (settings) -> new PolymerBlockItem(DtmBlocks.WEAK_GLASS, settings.useBlockDescriptionPrefix(), Items.GLASS));
+    public static final Item LADDER = register("ladder", (settings) -> new PolymerBlockItem(DtmBlocks.LADDER, settings.useBlockDescriptionPrefix(), Items.LADDER));
     public static final Item MAP = register("map", DtmMapItem::new);
     public static final Item TNT = register("tnt", DtmTntItem::new);
     public static final Item MINING_TOOL = register("mining_tool", settings -> {
-        var lookup = Registries.createEntryLookup(Registries.BLOCK);
+        var lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
         return new SimplePolymerItem(
-                settings.component(DataComponentTypes.TOOL, new ToolComponent(List.of(
-                                ToolComponent.Rule.ofNeverDropping(lookup.getOrThrow(BlockTags.INCORRECT_FOR_DIAMOND_TOOL)),
-                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.PICKAXE_MINEABLE), 7.5F),
-                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.AXE_MINEABLE), 6.0F),
-                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 2.5F),
-                                ToolComponent.Rule.ofAlwaysDropping(lookup.getOrThrow(BlockTags.HOE_MINEABLE), 2.5F)
+                settings.component(DataComponents.TOOL, new Tool(List.of(
+                                Tool.Rule.deniesDrops(lookup.getOrThrow(BlockTags.INCORRECT_FOR_DIAMOND_TOOL)),
+                                Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_PICKAXE), 7.5F),
+                                Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), 6.0F),
+                                Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_SHOVEL), 2.5F),
+                                Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_HOE), 2.5F)
                         ), 1.0F, 1, true)
                 ), Items.IRON_PICKAXE);
     });
@@ -56,10 +52,10 @@ public class DtmItems {
 
     }
 
-    private static <T extends Item> T register(String name, Function<Item.Settings, T> func) {
+    private static <T extends Item> T register(String name, Function<Item.Properties, T> func) {
         var id =  DtmUtil.id(name);
-        var block = func.apply(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, id)));
-        Registry.register(Registries.ITEM, id, block);
+        var block = func.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id)));
+        Registry.register(BuiltInRegistries.ITEM, id, block);
         return block;
     }
 }

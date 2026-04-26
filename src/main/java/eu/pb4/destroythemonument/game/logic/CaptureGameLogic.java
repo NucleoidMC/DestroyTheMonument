@@ -10,24 +10,23 @@ import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.*;
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.BannerBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ConcretePowderBlock;
+import net.minecraft.world.level.block.WallBannerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
@@ -46,48 +45,48 @@ public class CaptureGameLogic extends BaseGameLogic {
 
     public CaptureGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, PlayerMap<PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, participants, teams);
-        List<Text> texts = new ArrayList<>();
+        List<Component> texts = new ArrayList<>();
 
-        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
-        texts.add(Text.literal("           Capture The Monument").formatted(Formatting.GOLD, Formatting.BOLD));
-        texts.add(DtmUtil.getText("message", "about.capture").formatted(Formatting.WHITE));
-        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
+        texts.add(Component.literal("+--------------------------------------+").withStyle(ChatFormatting.DARK_GRAY));
+        texts.add(Component.literal("           Capture The Monument").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        texts.add(DtmUtil.getText("message", "about.capture").withStyle(ChatFormatting.WHITE));
+        texts.add(Component.literal("+--------------------------------------+").withStyle(ChatFormatting.DARK_GRAY));
 
-        for (Text text : texts) {
+        for (Component text : texts) {
             this.gameSpace.getPlayers().sendMessage(text);
         }
     }
 
-    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, PlayerMap<PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayer> playerTeams, PlayerMap<PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
             BaseGameLogic active = new CaptureGameLogic(gameSpace, map, config, participants, teams);
             active.setupGame(game, map, config, playerTeams);
         });
     }
 
-    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
+    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayer> playerTeams) {
         super.setupGame(game, map, config, playerTeams);
     }
 
     protected void maybeEliminate(TeamData teamData) {
         if (teamData.aliveMonuments.size() <= 0) {
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers()) {
+            for (ServerPlayer player : this.gameSpace.getPlayers()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.teamData == teamData) {
-                    player.changeGameMode(GameMode.SPECTATOR);
+                    player.setGameMode(GameType.SPECTATOR);
                 }
             }
         }
     }
 
     @Override
-    protected EventResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
+    protected EventResult onPlayerBreakBlock(ServerPlayer player, ServerLevel world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         var monument = this.gameMap.getActiveMonument(blockPos);
 
         if (playerData != null && monument != null) {
             if (monument.teamData == playerData.teamData) {
-                player.sendMessage(DtmUtil.getText("message", "cant_capture_own").formatted(Formatting.RED), true);
+                player.sendSystemMessage(DtmUtil.getText("message", "cant_capture_own").withStyle(ChatFormatting.RED), true);
                 return EventResult.DENY;
             } else {
                 var oldTeam = monument.teamData;
@@ -107,35 +106,35 @@ public class CaptureGameLogic extends BaseGameLogic {
                     for (var pos : region) {
                         var state = this.gameMap.world.getBlockState(pos);
                         BlockState newState = state;
-                        if (state.isIn(BlockTags.WOOL)) {
-                            newState = ColoredBlocks.wool(dye).getDefaultState();
-                        } else if (state.isIn(BlockTags.WOOL_CARPETS)) {
-                            newState = ColoredBlocks.carpet(dye).getDefaultState();
-                        } else if (state.isIn(BlockTags.CANDLES)) {
-                            newState = ColoredBlocks.candle(dye).getStateWithProperties(state);
-                        } else if (state.isIn(BlockTags.TERRACOTTA)) {
-                            newState = ColoredBlocks.terracotta(dye).getDefaultState();
+                        if (state.is(BlockTags.WOOL)) {
+                            newState = ColoredBlocks.wool(dye).defaultBlockState();
+                        } else if (state.is(BlockTags.WOOL_CARPETS)) {
+                            newState = ColoredBlocks.carpet(dye).defaultBlockState();
+                        } else if (state.is(BlockTags.CANDLES)) {
+                            newState = ColoredBlocks.candle(dye).withPropertiesOf(state);
+                        } else if (state.is(BlockTags.TERRACOTTA)) {
+                            newState = ColoredBlocks.terracotta(dye).defaultBlockState();
                         } else if (DTM.CONCRETE.contains(state.getBlock())) {
-                            newState = ColoredBlocks.concrete(dye).getDefaultState();
+                            newState = ColoredBlocks.concrete(dye).defaultBlockState();
                         } else if (DTM.STAINED_GLASS.contains(state.getBlock())) {
-                            newState = ColoredBlocks.glass(dye).getDefaultState();
+                            newState = ColoredBlocks.glass(dye).defaultBlockState();
                         } else if (DTM.STAINED_GLASS_PANES.contains(state.getBlock())) {
-                            newState = ColoredBlocks.glassPane(dye).getDefaultState();
+                            newState = ColoredBlocks.glassPane(dye).defaultBlockState();
                         } else if (state.getBlock() instanceof ConcretePowderBlock) {
-                            newState = ColoredBlocks.concretePowder(dye).getDefaultState();
+                            newState = ColoredBlocks.concretePowder(dye).defaultBlockState();
                         }  else if (state.getBlock() instanceof BannerBlock) {
-                            newState = ColoredBlocks.banner(dye).getStateWithProperties(state);
+                            newState = ColoredBlocks.banner(dye).withPropertiesOf(state);
                         } else if (state.getBlock() instanceof WallBannerBlock) {
-                            newState = ColoredBlocks.wallBanner(dye).getStateWithProperties(state);
+                            newState = ColoredBlocks.wallBanner(dye).withPropertiesOf(state);
                         }
 
                         if (state != newState) {
-                            world.setBlockState(pos, state, Block.FORCE_STATE | Block.NOTIFY_LISTENERS);
+                            world.setBlock(pos, state, Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_CLIENTS);
                         }
                     }
                 }
 
-                Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
+                Component text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
                         FormattingUtil.GENERAL_STYLE,
                         DtmUtil.getText("message", "monument_captured" + (oldTeam != null ? ".takeover" : ""),
                                 player.getDisplayName(),
@@ -146,7 +145,7 @@ public class CaptureGameLogic extends BaseGameLogic {
                 this.gameSpace.getPlayers().sendMessage(text);
                 if (oldTeam != null) {
                     this.maybeEliminate(oldTeam);
-                    this.teams.getManager().playersIn(oldTeam.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
+                    this.teams.getManager().playersIn(oldTeam.team).playSound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.6f, 1f);
                 }
                 //this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket((double) blockPos.getX() + 0.5, (double) blockPos.getY() + 0.5, (double) blockPos.getZ() + 0.5, 1f, new ArrayList<>(), new Vec3d(0.0, 0.0, 0.0)));
                 playerData.brokenMonuments += 1;
@@ -161,7 +160,7 @@ public class CaptureGameLogic extends BaseGameLogic {
     }
 
     @Override
-    public void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData) {
+    public void setPlayerSidebar(ServerPlayer player, PlayerData playerData) {
         playerData.sidebar = this.globalSidebar;
         this.globalSidebar.addPlayer(player);
     }
@@ -262,10 +261,10 @@ public class CaptureGameLogic extends BaseGameLogic {
         boolean miniCompact = false;//(monumentsSize + 2) * this.sidebarTeams.size() > 11;
         boolean compact = false;//(monumentsSize + 1) * this.sidebarTeams.size() > 11;
 
-        this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "capture_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
+        this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "capture_title").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
 
         this.globalSidebar.set(b -> {
-            b.add(Text.empty());
+            b.add(Component.empty());
 
             /*if (compact) {
                 for (var teamData : this.sidebarTeams) {
@@ -292,20 +291,20 @@ public class CaptureGameLogic extends BaseGameLogic {
                 b.add((x) -> generateSidebarTitleForMonument(monument));
             }
 
-            b.add(Text.empty());
+            b.add(Component.empty());
             b.add((player) -> {
                 if (player != null) {
                     PlayerData data = this.participants.get(PlayerRef.of(player));
 
                     if (data != null) {
                         return DtmUtil.getText("sidebar", "stats",
-                                Text.literal("" + data.kills).formatted(Formatting.WHITE),
-                                Text.literal("" + data.deaths).formatted(Formatting.WHITE),
-                                Text.literal("" + data.brokenMonuments).formatted(Formatting.WHITE)
+                                Component.literal("" + data.kills).withStyle(ChatFormatting.WHITE),
+                                Component.literal("" + data.deaths).withStyle(ChatFormatting.WHITE),
+                                Component.literal("" + data.brokenMonuments).withStyle(ChatFormatting.WHITE)
                         ).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xf2a600)));
                     }
                 }
-                return Text.empty();
+                return Component.empty();
             });
 
             b.add((player) -> {
@@ -314,29 +313,29 @@ public class CaptureGameLogic extends BaseGameLogic {
 
                 return FormattingUtil.formatScoreboard(FormattingUtil.TIME_PREFIX,
                         DtmUtil.getText("sidebar", "time",
-                                Text.literal(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
+                                Component.literal(String.format("%02d:%02d", minutes, seconds)).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN));
             });
         });
     }
 
-    private Text generateSidebarTitleForTeam(TeamData data) {
+    private Component generateSidebarTitleForTeam(TeamData data) {
         if (data == null) {
-            return Text.empty();
+            return Component.empty();
         }
 
         int monuments = data.aliveMonuments.size();
-        return Text.literal("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
-                .append(Text.literal(" (").setStyle(FormattingUtil.PREFIX_STYLE))
-                .append(Text.literal("" + monuments).formatted(Formatting.WHITE))
-                .append(Text.literal("/").formatted(Formatting.GRAY))
-                .append(Text.literal("" + data.monumentStartingCount).formatted(Formatting.WHITE))
-                .append(Text.literal(")").setStyle(FormattingUtil.PREFIX_STYLE));
+        return Component.literal("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
+                .append(Component.literal(" (").setStyle(FormattingUtil.PREFIX_STYLE))
+                .append(Component.literal("" + monuments).withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("/").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("" + data.monumentStartingCount).withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(")").setStyle(FormattingUtil.PREFIX_STYLE));
     }
 
-    private Text generateSidebarTitleForMonument(Monument monument) {
-        return Text.literal("").append(Text.literal("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
+    private Component generateSidebarTitleForMonument(Monument monument) {
+        return Component.literal("").append(Component.literal("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
                 .append(monument.getName())
-                .setStyle(Style.EMPTY.withColor(monument.teamData != null ? monument.teamData.getConfig().chatFormatting() : Formatting.WHITE));
+                .setStyle(Style.EMPTY.withColor(monument.teamData != null ? monument.teamData.getConfig().chatFormatting() : ChatFormatting.WHITE));
     }
 }
 

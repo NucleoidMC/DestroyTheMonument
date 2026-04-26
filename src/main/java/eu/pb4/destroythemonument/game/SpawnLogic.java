@@ -4,45 +4,45 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmResetable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.util.PlayerMap;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 
 public record SpawnLogic(GameSpace gameSpace, GameMap map,
                          PlayerMap<PlayerData> participants,
                          Teams teams) {
 
-    public void resetPlayer(ServerPlayerEntity player, GameMode gameMode) {
+    public void resetPlayer(ServerPlayer player, GameType gameMode) {
         this.resetPlayer(player, gameMode, true);
     }
 
-    public void resetPlayer(ServerPlayerEntity player, GameMode gameMode, boolean resetInventory) {
+    public void resetPlayer(ServerPlayer player, GameType gameMode, boolean resetInventory) {
         player.setInvisible(false);
         player.setNoGravity(false);
-        player.setFireTicks(0);
-        player.changeGameMode(gameMode);
-        player.setVelocity(Vec3d.ZERO);
+        player.setRemainingFireTicks(0);
+        player.setGameMode(gameMode);
+        player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0.0f;
         player.setHealth(player.getMaxHealth());
-        player.getHungerManager().setFoodLevel(20);
-        player.getHungerManager().setSaturationLevel(5.0F);
-        player.clearStatusEffects();
+        player.getFoodData().setFoodLevel(20);
+        player.getFoodData().setSaturation(5.0F);
+        player.removeAllEffects();
         ((DtmResetable) player.getAttributes()).dtm$reset();
-        ((DtmResetable) player.interactionManager).dtm$reset();
+        ((DtmResetable) player.gameMode).dtm$reset();
         if (resetInventory) {
-            player.getInventory().clear();
+            player.getInventory().clearContent();
         }
     }
 
-    public void spawnPlayer(ServerPlayerEntity entity) {
-        ServerWorld world = this.map.world;
+    public void spawnPlayer(ServerPlayer entity) {
+        ServerLevel world = this.map.world;
         if (this.participants != null) {
             PlayerData player = participants.get(PlayerRef.of(entity));
             if (player != null && player.teamData != null) {
@@ -52,13 +52,14 @@ public record SpawnLogic(GameSpace gameSpace, GameMap map,
                     pos = player.teamData.getRandomSpawnPos();
                 }
                 player.nextSpawnPos = null;
-                entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), player.teamData.spawnYaw, 0, false);
+
+                entity.teleportTo(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), player.teamData.spawnYaw, 0, false);
                 return;
             }
         }
 
         BlockPos pos = this.map.getRandomSpawnPos();
 
-        entity.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), entity.getYaw(), entity.getPitch(), false);
+        entity.teleportTo(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), entity.getYRot(), entity.getXRot(), false);
     }
 }

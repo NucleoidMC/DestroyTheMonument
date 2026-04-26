@@ -3,9 +3,9 @@ package eu.pb4.destroythemonument.game.map;
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 

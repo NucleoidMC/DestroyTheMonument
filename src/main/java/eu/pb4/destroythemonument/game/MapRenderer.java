@@ -4,27 +4,24 @@ import eu.pb4.destroythemonument.game.data.PlayerData;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.map.GameMap;
-import net.minecraft.block.MapColor;
-import net.minecraft.component.type.MapIdComponent;
-import net.minecraft.item.map.MapDecoration;
-import net.minecraft.item.map.MapDecorationType;
-import net.minecraft.item.map.MapDecorationTypes;
-import net.minecraft.item.map.MapState;
-import net.minecraft.network.packet.s2c.play.MapUpdateS2CPacket;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import net.minecraft.world.level.saveddata.maps.MapDecorationType;
+import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public class MapRenderer {
     private final BaseGameLogic logic;
@@ -57,7 +54,7 @@ public class MapRenderer {
 
     public void renderWorld(int fromX, int fromZ, int toX, int toZ) {
         var world = this.map.world;
-        var pos = new BlockPos.Mutable();
+        var pos = new BlockPos.MutableBlockPos();
 
         var min = this.map.mapBounds.min();
 
@@ -70,7 +67,7 @@ public class MapRenderer {
 
                 int index = iX + 1 + (iZ + 1) * this.xSize;
 
-                int y = world.getTopY(Heightmap.Type.MOTION_BLOCKING, x, z) - 1;
+                int y = world.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) - 1;
 
                 if (this.map.mapBounds.contains(x, y, z)) {
                     var blockState = world.getBlockState(pos.set(x, y, z));
@@ -88,19 +85,19 @@ public class MapRenderer {
         }
 
         for (int x = 0; x < this.xSize; x++) {
-            byte val = (byte) (MapColor.GRAY.id * 4 + (x % 2) * 2);
+            byte val = (byte) (MapColor.COLOR_GRAY.id * 4 + (x % 2) * 2);
             this.mapData[x] = val;
             this.mapData[x + (this.zSize - 1) * this.xSize] = val;
         }
 
         for (int z = 0; z < this.zSize; z++) {
-            byte val = (byte) (MapColor.GRAY.id * 4 + (z % 2) * 2);
+            byte val = (byte) (MapColor.COLOR_GRAY.id * 4 + (z % 2) * 2);
             this.mapData[z * this.xSize] = val;
             this.mapData[this.xSize - 1 + z * this.xSize] = val;
         }
     }
 
-    public void updateMap(ServerPlayerEntity player, @Nullable PlayerData playerData) {
+    public void updateMap(ServerPlayer player, @Nullable PlayerData playerData) {
         List<MapDecoration> icons = new ArrayList<>();
         var bytes = new byte[128 * 128];
 
@@ -142,8 +139,8 @@ public class MapRenderer {
             }
         }
 
-        int playerX = player.getBlockPos().getX();
-        int playerZ = player.getBlockPos().getZ();
+        int playerX = player.blockPosition().getX();
+        int playerZ = player.blockPosition().getZ();
 
         for (int x = 0; x < 127; x++) {
             for (int z = 0; z < 127; z++) {
@@ -160,8 +157,8 @@ public class MapRenderer {
                     continue;
                 }
 
-                int rX = playerX + x - 64 + this.halfXSize - (int) this.map.mapBounds.center().getX();
-                int rZ = playerZ + z - 64 + this.halfZSize - (int) this.map.mapBounds.center().getZ();
+                int rX = playerX + x - 64 + this.halfXSize - (int) this.map.mapBounds.center().x();
+                int rZ = playerZ + z - 64 + this.halfZSize - (int) this.map.mapBounds.center().z();
 
                 if (rX >= this.xSize || rX < 0 || rZ >= this.zSize || rZ < 0) {
                     continue;
@@ -206,7 +203,7 @@ public class MapRenderer {
                 var type = getDecorationType(monument.teamData.getConfig().blockDyeColor());
                 var text = isOff ? null : monument.getName();
                 icons.add(new MapDecoration(type,
-                        (byte) MathHelper.clamp(mX, -127, 127 ), (byte) MathHelper.clamp(mZ, -127, 127 ), (byte) 8, Optional.ofNullable(text)));
+                        (byte) Mth.clamp(mX, -127, 127 ), (byte) Mth.clamp(mZ, -127, 127 ), (byte) 8, Optional.ofNullable(text)));
 
             } else if (!isOff) {
                 icons.add(new MapDecoration(MapDecorationTypes.RED_X, (byte) mX, (byte) mZ, (byte) 8,Optional.empty()));
@@ -215,7 +212,7 @@ public class MapRenderer {
 
         for (TeamData data : logic.teams) {
             if (playerData == null || playerData.teamData == data) {
-                for (ServerPlayerEntity entity : logic.teams.getManager().playersIn(data.team)) {
+                for (ServerPlayer entity : logic.teams.getManager().playersIn(data.team)) {
                     if (entity == player) {
                         continue;
                     }
@@ -233,13 +230,13 @@ public class MapRenderer {
                         continue;
                     }
 
-                    icons.add(new MapDecoration(MapDecorationTypes.BLUE_MARKER, (byte) mX, (byte) mZ, (byte) Math.round((entity.getYaw() + rotationEntity) / 360 * 16), Optional.ofNullable(entity.getDisplayName())));
+                    icons.add(new MapDecoration(MapDecorationTypes.BLUE_MARKER, (byte) mX, (byte) mZ, (byte) Math.round((entity.getYRot() + rotationEntity) / 360 * 16), Optional.ofNullable(entity.getDisplayName())));
                 }
             }
 
-            icons.add(new MapDecoration(MapDecorationTypes.PLAYER, (byte) 0, (byte) 0, (byte) Math.round((player.getYaw() + rotationEntity) / 360 * 16), Optional.empty()));
+            icons.add(new MapDecoration(MapDecorationTypes.PLAYER, (byte) 0, (byte) 0, (byte) Math.round((player.getYRot() + rotationEntity) / 360 * 16), Optional.empty()));
         }
-        player.networkHandler.sendPacket(new MapUpdateS2CPacket(new MapIdComponent(0), (byte) 0, false, icons, new MapState.UpdateData(0, 0, 128, 128, bytes)));
+        player.connection.send(new ClientboundMapItemDataPacket(new MapId(0), (byte) 0, false, icons, new MapItemSavedData.MapPatch(0, 0, 128, 128, bytes)));
     }
 
     public void tick() {
@@ -261,24 +258,24 @@ public class MapRenderer {
         }
     }
 
-    private static RegistryEntry<MapDecorationType> getDecorationType(DyeColor color) {
+    private static Holder<MapDecorationType> getDecorationType(DyeColor color) {
         return switch (color) {
-            case WHITE -> MapDecorationTypes.BANNER_WHITE;
-            case ORANGE -> MapDecorationTypes.BANNER_ORANGE;
-            case MAGENTA -> MapDecorationTypes.BANNER_MAGENTA;
-            case LIGHT_BLUE -> MapDecorationTypes.BANNER_LIGHT_BLUE;
-            case YELLOW -> MapDecorationTypes.BANNER_YELLOW;
-            case LIME -> MapDecorationTypes.BANNER_LIME;
-            case PINK -> MapDecorationTypes.BANNER_PINK;
-            case GRAY -> MapDecorationTypes.BANNER_GRAY;
-            case LIGHT_GRAY -> MapDecorationTypes.BANNER_LIGHT_GRAY;
-            case CYAN -> MapDecorationTypes.BANNER_CYAN;
-            case PURPLE -> MapDecorationTypes.BANNER_PURPLE;
-            case BLUE -> MapDecorationTypes.BANNER_BLUE;
-            case BROWN -> MapDecorationTypes.BANNER_BROWN;
-            case GREEN -> MapDecorationTypes.BANNER_GREEN;
-            case RED -> MapDecorationTypes.BANNER_RED;
-            case BLACK -> MapDecorationTypes.BANNER_BLACK;
+            case WHITE -> MapDecorationTypes.WHITE_BANNER;
+            case ORANGE -> MapDecorationTypes.ORANGE_BANNER;
+            case MAGENTA -> MapDecorationTypes.MAGENTA_BANNER;
+            case LIGHT_BLUE -> MapDecorationTypes.LIGHT_BLUE_BANNER;
+            case YELLOW -> MapDecorationTypes.YELLOW_BANNER;
+            case LIME -> MapDecorationTypes.LIME_BANNER;
+            case PINK -> MapDecorationTypes.PINK_BANNER;
+            case GRAY -> MapDecorationTypes.GRAY_BANNER;
+            case LIGHT_GRAY -> MapDecorationTypes.LIGHT_GRAY_BANNER;
+            case CYAN -> MapDecorationTypes.CYAN_BANNER;
+            case PURPLE -> MapDecorationTypes.PURPLE_BANNER;
+            case BLUE -> MapDecorationTypes.BLUE_BANNER;
+            case BROWN -> MapDecorationTypes.BROWN_BANNER;
+            case GREEN -> MapDecorationTypes.GREEN_BANNER;
+            case RED -> MapDecorationTypes.RED_BANNER;
+            case BLACK -> MapDecorationTypes.BLACK_BANNER;
         };
     }
 }

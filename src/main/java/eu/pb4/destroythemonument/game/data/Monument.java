@@ -2,10 +2,9 @@ package eu.pb4.destroythemonument.game.data;
 
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.map.GameMap;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.text.Text;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.TemplateRegion;
 
@@ -15,10 +14,10 @@ public class Monument {
     public TeamData teamData;
     public final BlockPos pos;
     private final GameMap map;
-    private final Text name;
+    private final Component name;
     private boolean alive = true;
 
-    public Monument(String id, TeamData team, BlockPos pos, GameMap map, Text name) {
+    public Monument(String id, TeamData team, BlockPos pos, GameMap map, Component name) {
         this.id = id;
         this.teamData = team;
         this.pos = pos;
@@ -31,22 +30,22 @@ public class Monument {
 
         var name = defaultId;
         if (region.getData().contains("id")) {
-            name = idPrefix + region.getData().getString("id", "");
+            name = idPrefix + region.getData().getStringOr("id", "");
         }
 
-        Text nameText = null;
+        Component nameText = null;
         if (region.getData().contains("lang")) {
-            nameText = Text.translatable(region.getData().getString("lang", ""));
+            nameText = Component.translatable(region.getData().getStringOr("lang", ""));
         } else if (config.monumentRemaps().isPresent()) {
             var key = config.monumentRemaps().get().get(name);
 
             if (key != null) {
-                nameText = Text.translatable(key);
+                nameText = Component.translatable(key);
             }
         }
 
         if (nameText == null) {
-            nameText = Text.translatable(Util.createTranslationKey("monument", config.map().id()) + "." + name);
+            nameText = Component.translatable(Util.makeDescriptionId("monument", config.map().id()) + "." + name);
         }
         return new Monument(name, teamData, pos, map, nameText);
     }
@@ -58,7 +57,7 @@ public class Monument {
 
     public void setAlive(boolean value) {
         if (value && this.map.world != null) {
-            this.map.world.setBlockState(this.pos, map.config.monument());
+            this.map.world.setBlockAndUpdate(this.pos, map.config.monument());
             this.teamData.aliveMonuments.add(this);
             this.teamData.brokenMonuments.remove(this);
         } else {
@@ -68,7 +67,7 @@ public class Monument {
         this.alive = value;
     }
 
-    public Text getName() {
+    public Component getName() {
         return this.name;
     }
 }

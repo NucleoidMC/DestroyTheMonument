@@ -11,9 +11,9 @@ import com.mojang.serialization.JsonOps;
 import eu.pb4.destroythemonument.DTM;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 import com.mojang.datafixers.util.Pair;
 import xyz.nucleoid.plasmid.api.util.TinyRegistry;
@@ -27,24 +27,24 @@ public class ClassRegistry {
     private static final TinyRegistry<PlayerClass> CLASSES = TinyRegistry.create();
 
     public static void register() {
-        ResourceManagerHelper serverData = ResourceManagerHelper.get(ResourceType.SERVER_DATA);
+        ResourceManagerHelper serverData = ResourceManagerHelper.get(PackType.SERVER_DATA);
 
-        serverData.registerReloadListener(Identifier.of(DTM.ID, "class_dtm"), registries -> new SimpleSynchronousResourceReloadListener() {
+        serverData.registerReloadListener(Identifier.fromNamespaceAndPath(DTM.ID, "class_dtm"), registries -> new SimpleSynchronousResourceReloadListener() {
 
             @Override
             public Identifier getFabricId() {
-                return Identifier.of(DTM.ID, "class_dtm");
+                return Identifier.fromNamespaceAndPath(DTM.ID, "class_dtm");
             }
 
             @Override
-            public void reload(ResourceManager manager) {
+            public void onResourceManagerReload(ResourceManager manager) {
                 CLASSES.clear();
-                var ops = registries.getOps(JsonOps.INSTANCE);
-                var resources = manager.findResources("class_dtm", path -> path.getPath().endsWith(".json"));
+                var ops = registries.createSerializationContext(JsonOps.INSTANCE);
+                var resources = manager.listResources("class_dtm", path -> path.getPath().endsWith(".json"));
 
                 for (var path : resources.entrySet()) {
                     try {
-                        try (Reader reader = new BufferedReader(new InputStreamReader(path.getValue().getInputStream()))) {
+                        try (Reader reader = new BufferedReader(new InputStreamReader(path.getValue().open()))) {
                             JsonElement json = JsonParser.parseReader(reader);
 
                             Identifier identifier = identifierFromPath(path.getKey());
@@ -66,7 +66,7 @@ public class ClassRegistry {
     private static Identifier identifierFromPath(Identifier location) {
         String path = location.getPath();
         path = path.substring("class_dtm/".length(), path.length() - ".json".length());
-        return Identifier.of(location.getNamespace(), path);
+        return Identifier.fromNamespaceAndPath(location.getNamespace(), path);
     }
 
     @Nullable

@@ -6,72 +6,72 @@ import eu.pb4.destroythemonument.game.playerclass.PlayerClass;
 import eu.pb4.destroythemonument.game.playerclass.ClassRegistry;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
-import eu.pb4.sgui.api.gui.GuiInterface;
+import eu.pb4.sgui.api.gui.GuiLike;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.inventory.MenuType;
+import xyz.nucleoid.plasmid.api.util.PlayerUtil;
 
 public class ClassSelectorUI extends SimpleGui {
     private final PlayerData playerData;
     private final BaseGameLogic game;
     private final List<PlayerClass> kits;
     @Nullable
-    private final GuiInterface previousUi;
+    private final GuiLike previousUi;
 
-    public ClassSelectorUI(ServerPlayerEntity player, PlayerData data, BaseGameLogic game, List<PlayerClass> kits) {
+    public ClassSelectorUI(ServerPlayer player, PlayerData data, BaseGameLogic game, List<PlayerClass> kits) {
         super(getType(kits.size()), player, kits.size() > 53);
         this.playerData = data;
         this.game = game;
         this.kits = kits;
-        this.previousUi = GuiHelpers.getCurrentGui(player);
+        this.previousUi = SguiUtils.getCurrentGui(player);
         this.setTitle(DtmUtil.getText("ui", "select_class"));
         this.updateIcons();
     }
 
-    private static ScreenHandlerType<?> getType(int size) {
+    private static MenuType<?> getType(int size) {
         if (size <= 8) {
-            return ScreenHandlerType.GENERIC_9X1;
+            return MenuType.GENERIC_9x1;
         } else if (size <= 17) {
-            return ScreenHandlerType.GENERIC_9X2;
+            return MenuType.GENERIC_9x2;
         } else if (size <= 26) {
-            return ScreenHandlerType.GENERIC_9X3;
+            return MenuType.GENERIC_9x3;
         } else if (size <= 35) {
-            return ScreenHandlerType.GENERIC_9X4;
+            return MenuType.GENERIC_9x4;
         } else if (size <= 44) {
-            return ScreenHandlerType.GENERIC_9X5;
+            return MenuType.GENERIC_9x5;
         } else {
-            return ScreenHandlerType.GENERIC_9X6;
+            return MenuType.GENERIC_9x6;
         }
     }
 
     @Override
-    public void onClose() {
-        super.onClose();
+    public void afterRemoval() {
+        super.afterRemoval();
         if (this.previousUi != null) {
             this.previousUi.open();
         }
     }
 
-    public static void openSelector(ServerPlayerEntity player, BaseGameLogic logic) {
+    public static void openSelector(ServerPlayer player, BaseGameLogic logic) {
         new ClassSelectorUI(player, logic.participants.get(PlayerRef.of(player)), logic, logic.kits).open();
     }
 
-    public static void openSelector(ServerPlayerEntity player, PlayerData data, List<Identifier> kits) {
+    public static void openSelector(ServerPlayer player, PlayerData data, List<Identifier> kits) {
         ArrayList<PlayerClass> kitsList = new ArrayList<>();
 
         for (Identifier id : kits) {
@@ -88,23 +88,23 @@ public class ClassSelectorUI extends SimpleGui {
         int pos = 0;
 
         for (PlayerClass kit : this.kits) {
-            GuiElementBuilder icon = GuiElementBuilder.from(kit.icon());
+            GuiElementBuilder icon = new GuiElementBuilder(kit.icon());
             icon.setName(DtmUtil.getText("class", kit.name()));
             icon.hideDefaultTooltip();
             if (kit == this.playerData.selectedClass) {
                 icon.glow();
             }
-            icon.addLoreLine(DtmUtil.getText("class", kit.name() + "/description").formatted(Formatting.RED));
-            icon.addLoreLine(Text.empty());
-            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_select").formatted(Formatting.GRAY)));
-            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_preview").formatted(Formatting.GRAY)));
+            icon.addLoreLine(DtmUtil.getText("class", kit.name() + "/description").withStyle(ChatFormatting.RED));
+            icon.addLoreLine(Component.empty());
+            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_select").withStyle(ChatFormatting.GRAY)));
+            icon.addLoreLine(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, DtmUtil.getText("ui", "click_preview").withStyle(ChatFormatting.GRAY)));
 
-            icon.setCallback((x, clickType, z) -> {
+            icon.setCallback((clickType) -> {
                 if (clickType.isLeft) {
-                    this.player.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 0.5f, 1);
+                    PlayerUtil.playSoundToPlayer(this.player, SoundEvents.BOOK_PAGE_TURN, SoundSource.UI, 0.5f, 1);
                     changeKit(this.game, this.player, this.playerData, kit);
                 } else if (clickType.isRight) {
-                    this.player.playSoundToPlayer(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 0.5f, 1);
+                    PlayerUtil.playSoundToPlayer(this.player, SoundEvents.BOOK_PAGE_TURN, SoundSource.UI, 0.5f, 1);
                     new ClassPreviewUI(this, kit).open();
                 }
                 this.updateIcons();
@@ -115,17 +115,17 @@ public class ClassSelectorUI extends SimpleGui {
         }
     }
 
-    public static void changeKit(BaseGameLogic game, ServerPlayerEntity player, PlayerData playerData, PlayerClass kit) {
+    public static void changeKit(BaseGameLogic game, ServerPlayer player, PlayerData playerData, PlayerClass kit) {
         playerData.selectedClass = kit;
 
-        MutableText text = FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "selected_class",
-                DtmUtil.getText("class", kit.name()).formatted(Formatting.GOLD)));
+        MutableComponent text = FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "selected_class",
+                DtmUtil.getText("class", kit.name()).withStyle(ChatFormatting.GOLD)));
 
-        player.sendMessage(text, false);
+        player.sendSystemMessage(text, false);
         boolean isIn = false;
         if (game != null) {
             for (BlockBounds classChange : playerData.teamData.classChange) {
-                if (classChange.contains(player.getBlockPos())) {
+                if (classChange.contains(player.blockPosition())) {
                     isIn = true;
                     break;
                 }
@@ -136,7 +136,7 @@ public class ClassSelectorUI extends SimpleGui {
                 playerData.resetTimers();
                 game.setupPlayerClass(player, playerData);
             } else {
-                player.sendMessage(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "class_respawn")), false);
+                player.sendSystemMessage(FormattingUtil.format(FormattingUtil.GENERAL_PREFIX, FormattingUtil.GENERAL_STYLE, DtmUtil.getText("message", "class_respawn")), false);
             }
         }
     }

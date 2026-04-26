@@ -2,43 +2,44 @@ package eu.pb4.destroythemonument.items;
 
 import eu.pb4.destroythemonument.entities.DtmTntEntity;
 import eu.pb4.polymer.core.api.item.PolymerItem;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 public class DtmTntItem extends Item implements PolymerItem {
-    public DtmTntItem(Settings settings) {
+    public DtmTntItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        var stack = user.getStackInHand(hand);
-        if (!stack.isEmpty() && !user.getItemCooldownManager().isCoolingDown(stack)) {
-            stack.decrement(1);
-            user.getItemCooldownManager().set(stack, 20);
+    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+        var stack = user.getItemInHand(hand);
+        if (!stack.isEmpty() && !user.getCooldowns().isOnCooldown(stack)) {
+            stack.shrink(1);
+            user.getCooldowns().addCooldown(stack, 20);
             DtmTntEntity.createThrown(user);
-            return ActionResult.SUCCESS_SERVER;
+            return InteractionResult.SUCCESS_SERVER;
         }
         return super.use(world, user, hand);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        if (!context.getStack().isEmpty() && !context.getPlayer().getItemCooldownManager().isCoolingDown(context.getStack())) {
-            context.getPlayer().getItemCooldownManager().set(context.getStack(), 20);
-            context.getStack().decrement(1);
-            DtmTntEntity.createPlaced(context.getPlayer(), context.getBlockPos().offset(context.getSide()));
+    public InteractionResult useOn(UseOnContext context) {
+        if (!context.getItemInHand().isEmpty() && !context.getPlayer().getCooldowns().isOnCooldown(context.getItemInHand())) {
+            context.getPlayer().getCooldowns().addCooldown(context.getItemInHand(), 20);
+            context.getItemInHand().shrink(1);
+            DtmTntEntity.createPlaced(context.getPlayer(), context.getClickedPos().relative(context.getClickedFace()));
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class DtmTntItem extends Item implements PolymerItem {
     }
 
     @Override
-    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context) {
+    public @Nullable Identifier getPolymerItemModel(ItemStack stack, PacketContext context, HolderLookup.Provider provider) {
         return null;
     }
 }

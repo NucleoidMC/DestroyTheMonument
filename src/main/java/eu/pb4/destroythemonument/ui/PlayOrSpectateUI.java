@@ -2,23 +2,23 @@ package eu.pb4.destroythemonument.ui;
 
 import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.other.DtmUtil;
-import eu.pb4.sgui.api.GuiHelpers;
+import eu.pb4.sgui.api.SguiUtils;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Items;
 
 public class PlayOrSpectateUI extends SimpleGui {
     private boolean allowClosing = false;
 
-    public PlayOrSpectateUI(ServerPlayerEntity player, BaseGameLogic game) {
-        super(ScreenHandlerType.GENERIC_9X3, player, false);
+    public PlayOrSpectateUI(ServerPlayer player, BaseGameLogic game) {
+        super(MenuType.GENERIC_9x3, player, false);
         this.setTitle(DtmUtil.getText("ui", "join_selector.title"));
         this.setSlot(11, new GuiElementBuilder(Items.DIAMOND_SWORD)
-                .setName(DtmUtil.getText("ui", "join_selector.play").formatted(Formatting.GOLD))
+                .setName(DtmUtil.getText("ui", "join_selector.play").withStyle(ChatFormatting.GOLD))
                 .hideDefaultTooltip()
                 .setCallback((x, y, z, p) -> {
                     this.allowClosing = true;
@@ -28,14 +28,14 @@ public class PlayOrSpectateUI extends SimpleGui {
 
         this.setSlot(15, new GuiElementBuilder(Items.ENDER_EYE)
                 .hideDefaultTooltip()
-                .setName(DtmUtil.getText("ui", "join_selector.spectate").formatted(Formatting.GOLD))
+                .setName(DtmUtil.getText("ui", "join_selector.spectate").withStyle(ChatFormatting.GOLD))
                 .setCallback((x, y, z, p) -> {
                     this.allowClosing = true;
                     this.close();
                 }));
 
 
-        var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Text.empty()).asStack();
+        var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty()).asStack();
 
         for (int x = 0; x < 9; x++) {
             this.setSlot(x, empty);
@@ -50,8 +50,8 @@ public class PlayOrSpectateUI extends SimpleGui {
         return this.allowClosing;
     }
 
-    public static void open(ServerPlayerEntity player, BaseGameLogic logic) {
-        if (GuiHelpers.getCurrentGui(player) instanceof PlayOrSpectateUI) {
+    public static void open(ServerPlayer player, BaseGameLogic logic) {
+        if (SguiUtils.getCurrentGui(player) instanceof PlayOrSpectateUI) {
             return;
         }
 

@@ -6,22 +6,22 @@ import eu.pb4.destroythemonument.game.logic.BaseGameLogic;
 import eu.pb4.destroythemonument.game.GameConfig;
 import eu.pb4.destroythemonument.game.data.TeamData;
 import eu.pb4.destroythemonument.game.map.generator.TemplateWithLayerGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import org.apache.commons.lang3.mutable.MutableInt;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 import xyz.nucleoid.map_templates.MapTemplateSerializer;
 import xyz.nucleoid.map_templates.TemplateRegion;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,8 +38,8 @@ public final class TemplateGameMap extends GameMap {
         this.unbreakable.addAll(template.getMetadata().getRegionBounds("unbreakable").toList());
         for (BlockPos pos : Objects.requireNonNull(template.getMetadata().getFirstRegionBounds("general_spawn"))) {
             BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || blockState.isIn(DTM.SPAWNABLE_TAG)) {
-                this.validSpawn.add(pos.toImmutable());
+            if (blockState.isAir() || blockState.is(DTM.SPAWNABLE_TAG)) {
+                this.validSpawn.add(pos.immutable());
             }
         }
         this.taters.addAll(template.getMetadata().getRegionBounds("tater").map(BlockBounds::min).toList());
@@ -48,7 +48,7 @@ public final class TemplateGameMap extends GameMap {
 
     public static GameMap create(MinecraftServer server, MapConfig config) throws IOException {
         MapTemplate template = MapTemplateSerializer.loadFromResource(server, config.id());
-        template.setBiome(RegistryKey.of(RegistryKeys.BIOME, config.biome()));
+        template.setBiome(ResourceKey.create(Registries.BIOME, config.biome()));
         GameMap map = new TemplateGameMap(template, config);
         return map;
     }
@@ -71,18 +71,18 @@ public final class TemplateGameMap extends GameMap {
         assert spawn != null;
         for (BlockPos pos : spawn.getBounds()) {
             BlockState blockState = this.template.getBlockState(pos);
-            if (blockState.isAir() || blockState.isIn(DTM.SPAWNABLE_TAG)) {
-                validSpawnPos.add(pos.toImmutable());
+            if (blockState.isAir() || blockState.is(DTM.SPAWNABLE_TAG)) {
+                validSpawnPos.add(pos.immutable());
             }
         }
 
-        data.setTeamRegions(validSpawnPos, MathHelper.wrapDegrees(spawn.getData().getFloat("yaw", 0)), monuments, classChange, this, config);
+        data.setTeamRegions(validSpawnPos, Mth.wrapDegrees(spawn.getData().getFloatOr("yaw", 0)), monuments, classChange, this, config);
     }
 
     public void onGameStart(BaseGameLogic logic) {
         for (var bound : this.destroyOnStart) {
             for (var pos : bound) {
-                this.world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_LISTENERS, 1);
+                this.world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS, 1);
             }
         }
     }

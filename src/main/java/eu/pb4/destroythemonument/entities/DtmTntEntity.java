@@ -3,24 +3,30 @@ package eu.pb4.destroythemonument.entities;
 import eu.pb4.destroythemonument.DTM;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.EntityExplosionBehavior;
-import net.minecraft.world.explosion.Explosion;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.EntityBasedExplosionDamageCalculator;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import xyz.nucleoid.packettweaker.PacketContext;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
 import xyz.nucleoid.plasmid.api.util.PlayerRef;
 
@@ -37,18 +43,18 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     @Nullable
     public LivingEntity causingEntity;
 
-    public DtmTntEntity(EntityType<DtmTntEntity> entityType, World world) {
+    public DtmTntEntity(EntityType<DtmTntEntity> entityType, Level world) {
         super(entityType, world);
     }
 
     public static void createThrown(LivingEntity player) {
-        var tnt = new DtmTntEntity(DtmEntities.TNT, player.getWorld());
+        var tnt = new DtmTntEntity(DtmEntities.TNT, player.level());
         tnt.causingEntity = player;
         tnt.hitBlock = true;
         tnt.fuse = 40;
 
         var game = DtmUtil.getGame(player);
-        if (game != null && player instanceof ServerPlayerEntity serverPlayerEntity) {
+        if (game != null && player instanceof ServerPlayer serverPlayerEntity) {
             var pData = game.participants.get(PlayerRef.of(serverPlayerEntity));
 
             if (pData != null) {
@@ -56,28 +62,28 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             }
         }
 
-        double pitchRad = Math.toRadians(-player.getPitch());
-        double yawRad = Math.toRadians(player.getYaw() - 180);
+        double pitchRad = Math.toRadians(-player.getXRot());
+        double yawRad = Math.toRadians(player.getYRot() - 180);
 
         double horizontal = Math.cos(pitchRad);
-        tnt.setVelocity(new Vec3d(
+        tnt.setDeltaMovement(new Vec3(
                 Math.sin(yawRad) * horizontal,
                 Math.sin(pitchRad),
                 -Math.cos(yawRad) * horizontal
-        ).multiply(0.8));
-        tnt.setPosition(player.getX() + Math.sin(yawRad) * horizontal * 0.3, player.getEyeY() + Math.sin(pitchRad) * 0.3, player.getZ() + -Math.cos(yawRad) * horizontal * 0.3);
+        ).scale(0.8));
+        tnt.setPos(player.getX() + Math.sin(yawRad) * horizontal * 0.3, player.getEyeY() + Math.sin(pitchRad) * 0.3, player.getZ() + -Math.cos(yawRad) * horizontal * 0.3);
 
-        player.getWorld().spawnEntity(tnt);
+        player.level().addFreshEntity(tnt);
     }
 
     public static boolean createPlaced(LivingEntity player, BlockPos pos) {
-        var tnt = new DtmTntEntity(DtmEntities.TNT, player.getWorld());
-        tnt.setPosition(Vec3d.ofBottomCenter(pos));
+        var tnt = new DtmTntEntity(DtmEntities.TNT, player.level());
+        tnt.setPos(Vec3.atBottomCenterOf(pos));
         tnt.causingEntity = player;
         tnt.fuse = 20;
 
         var game = DtmUtil.getGame(player);
-        if (game != null && player instanceof ServerPlayerEntity serverPlayerEntity) {
+        if (game != null && player instanceof ServerPlayer serverPlayerEntity) {
             var pData = game.participants.get(PlayerRef.of(serverPlayerEntity));
 
             if (pData != null) {
@@ -85,71 +91,71 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             }
         }
 
-        player.getWorld().spawnEntity(tnt);
+        player.level().addFreshEntity(tnt);
         return true;
     }
 
     @Override
-    public boolean handleAttack(Entity attacker) {
-        double pitchRad = Math.toRadians(-attacker.getPitch());
-        double yawRad = Math.toRadians(attacker.getYaw() - 180);
+    public boolean skipAttackInteraction(Entity attacker) {
+        double pitchRad = Math.toRadians(-attacker.getXRot());
+        double yawRad = Math.toRadians(attacker.getYRot() - 180);
         double horizontal = Math.cos(pitchRad);
 
-        this.setVelocity(this.getVelocity().add(new Vec3d(
+        this.setDeltaMovement(this.getDeltaMovement().add(new Vec3(
                 Math.sin(yawRad) * horizontal,
                 Math.sin(pitchRad),
                 -Math.cos(yawRad) * horizontal
-        ).multiply(attacker == this.causingEntity ? 0.12 : 0.15)));
+        ).scale(attacker == this.causingEntity ? 0.12 : 0.15)));
 
         this.fuse += 5;
 
         return false;
     }
 
-    protected MoveEffect getMoveEffect() {
-        return MoveEffect.NONE;
+    protected MovementEmission getMovementEmission() {
+        return MovementEmission.NONE;
     }
 
     @Override
-    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
         return false;
     }
 
-    public boolean canHit() {
+    public boolean isPickable() {
         return !this.isRemoved();
     }
 
     @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
+    protected void readAdditionalSaveData(ValueInput input) {
 
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
+    protected void addAdditionalSaveData(ValueOutput output) {
 
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
     }
 
     public void tick() {
-        if (!this.hasNoGravity()) {
-            this.setVelocity(this.getVelocity().add(0.0D, -0.04D, 0.0D));
+        if (!this.isNoGravity()) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.04D, 0.0D));
         }
 
-        if (this.age > 1 && this.hitBlock) {
-            var bb = this.getBoundingBox().stretch(this.getVelocity());
+        if (this.tickCount > 1 && this.hitBlock) {
+            var bb = this.getBoundingBox().expandTowards(this.getDeltaMovement());
 
-            for (var blockPos : BlockPos.iterateOutwards(this.getBlockPos(), 1, 1, 1)) {
-                BlockState blockState = this.getWorld().getBlockState(blockPos);
+            for (var blockPos : BlockPos.withinManhattan(this.blockPosition(), 1, 1, 1)) {
+                BlockState blockState = this.level().getBlockState(blockPos);
 
                 if (!blockState.isAir()) {
-                    var voxelShape = blockState.getCollisionShape(this.getWorld(), blockPos);
+                    var voxelShape = blockState.getCollisionShape(this.level(), blockPos);
                     if (!voxelShape.isEmpty()) {
-                        for (var box : voxelShape.getBoundingBoxes()) {
-                            if (box.offset(blockPos).intersects(bb)) {
+                        for (var box : voxelShape.toAabbs()) {
+                            if (box.move(blockPos).intersects(bb)) {
                                 this.onBlockHit();
                                 return;
                             }
@@ -160,10 +166,10 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         }
 
 
-        this.move(MovementType.SELF, this.getVelocity());
-        this.setVelocity(this.getVelocity().multiply(0.98D));
-        if (this.isOnGround()) {
-            this.setVelocity(this.getVelocity().multiply(0.7D, -0.5D, 0.7D));
+        this.move(MoverType.SELF, this.getDeltaMovement());
+        this.setDeltaMovement(this.getDeltaMovement().scale(0.98D));
+        if (this.onGround()) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.7D, -0.5D, 0.7D));
         }
 
         int i = this.fuse - 1;
@@ -173,11 +179,11 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
             this.explode();
             return;
         } else {
-            this.updateWaterState();
+            //this.updateInWaterStateAndDoFluidPushing();
         }
 
-        if (this.age > 1 && this.hitEntity) {
-            for (var entity : this.getWorld().getOtherEntities(this, this.getBoundingBox())) {
+        if (this.tickCount > 1 && this.hitEntity) {
+            for (var entity : this.level().getEntities(this, this.getBoundingBox())) {
                 this.onEntityHit(entity);
                 return;
             }
@@ -192,11 +198,11 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         if (this.team == null) {
             this.explode();
             return;
-        } else if (entity instanceof ProjectileEntity projectile) {
+        } else if (entity instanceof Projectile projectile) {
             entity = projectile.getOwner();
         }
 
-        if (entity instanceof PlayerEntity player) {
+        if (entity instanceof Player player) {
             var game = DtmUtil.getGame(player);
 
             if (game != null) {
@@ -218,10 +224,10 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
 
     private void explode() {
         this.discard();
-        this.getWorld().createExplosion(this, this.getDamageSources().explosion(this, this.causingEntity), new CustomExplosionBehaviour(this), this.getBoundingBox().getCenter(), 2.8f, false, World.ExplosionSourceType.TNT);
+        this.level().explode(this, this.damageSources().explosion(this, this.causingEntity), new CustomExplosionBehaviour(this), this.getBoundingBox().getCenter(), 2.8f, false, Level.ExplosionInteraction.TNT);
     }
 
-    protected float getEyeHeight(EntityPose pose, EntityDimensions dimensions) {
+    protected float getEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0.15F;
     }
 
@@ -231,7 +237,7 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
     }
 
 
-    public static class CustomExplosionBehaviour extends EntityExplosionBehavior {
+    public static class CustomExplosionBehaviour extends EntityBasedExplosionDamageCalculator {
         private final DtmTntEntity entity;
 
         public CustomExplosionBehaviour(DtmTntEntity entity) {
@@ -240,25 +246,25 @@ public class DtmTntEntity extends Entity implements PolymerEntity {
         }
 
         @Override
-        public Optional<Float> getBlastResistance(Explosion explosion, BlockView world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-            var out = super.getBlastResistance(explosion, world, pos, blockState, fluidState);
-            return out.map(x -> blockState.isIn(DTM.BUILDING_BLOCKS) ? 0.8f : Math.max(2.8f, x));
+        public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
+            var out = super.getBlockExplosionResistance(explosion, world, pos, blockState, fluidState);
+            return out.map(x -> blockState.is(DTM.BUILDING_BLOCKS) ? 0.8f : Math.max(2.8f, x));
         }
 
         @Override
-        public float getKnockbackModifier(Entity entity) {
+        public float getKnockbackMultiplier(Entity entity) {
             return 1.4f;
         }
 
         @Override
-        public float calculateDamage(Explosion explosion, Entity entity, float amount) {
-            double x = entity.getX() - explosion.getPosition().x;
-            double y = (entity instanceof DtmTntEntity ? entity.getY() : entity.getEyeY()) - explosion.getPosition().y;
-            double z = entity.getZ() - explosion.getPosition().z;
+        public float getEntityDamageAmount(Explosion explosion, Entity entity, float amount) {
+            double x = entity.getX() - explosion.center().x;
+            double y = (entity instanceof DtmTntEntity ? entity.getY() : entity.getEyeY()) - explosion.center().y;
+            double z = entity.getZ() - explosion.center().z;
             double distance = Math.sqrt(x * x + y * y + z * z);
 
-            float doublePower = explosion.getPower() * 2.0F;
-            double w = Math.sqrt(entity.squaredDistanceTo(explosion.getPosition())) / (double) doublePower;
+            float doublePower = explosion.radius() * 2.0F;
+            double w = Math.sqrt(entity.distanceToSqr(explosion.center())) / (double) doublePower;
 
             if (distance != 0.0D) {
                 double ac = (1.0D - w) * amount;

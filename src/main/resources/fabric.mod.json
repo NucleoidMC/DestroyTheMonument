@@ -18,8 +18,8 @@
     "destroythemonument.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.9.1",
-    "fabric": "*",
-    "plasmid": "0.6.x"
+    "fabricloader": ">=0.16.1",
+    "fabric-api": "*",
+    "plasmid": "0.7.x"
   }
 }

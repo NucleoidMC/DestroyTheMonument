@@ -11,20 +11,7 @@ import eu.pb4.destroythemonument.game.map.GameMap;
 import eu.pb4.destroythemonument.other.DtmUtil;
 import eu.pb4.destroythemonument.other.FormattingUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import net.minecraft.network.packet.s2c.play.ExplosionS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.scoreboard.number.BlankNumberFormat;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.util.random.WeightedList;
 import xyz.nucleoid.plasmid.api.game.GameActivity;
 import xyz.nucleoid.plasmid.api.game.GameSpace;
 import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
@@ -35,6 +22,20 @@ import xyz.nucleoid.stimuli.event.EventResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.numbers.BlankFormat;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.Vec3;
 
 public class StandardGameLogic extends BaseGameLogic {
     protected TeamData currentSidebarTeam = null;
@@ -43,53 +44,53 @@ public class StandardGameLogic extends BaseGameLogic {
 
     public StandardGameLogic(GameSpace gameSpace, GameMap map, GameConfig config, PlayerMap<PlayerData> participants, Teams teams) {
         super(gameSpace, map, config, participants, teams);
-        List<Text> texts = new ArrayList<>();
+        List<Component> texts = new ArrayList<>();
 
-        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
-        texts.add(Text.literal("           Destroy The Monument").formatted(Formatting.GOLD, Formatting.BOLD));
-        texts.add(DtmUtil.getText("message", "about").formatted(Formatting.WHITE));
-        texts.add(Text.literal("+--------------------------------------+").formatted(Formatting.DARK_GRAY));
+        texts.add(Component.literal("+--------------------------------------+").withStyle(ChatFormatting.DARK_GRAY));
+        texts.add(Component.literal("           Destroy The Monument").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        texts.add(DtmUtil.getText("message", "about").withStyle(ChatFormatting.WHITE));
+        texts.add(Component.literal("+--------------------------------------+").withStyle(ChatFormatting.DARK_GRAY));
 
-        for (Text text : texts) {
+        for (Component text : texts) {
             this.gameSpace.getPlayers().sendMessage(text);
         }
     }
 
-    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams, PlayerMap<PlayerData> participants, Teams teams) {
+    public static void open(GameSpace gameSpace, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayer> playerTeams, PlayerMap<PlayerData> participants, Teams teams) {
         gameSpace.setActivity(game -> {
             BaseGameLogic active = new StandardGameLogic(gameSpace, map, config, participants, teams);
             active.setupGame(game, map, config, playerTeams);
         });
     }
 
-    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayerEntity> playerTeams) {
+    public void setupGame(GameActivity game, GameMap map, GameConfig config, Multimap<GameTeamKey, ServerPlayer> playerTeams) {
         super.setupGame(game, map, config, playerTeams);
     }
 
     protected void maybeEliminate(TeamData teamData) {
         if (teamData.aliveMonuments.size() <= 0) {
-            for (ServerPlayerEntity player : this.gameSpace.getPlayers().participants()) {
+            for (ServerPlayer player : this.gameSpace.getPlayers().participants()) {
                 PlayerData dtmPlayer = this.participants.get(PlayerRef.of(player));
                 if (dtmPlayer != null && dtmPlayer.teamData == teamData) {
-                    player.changeGameMode(GameMode.SPECTATOR);
+                    player.setGameMode(GameType.SPECTATOR);
                 }
             }
         }
     }
 
     @Override
-    protected EventResult onPlayerBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos blockPos) {
+    protected EventResult onPlayerBreakBlock(ServerPlayer player, ServerLevel world, BlockPos blockPos) {
         PlayerData playerData = this.participants.get(PlayerRef.of(player));
         var monument = this.gameMap.getActiveMonument(blockPos);
 
         if (playerData != null && monument != null) {
             if (monument.teamData == playerData.teamData) {
-                player.sendMessage(DtmUtil.getText("message", "cant_break_own").formatted(Formatting.RED), true);
+                player.sendSystemMessage(DtmUtil.getText("message", "cant_break_own").withStyle(ChatFormatting.RED), true);
                 return EventResult.DENY;
             } else {
                 monument.setAlive(false);
 
-                Text text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
+                Component text = FormattingUtil.format(FormattingUtil.PICKAXE_PREFIX,
                         FormattingUtil.GENERAL_STYLE,
                         DtmUtil.getText("message", "monument_broken",
                                 player.getDisplayName(),
@@ -99,8 +100,8 @@ public class StandardGameLogic extends BaseGameLogic {
 
                 this.gameSpace.getPlayers().sendMessage(text);
                 this.maybeEliminate(monument.teamData);
-                this.gameSpace.getPlayers().sendPacket(new ExplosionS2CPacket( Vec3d.ofCenter(blockPos), Optional.empty(), ParticleTypes.EXPLOSION_EMITTER, SoundEvents.ENTITY_GENERIC_EXPLODE));
-                this.teams.getManager().playersIn(monument.teamData.team).playSound(SoundEvents.ENTITY_WITHER_SPAWN, SoundCategory.MASTER, 0.6f, 1f);
+                this.gameSpace.getPlayers().sendPacket(new ClientboundExplodePacket( Vec3.atCenterOf(blockPos), 5, 0, Optional.empty(), ParticleTypes.EXPLOSION_EMITTER, SoundEvents.GENERIC_EXPLODE, WeightedList.of()));
+                this.teams.getManager().playersIn(monument.teamData.team).playSound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.6f, 1f);
                 playerData.brokenMonuments += 1;
                 playerData.addToTimers(20 * 20);
                 this.statistics.forPlayer(player).increment(DtmStatistics.MONUMENTS_DESTROYED, 1);
@@ -112,7 +113,7 @@ public class StandardGameLogic extends BaseGameLogic {
     }
 
     @Override
-    public void setPlayerSidebar(ServerPlayerEntity player, PlayerData playerData) {
+    public void setPlayerSidebar(ServerPlayer player, PlayerData playerData) {
         playerData.sidebar = this.globalSidebar;
         this.globalSidebar.addPlayer(player);
     }
@@ -209,10 +210,10 @@ public class StandardGameLogic extends BaseGameLogic {
         boolean miniCompact = (monumentsSize + 2) * this.sidebarTeams.size() > 11;
         boolean compact = (monumentsSize + 1) * this.sidebarTeams.size() > 11;
 
-        this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true)));
-        this.globalSidebar.setDefaultNumberFormat(BlankNumberFormat.INSTANCE);
+        this.globalSidebar.setTitle(DtmUtil.getText("sidebar", "standard_title").setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
+        this.globalSidebar.setDefaultNumberFormat(BlankFormat.INSTANCE);
         this.globalSidebar.set(b -> {
-            b.add(Text.empty());
+            b.add(Component.empty());
 
             if (compact) {
                 for (var teamData : this.sidebarTeams) {
@@ -230,13 +231,13 @@ public class StandardGameLogic extends BaseGameLogic {
                         b.add((x) -> generateSidebarTitleForMonument(monument));
                     }
                     if (!miniCompact) {
-                        b.add(Text.empty());
+                        b.add(Component.empty());
                     }
                 }
             }
 
             if (compact || miniCompact) {
-                b.add(Text.empty());
+                b.add(Component.empty());
             }
 
             b.add((player) -> {
@@ -245,13 +246,13 @@ public class StandardGameLogic extends BaseGameLogic {
 
                     if (data != null) {
                         return DtmUtil.getText("sidebar", "stats",
-                                Text.literal("" + data.kills).formatted(Formatting.WHITE),
-                                Text.literal("" + data.deaths).formatted(Formatting.WHITE),
-                                Text.literal("" + data.brokenMonuments).formatted(Formatting.WHITE)
+                                Component.literal("" + data.kills).withStyle(ChatFormatting.WHITE),
+                                Component.literal("" + data.deaths).withStyle(ChatFormatting.WHITE),
+                                Component.literal("" + data.brokenMonuments).withStyle(ChatFormatting.WHITE)
                         ).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xf2a600)));
                     }
                 }
-                return Text.empty();
+                return Component.empty();
             });
 
             b.add((player) -> {
@@ -260,29 +261,29 @@ public class StandardGameLogic extends BaseGameLogic {
 
                 return FormattingUtil.formatScoreboard(FormattingUtil.TIME_PREFIX,
                         DtmUtil.getText("sidebar", "time",
-                                Text.literal(String.format("%02d:%02d", minutes, seconds)).formatted(Formatting.WHITE)).formatted(Formatting.GREEN));
+                                Component.literal(String.format("%02d:%02d", minutes, seconds)).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GREEN));
             });
         });
     }
 
-    private Text generateSidebarTitleForTeam(TeamData data) {
+    private Component generateSidebarTitleForTeam(TeamData data) {
         if (data == null) {
-            return Text.empty();
+            return Component.empty();
         }
 
         int monuments = data.aliveMonuments.size();
-        return Text.literal("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
-                .append(Text.literal(" (").setStyle(FormattingUtil.PREFIX_STYLE))
-                .append(Text.literal("" + monuments).formatted(Formatting.WHITE))
-                .append(Text.literal("/").formatted(Formatting.GRAY))
-                .append(Text.literal("" + data.monumentStartingCount).formatted(Formatting.WHITE))
-                .append(Text.literal(")").setStyle(FormattingUtil.PREFIX_STYLE));
+        return Component.literal("").append(DtmUtil.getTeamText(data).setStyle(Style.EMPTY.withColor(data.getConfig().chatFormatting()).withBold(true).withStrikethrough(monuments == 0)))
+                .append(Component.literal(" (").setStyle(FormattingUtil.PREFIX_STYLE))
+                .append(Component.literal("" + monuments).withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("/").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("" + data.monumentStartingCount).withStyle(ChatFormatting.WHITE))
+                .append(Component.literal(")").setStyle(FormattingUtil.PREFIX_STYLE));
     }
 
-    private Text generateSidebarTitleForMonument(Monument monument) {
-        return Text.literal("").append(Text.literal("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
+    private Component generateSidebarTitleForMonument(Monument monument) {
+        return Component.literal("").append(Component.literal("» ").setStyle(FormattingUtil.PREFIX_SCOREBOARD_STYLE))
                 .append(monument.getName())
-                .append(Text.literal(" " + (monument.isAlive() ? FormattingUtil.HEART_PREFIX : FormattingUtil.X)).setStyle(Style.EMPTY.withColor(monument.isAlive() ? Formatting.GREEN : Formatting.RED)));
+                .append(Component.literal(" " + (monument.isAlive() ? FormattingUtil.HEART_PREFIX : FormattingUtil.X)).setStyle(Style.EMPTY.withColor(monument.isAlive() ? ChatFormatting.GREEN : ChatFormatting.RED)));
     }
 }
 
