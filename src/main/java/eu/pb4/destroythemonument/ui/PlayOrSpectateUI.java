@@ -35,7 +35,7 @@ public class PlayOrSpectateUI extends SimpleGui {
                 }));
 
 
-        var empty = new GuiElementBuilder(Items.GRAY_STAINED_GLASS_PANE).setName(Component.empty()).asStack();
+        var empty = new GuiElementBuilder(Items.STAINED_GLASS_PANE.gray()).setName(Component.empty()).asStack();
 
         for (int x = 0; x < 9; x++) {
             this.setSlot(x, empty);

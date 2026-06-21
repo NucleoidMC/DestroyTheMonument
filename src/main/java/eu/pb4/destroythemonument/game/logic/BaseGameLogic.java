@@ -52,11 +52,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
@@ -606,7 +602,7 @@ public abstract class BaseGameLogic {
         if (this.gameMap.isUnbreakable(blockPos)) {
             return EventResult.DENY;
         } else if (this.gameMap.isTater(blockPos)) {
-            Entity entity = new LightningBolt(EntityType.LIGHTNING_BOLT, player.level());
+            Entity entity = new LightningBolt(EntityTypes.LIGHTNING_BOLT, player.level());
             entity.absSnapTo(player.getX(), player.getY(), player.getZ());
             player.level().addFreshEntity(entity);
             player.addEffect(new MobEffectInstance(MobEffects.WITHER, 6000, 2));
